@@ -6,7 +6,8 @@
         <q-btn color="secondary" label="確認班級" @click="confirmClass" />
       </div>
     </div>
-    <h4 class="beautiful-text">{{userClass}} 課表</h4>
+    <h4 class="beautiful-text">{{ userClass }} 課表</h4>
+    <h4 class="beautiful-text">{{ data }}</h4>
     <img
       alt="class schedule"
       :src="getClassScheduleImageURL"
@@ -42,17 +43,20 @@
   margin-top: 10px; /* Add spacing above the text */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a text shadow */
 }
+
+
 </style>
-
-
 <script>
+
+
 import { defineComponent } from "vue";
+import jsonData from 'src/assets/data.json';
 
 export default {
   data() {
     return {
       userClass: "000",
-      userTempClass: "227"
+      userTempClass: "227",
     };
   },
   methods: {

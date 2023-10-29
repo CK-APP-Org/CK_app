@@ -7,6 +7,7 @@
       </div>
     </div>
     <h4 class="beautiful-text">{{ userClass }} 課表</h4>
+
     <h4 class="beautiful-text">{{ data }}</h4>
     <img
       alt="class schedule"
@@ -34,23 +35,19 @@
 
 .beautiful-text {
   font-size: 24px;
-  color: #007BFF;
+  color: #007bff;
   font-weight: bold;
   text-transform: uppercase;
   text-decoration: underline;
-  font-family: 'Arial', sans-serif; /* Use a specific font */
+  font-family: "Arial", sans-serif; /* Use a specific font */
   letter-spacing: 2px; /* Increase letter spacing */
   margin-top: 10px; /* Add spacing above the text */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a text shadow */
 }
-
-
 </style>
 <script>
-
-
 import { defineComponent } from "vue";
-import jsonData from 'src/assets/data.json';
+import jsonData from "src/assets/data.json";
 
 export default {
   data() {
@@ -63,14 +60,14 @@ export default {
     confirmClass() {
       alert("成功更改班級為" + this.userTempClass);
       this.userClass = this.userTempClass;
-    }
+    },
   },
   computed: {
     getClassScheduleImageURL() {
-      const imageURL = `src/assets/${this.userClass}schedule.png`;
+      const imageURL = `src/assets/schedule/${this.userClass}/page-1.jpg`;
       console.log("Image URL:", imageURL);
       return imageURL;
-    }
-  }
+    },
+  },
 };
 </script>

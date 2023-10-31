@@ -42,7 +42,7 @@
 .beautiful-text {
   font-size: 24px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #007bff;
+  color: #1683f7;
   font-weight: bold;
   text-transform: uppercase;
   text-decoration: underline;

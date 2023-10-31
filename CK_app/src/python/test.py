@@ -42,10 +42,15 @@ for class_num in classes:
     elements_with_focus_class = soup.find_all(class_='focus')
 
     # Extract and store the text content of these elements
+
     element_text = []
 
-    for element in elements_with_focus_class:
-        element_text.append(element.text)
+    for element in range(len(elements_with_focus_class)):
+        if element %5 == 0:
+            temp = []
+            if element != 0:
+                element_text.append(temp)
+        temp.append(elements_with_focus_class[element].text)
 
     # Add data into json file
     data[class_num] = element_text

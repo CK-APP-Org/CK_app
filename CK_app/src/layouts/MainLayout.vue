@@ -42,9 +42,9 @@ import EssentialLink from "components/EssentialLink.vue";
 const linksList = [
   {
     title: "熱食部菜單",
-    caption: "quasar.dev",
+    caption: "每週定期更新",
     icon: "school",
-    link: "https://quasar.dev",
+    link: "/Menu",
   },
   {
     title: "校園附近ubike資訊",

@@ -12,7 +12,7 @@
           v-if="$q.screen.gt.sm"
         />
         <q-toolbar-title class="absolute-center">
-          CK APP - An APP desigbed solely for CK students
+          CK APP
         </q-toolbar-title>
       </q-toolbar>
     </q-header>

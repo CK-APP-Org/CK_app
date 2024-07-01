@@ -1,110 +1,147 @@
 <template>
-  <q-page>
-    <!-- <div class="q-gutter-md">
-      <div class="input-container">
-        <q-input filled v-model="userTempClass" label="班級" />
-        <q-btn color="secondary" label="確認班級" @click="confirmClass" />
-      </div>
-    </div> -->
-    <h4 class="text-secondary">{{ userClass }} 課表</h4>
-    <div class="table-container">
-      <table class="responsive-table">
-        <tr v-for="row in scheduleData[userClass]" :key="row">
-          <td
-            class="class-text"
-            v-for="col in row"
-            :key="col"
-            @dblclick="customLabel"
-          >
-            {{ col }}
-          </td>
-        </tr>
-      </table>
-    </div>
-    <!-- <img
-      alt="class schedule"
-      :src="getClassScheduleImageURL"
-      class="responsive-image"
-    /> -->
-  </q-page>
+  <div class="q-pa-md">
+    <q-table
+      flat bordered
+      title="Schedule"
+      :rows="rows"
+      :columns="columns"
+      row-key="name"
+      :visible-columns="visibleColumns"
+      class="bg-yellow-1 text-gray text-bold bigger-text"
+      hide-bottom
+    >
+      <template v-slot:top>
+        <img
+          style="height: 50px; width: 50px"
+          src="https://cdn.iconscout.com/icon/free/png-512/free-book-1227-460350.png?f=webp&w=256"
+        >
+        <div class="text-h3">{{userClass}}課表</div>
+
+        <q-space />
+
+        <q-select
+          v-model="visibleColumns"
+          multiple
+          outlined
+          dense
+          options-dense
+          :display-value="$q.lang.table.columns"
+          emit-value
+          map-options
+          :options="columns"
+          option-value="name"
+          options-cover
+          style="min-width: 150px"
+        />
+      </template>
+    </q-table>
+  </div>
 </template>
 
-<style scoped>
-.input-container {
-  display: flex;
-  align-items: center;
-}
 
-.q-input {
-  flex: 1;
-  margin-right: 10px;
-}
-
-.responsive-image {
-  width: 100%;
-  height: auto;
-}
-
-.beautiful-text {
-  font-size: 24px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #1683f7;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-decoration: underline;
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.class-text {
-  font-size: 20px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #fc7e00;
-  font-weight: bold;
-  letter-spacing: auto;
-}
-.responsive-table {
-  border-collapse: collapse;
-  width: 100%; /* Make the table width 100% of its container */
-  height: 500px;
-}
-
-.responsive-table td {
-  border: 1px solid #000;
-  padding: 5px;
-  text-align: center;
-}
-.table-container {
-  overflow-x: auto; /* Add horizontal scrollbar if the table overflows the screen */
-}
-</style>
 <script>
-import { defineComponent } from "vue";
-import jsonData from "src/assets/data.json";
+import { ref } from 'vue'
+
+const columns = [
+  {
+    name: 'name',
+    required: true,
+    label: '節數',
+    align: 'left',
+    field: row => row.name,
+    format: val => `${val}`,
+    classes: 'smaller-column'
+  },
+  { name: 'Monday', align: 'center', label: '星期一', field: 'Monday'},
+  { name: 'Tuesday', align: 'center', label: '星期二', field: 'Tuesday'},
+  { name: 'Wednesday', align: 'center', label: '星期三', field: 'Wednesday' },
+  { name: 'Thursday', align: 'center', label: '星期四', field: 'Thursday' },
+  { name: 'Friday', align: 'center', label: '星期五', field: 'Friday' },
+]
+
+const rows = [
+  {
+    name: '第一節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第二節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第三節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第四節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第五節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第六節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+  {
+    name: '第七節',
+    Monday: "選修物理",
+    Tuesday: "選修物理",
+    Wednesday: "選修化學",
+    Thursday: "選修化學",
+    Friday: "多元選修",
+  },
+]
 
 export default {
-  data() {
+  setup () {
     return {
-      userClass: 227,
-      userTempClass: 227,
-      scheduleData: jsonData,
-    };
+      visibleColumns: ref(['name', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']),
+      columns,
+      rows,
+      userClass: "217"
+    }
   },
-  methods: {
-    confirmClass() {
-      alert("成功更改班級為" + this.userTempClass);
-      this.userClass = this.userTempClass;
-    },
-    customLabel() {
-      alert("Still in development");
-    },
-  },
-  computed: {
-    getClassScheduleImageURL() {
-      const imageURL = `src/assets/schedule/${this.userClass}/page-1.jpg`;
-      console.log("Image URL:", imageURL);
-      return imageURL;
-    },
-  },
-};
+}
 </script>
+
+<style>
+.bigger-text .q-table tbody td {
+  font-size: 2.5em;
+}
+
+.bigger-text .q-table thead tr th {
+  font-size: 1.5em;
+}
+
+.bigger-text .q-table thead tr th.smaller-column,
+.bigger-text .q-table tbody td.smaller-column {
+  font-size: 1.35em;
+  width: 40px;
+}
+</style>

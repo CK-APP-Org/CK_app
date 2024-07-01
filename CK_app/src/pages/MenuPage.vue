@@ -1,5 +1,7 @@
 <template>
-  <q-page>hi </q-page>
+  <q-page
+    >Menu</q-page
+  >
 </template>
 
 <style></style>

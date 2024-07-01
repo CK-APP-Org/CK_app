@@ -1,27 +1,33 @@
 <template>
   <q-page>
-    <div class="q-gutter-md">
+    <!-- <div class="q-gutter-md">
       <div class="input-container">
-        <q-input filled v-model="userTempClass" label="班級 (ex: 227)" />
+        <q-input filled v-model="userTempClass" label="班級" />
         <q-btn color="secondary" label="確認班級" @click="confirmClass" />
       </div>
-    </div>
-    <h4 class="beautiful-text">{{ userClass }} 課表, double click class to customize</h4>
+    </div> -->
+    <h4 class="text-secondary">{{ userClass }} 課表</h4>
     <div class="table-container">
       <table class="responsive-table">
         <tr v-for="row in scheduleData[userClass]" :key="row">
-          <td class="class-text" v-for="col in row" :key="col" @dblclick="customLabel">{{ col }}</td>
+          <td
+            class="class-text"
+            v-for="col in row"
+            :key="col"
+            @dblclick="customLabel"
+          >
+            {{ col }}
+          </td>
         </tr>
       </table>
     </div>
-    <img
+    <!-- <img
       alt="class schedule"
       :src="getClassScheduleImageURL"
       class="responsive-image"
-    />
+    /> -->
   </q-page>
 </template>
-
 
 <style scoped>
 .input-container {
@@ -50,7 +56,7 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.class-text{
+.class-text {
   font-size: 20px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #fc7e00;
@@ -90,8 +96,8 @@ export default {
       this.userClass = this.userTempClass;
     },
     customLabel() {
-      alert("Still in development")
-    }
+      alert("Still in development");
+    },
   },
   computed: {
     getClassScheduleImageURL() {

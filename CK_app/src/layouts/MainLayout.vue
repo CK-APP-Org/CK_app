@@ -84,6 +84,11 @@ export default {
           link: "/",
         },
         {
+          label: "行事曆",
+          icon: "calendar_month",
+          link: "/todo",
+        },
+        {
           label: "Youbike即時",
           icon: "directions_bike",
           link: "/Youbike",
@@ -97,6 +102,11 @@ export default {
           label: "設定",
           icon: "settings",
           link: "/settings",
+        },
+        {
+          label: "關於",
+          icon: "info",
+          link: "/about",
         },
       ],
     };

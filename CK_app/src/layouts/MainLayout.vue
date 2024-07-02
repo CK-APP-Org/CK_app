@@ -79,7 +79,7 @@ export default {
       drawer: false,
       menuItems: [
         {
-          label: "首頁",
+          label: "首頁/課表",
           icon: "home",
           link: "/",
         },

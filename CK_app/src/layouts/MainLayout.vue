@@ -29,7 +29,7 @@
           <q-item class="q-pa-md">
             <q-item-section>
               <q-item-label class="text-h6 text-weight-bold text-gray"
-                >選單</q-item-label
+                >功能選單</q-item-label
               >
             </q-item-section>
           </q-item>
@@ -97,6 +97,11 @@ export default {
           label: "熱食部菜單",
           icon: "dining",
           link: "/menu",
+        },
+        {
+          label: "校網公告",
+          icon: "newspaper",
+          link: "/news",
         },
         {
           label: "設定",

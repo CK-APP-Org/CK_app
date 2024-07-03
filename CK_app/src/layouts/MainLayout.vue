@@ -79,9 +79,14 @@ export default {
       drawer: false,
       menuItems: [
         {
-          label: "首頁",
+          label: "首頁/課表",
           icon: "home",
           link: "/",
+        },
+        {
+          label: "行事曆",
+          icon: "calendar_month",
+          link: "/todo",
         },
         {
           label: "Youbike即時",
@@ -97,6 +102,11 @@ export default {
           label: "設定",
           icon: "settings",
           link: "/settings",
+        },
+        {
+          label: "關於",
+          icon: "info",
+          link: "/about",
         },
       ],
     };

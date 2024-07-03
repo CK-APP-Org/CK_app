@@ -4,7 +4,7 @@ const routes = [
   {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
+    children: [{ path: "", component: () => import("src/pages/HomePage.vue") }],
   },
   {
     path: "/youbike",
@@ -20,6 +20,16 @@ const routes = [
     path: "/settings",
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/SettingsPage.vue") }],
+  },
+  {
+    path: "/about",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/AboutPage.vue") }],
+  },
+  {
+    path: "/todo",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/TodoPage.vue") }],
   },
 
   // Always leave this as last one,

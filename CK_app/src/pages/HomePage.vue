@@ -34,7 +34,6 @@
         />
       </template>
 
-
       <template v-slot:body-cell="props">
         <q-td :props="props" :class="{ 'split-cell': props.col.name !== 'name' }">
           <template v-if="props.col.name !== 'name'">
@@ -68,8 +67,8 @@
               >
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
-                    <q-item-section avatar>
-                      <q-avatar :color="opt.value" size="xs" />
+                    <q-item-section side>
+                      <q-chip :style="{ backgroundColor: opt.value }" square dense />
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>{{ opt.label }}</q-item-label>
@@ -82,6 +81,8 @@
           <template v-else>
             {{ props.row[props.col.name] }}
           </template>
+
+
         </q-td>
       </template>
     </q-table>
@@ -89,7 +90,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import scheduleData from '../data/ClassSchedule.json'
 
 const columns = [
   {
@@ -109,72 +111,12 @@ const columns = [
 
 export default {
   setup () {
-    const rows = ref([
-      {
-        name: '第一節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第二節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第三節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第四節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第五節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第六節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '第七節',
-        Monday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "選修物理", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Thursday: { subject: "選修化學", note: "", color: "#ffecb3" },
-        Friday: { subject: "多元選修", note: "", color: "#ffecb3" },
-      },
-      {
-        name: '課後',
-        Monday: { subject: "補習", note: "", color: "#ffecb3" },
-        Tuesday: { subject: "補習", note: "", color: "#ffecb3" },
-        Wednesday: { subject: "補習", note: "", color: "#ffecb3" },
-        Thursday: { subject: "補習", note: "", color: "#ffecb3" },
-        Friday: { subject: "補習", note: "", color: "#ffecb3" },
-      },
-    ])
+    const rows = ref([])
+
+    onMounted(() => {
+      rows.value = scheduleData
+      console.log(scheduleData)
+    })
 
     return {
       visibleColumns: ref(['name', 'Monday']),
@@ -187,10 +129,12 @@ export default {
       colorOptions: [
         { label: 'Default', value: '#ffecb3' },
         { label: 'Red', value: '#FFCCCB' },
+        { label: 'Orange', value: '#f5c884' },
+        { label: 'Yellow', value: '#FFFFE0' },
         { label: 'Green', value: '#90EE90' },
         { label: 'Blue', value: '#ADD8E6' },
-        { label: 'Yellow', value: '#FFFFE0' },
-        { label: 'Purple', value: '#C26FF9' }
+        { label: 'Purple', value: '#e299ff' },
+        { label: 'Pink', value: '#ffa1e4' }
       ]
     }
   },
@@ -220,7 +164,7 @@ export default {
 
 <style>
 .my-custom-table {
-  background-color: #e3f2fd;
+  background-color: var(--q-accent);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -228,14 +172,13 @@ export default {
 .my-custom-table .q-table__top {
   font-size: 1.5em;
   padding: 16px;
-  background-color: #1976d2;
+  background-color: var(--q-accent);
   color: white;
 }
 
 .my-custom-table .q-table thead tr th {
-  font-size: 1.2em;
-  background-color: #1976d2;
-  color: white;
+  font-size: 1.6em;
+  background-color: var(--q-accent);
 }
 
 .my-custom-table .q-table tbody td {
@@ -244,11 +187,12 @@ export default {
 }
 
 .my-custom-table .q-table tbody td.smaller-column {
-  font-size: 1em;
-  width: 40px;
+  font-size: 1.5em;
+  width: 20px;
   color: #0d47a1;
-  font-weight: bold;
-  padding: 8px;
+  font-weight: bolder;
+  padding: 0.2em;
+  text-align: center; /* Add this line to center the text */
 }
 
 .split-cell {
@@ -274,6 +218,7 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 5em;
 }
 
 .note-slot {

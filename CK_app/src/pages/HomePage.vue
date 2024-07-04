@@ -30,7 +30,7 @@
           option-value="name"
           options-cover
           style="min-width: 150px"
-          bg-color="purple-1"
+          bg-color="blue-1"
         />
       </template>
 
@@ -220,7 +220,7 @@ export default {
 
 <style>
 .my-custom-table {
-  background-color: #f5f5f5;
+  background-color: #e3f2fd;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -228,13 +228,13 @@ export default {
 .my-custom-table .q-table__top {
   font-size: 1.5em;
   padding: 16px;
-  background-color: #4a148c;
+  background-color: #1976d2;
   color: white;
 }
 
 .my-custom-table .q-table thead tr th {
   font-size: 1.2em;
-  background-color: #7e57c2;
+  background-color: #1976d2;
   color: white;
 }
 
@@ -246,7 +246,7 @@ export default {
 .my-custom-table .q-table tbody td.smaller-column {
   font-size: 1em;
   width: 40px;
-  color: #4a148c;
+  color: #0d47a1;
   font-weight: bold;
   padding: 8px;
 }

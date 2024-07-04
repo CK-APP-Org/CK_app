@@ -11,9 +11,7 @@
           @click="toggleDrawer"
           v-if="$q.screen.gt.sm"
         />
-        <q-toolbar-title class="absolute-center">
-          CK APP
-        </q-toolbar-title>
+        <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
       </q-toolbar>
     </q-header>
 

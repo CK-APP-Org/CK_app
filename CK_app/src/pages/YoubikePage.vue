@@ -3,7 +3,7 @@
     <div class="justify-center">
       <q-card
         inline
-        class="bg-orange-1 custom-card-margin"
+        class="secondary-light custom-card-margin"
         style="height: 125px; width: 350px"
         v-for="(station, key) in stations"
         :key="key"
@@ -20,21 +20,21 @@
               size="10px"
               padding="xs"
               round
-              color="deep-orange-3"
+              color="secondary"
               icon="edit"
               @click="openEditNicknameDialog(station.name)"
             />
           </div>
           <!--資訊-->
-          <div v-if="station.available_rent_bikes !== null">
+          <div class="text" v-if="station.available_rent_bikes !== null">
             可借車輛: {{ station.available_rent_bikes }}
           </div>
           <div v-else>Loading...</div>
-          <div v-if="station.available_return_bikes !== null">
+          <div class="text" v-if="station.available_return_bikes !== null">
             可停車位: {{ station.available_return_bikes }}
           </div>
           <div v-else>Loading...</div>
-          <div v-if="station.infoTime !== null">
+          <div class="text" v-if="station.infoTime !== null">
             更新時間: {{ timeAgo(station.infoTime) }}
           </div>
           <div v-else>Loading...</div>
@@ -44,7 +44,7 @@
           class="absolute-bottom-right delete-btn"
           size="sm"
           round
-          color="red"
+          color="accent"
           icon="delete"
           @click="openDeleteStationDialog(key)"
         />
@@ -55,7 +55,7 @@
     <q-page-sticky position="bottom-right" :offset="[16, 16]">
       <q-btn
         round
-        color="red-5"
+        color="accent"
         icon="add"
         fab
         @click="showAddStationDialog = true"
@@ -438,9 +438,12 @@ export default defineComponent({
 
 <style>
 .header {
-  font-weight: bold;
-  color: orangered;
-  font-size: 18px;
+  font-weight: Bold;
+  color: #a58d36;
+  font-size: 19px;
+}
+.text {
+  font-size: 16px;
 }
 .q-page {
   padding-top: 16px; /* Adjust top padding for small margin from the top */

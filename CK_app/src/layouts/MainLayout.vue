@@ -77,9 +77,14 @@ export default {
       drawer: false,
       menuItems: [
         {
-          label: "首頁/課表",
+          label: "首頁",
           icon: "home",
           link: "/",
+        },
+        {
+          label: "課表",
+          icon: "book",
+          link: "/schedule",
         },
         {
           label: "行事曆",

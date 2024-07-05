@@ -10,11 +10,10 @@
       :visible-columns="visibleColumns"
       class="my-custom-table"
       separator="cell"
-      :rows-per-page-options=[0]
+      :rows-per-page-options="[0]"
     >
-
       <template v-slot:top>
-        <div class="text-h5 text-bold">{{userClass}}  課表</div>
+        <div class="text-h5 text-bold">{{ userClass }} 課表</div>
 
         <q-space />
 
@@ -35,13 +34,29 @@
       </template>
 
       <template v-slot:body-cell="props">
-        <q-td :props="props" :class="{ 'split-cell': props.col.name !== 'name' }">
+        <q-td
+          :props="props"
+          :class="{ 'split-cell': props.col.name !== 'name' }"
+        >
           <template v-if="props.col.name !== 'name'">
-            <div class="cell-content" :style="{ backgroundColor: getCellColor(props.row, props.col.name) }">
-              <div class="subject-slot">{{ getCellSubject(props.row, props.col.name) }}</div>
-              <div class="note-slot">{{ getCellNote(props.row, props.col.name) }}</div>
+            <div
+              class="cell-content"
+              :style="{
+                backgroundColor: getCellColor(props.row, props.col.name),
+              }"
+            >
+              <div class="subject-slot">
+                {{ getCellSubject(props.row, props.col.name) }}
+              </div>
+              <div class="note-slot">
+                {{ getCellNote(props.row, props.col.name) }}
+              </div>
             </div>
-            <q-popup-edit v-model="props.row[props.col.name]" auto-save v-slot="scope">
+            <q-popup-edit
+              v-model="props.row[props.col.name]"
+              auto-save
+              v-slot="scope"
+            >
               <div class="text-h6 q-mb-md">自訂課表</div>
               <q-select
                 :options="options"
@@ -63,12 +78,18 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="updateCellColor(props.row, props.col.name, $event)"
+                @update:model-value="
+                  updateCellColor(props.row, props.col.name, $event)
+                "
               >
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
                     <q-item-section side>
-                      <q-chip :style="{ backgroundColor: opt.value }" square dense />
+                      <q-chip
+                        :style="{ backgroundColor: opt.value }"
+                        square
+                        dense
+                      />
                     </q-item-section>
                     <q-item-section>
                       <q-item-label>{{ opt.label }}</q-item-label>
@@ -81,8 +102,6 @@
           <template v-else>
             {{ props.row[props.col.name] }}
           </template>
-
-
         </q-td>
       </template>
     </q-table>
@@ -90,81 +109,93 @@
 </template>
 
 <script>
-import { onMounted, ref } from 'vue'
-import scheduleData from '../data/ClassSchedule.json'
+import { onMounted, ref } from "vue";
+import scheduleData from "../data/ClassSchedule.json";
 
 const columns = [
   {
-    name: 'name',
+    name: "name",
     required: true,
-    label: '節數',
-    align: 'left',
-    field: row => row.name,
-    classes: 'smaller-column'
+    label: "節數",
+    align: "left",
+    field: (row) => row.name,
+    classes: "smaller-column",
   },
-  { name: 'Monday', align: 'center', label: '星期一', field: 'Monday'},
-  { name: 'Tuesday', align: 'center', label: '星期二', field: 'Tuesday'},
-  { name: 'Wednesday', align: 'center', label: '星期三', field: 'Wednesday' },
-  { name: 'Thursday', align: 'center', label: '星期四', field: 'Thursday' },
-  { name: 'Friday', align: 'center', label: '星期五', field: 'Friday' },
-]
+  { name: "Monday", align: "center", label: "星期一", field: "Monday" },
+  { name: "Tuesday", align: "center", label: "星期二", field: "Tuesday" },
+  { name: "Wednesday", align: "center", label: "星期三", field: "Wednesday" },
+  { name: "Thursday", align: "center", label: "星期四", field: "Thursday" },
+  { name: "Friday", align: "center", label: "星期五", field: "Friday" },
+];
 
 export default {
-  setup () {
-    const rows = ref([])
+  setup() {
+    const rows = ref([]);
 
     onMounted(() => {
-      rows.value = scheduleData
-      console.log(scheduleData)
-    })
+      rows.value = scheduleData;
+      console.log(scheduleData);
+    });
 
     return {
-      visibleColumns: ref(['name', 'Monday']),
+      visibleColumns: ref(["name", "Monday"]),
       columns,
       rows,
       userClass: "217",
       options: [
-        '國文', '數學', '英文', '地理', '歷史', '公民', '生物', '物理', '化學', '地科', '音樂', '美術'
+        "國文",
+        "數學",
+        "英文",
+        "地理",
+        "歷史",
+        "公民",
+        "生物",
+        "物理",
+        "化學",
+        "地科",
+        "音樂",
+        "美術",
       ],
       colorOptions: [
-        { label: 'Default', value: '#ffecb3' },
-        { label: 'Red', value: '#FFCCCB' },
-        { label: 'Orange', value: '#f5c884' },
-        { label: 'Yellow', value: '#FFFFE0' },
-        { label: 'Green', value: '#90EE90' },
-        { label: 'Blue', value: '#ADD8E6' },
-        { label: 'Purple', value: '#e299ff' },
-        { label: 'Pink', value: '#ffa1e4' }
-      ]
-    }
+        { label: "Default", value: "#ffecb3" },
+        { label: "Red", value: "#FFCCCB" },
+        { label: "Orange", value: "#f5c884" },
+        { label: "Yellow", value: "#FFFFE0" },
+        { label: "Green", value: "#90EE90" },
+        { label: "Blue", value: "#ADD8E6" },
+        { label: "Purple", value: "#e299ff" },
+        { label: "Pink", value: "#ffa1e4" },
+      ],
+    };
   },
   methods: {
     getCellColor(row, colName) {
-      if (colName === 'name') return ''; // No color for the first column
-      return row[colName] && row[colName].color ? row[colName].color : '#ffecb3';
+      if (colName === "name") return ""; // No color for the first column
+      return row[colName] && row[colName].color
+        ? row[colName].color
+        : "#ffecb3";
     },
     getCellSubject(row, colName) {
-      if (colName === 'name') return row[colName]; // Return the period number for the first column
-      return row[colName] && row[colName].subject ? row[colName].subject : '';
+      if (colName === "name") return row[colName]; // Return the period number for the first column
+      return row[colName] && row[colName].subject ? row[colName].subject : "";
     },
     updateCellColor(row, colName, newColor) {
       if (row[colName]) {
         row[colName].color = newColor.value;
-        console.log(newColor)
+        console.log(newColor);
       }
     },
     getCellNote(row, colName) {
-      if (colName === 'name') return '';
-      return row[colName] && row[colName].note ? row[colName].note : '';
+      if (colName === "name") return "";
+      return row[colName] && row[colName].note ? row[colName].note : "";
     },
-
-  }
-}
+  },
+};
 </script>
 
 <style>
 .my-custom-table {
-  background-color: var(--q-accent);
+  background-color: var(--q-primary-accent);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -205,7 +236,8 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.subject-slot, .note-slot {
+.subject-slot,
+.note-slot {
   padding: 8px;
   display: flex;
   align-items: center;

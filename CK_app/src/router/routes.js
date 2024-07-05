@@ -7,6 +7,11 @@ const routes = [
     children: [{ path: "", component: () => import("src/pages/HomePage.vue") }],
   },
   {
+    path: "/schedule",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("src/pages/SchedulePage.vue") }],
+  },
+  {
     path: "/youbike",
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/YoubikePage.vue") }],

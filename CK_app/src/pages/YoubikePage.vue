@@ -18,11 +18,18 @@
           </div>
           <!--資訊-->
           <div class="text" v-if="station.available_rent_bikes !== null">
-            可借車輛: {{ station.available_rent_bikes }}
+            可借車輛:
+            <span :class="{ 'red-text': station.available_rent_bikes <= 3 }">{{
+              station.available_rent_bikes
+            }}</span>
           </div>
           <div v-else>Loading...</div>
           <div class="text" v-if="station.available_return_bikes !== null">
-            可停車位: {{ station.available_return_bikes }}
+            可停車位:
+            <span
+              :class="{ 'red-text': station.available_return_bikes <= 3 }"
+              >{{ station.available_return_bikes }}</span
+            >
           </div>
           <div v-else>Loading...</div>
           <div class="text" v-if="station.infoTime !== null">
@@ -471,6 +478,10 @@ export default defineComponent({
 }
 .text {
   font-size: 16px;
+}
+.red-text {
+  font-weight: Bold;
+  color: #c10015;
 }
 .q-page {
   padding-top: 16px; /* Adjust top padding for small margin from the top */

@@ -15,15 +15,6 @@
               {{ stationsNickname[station.name] }}&nbsp;
             </span>
             <span v-else> {{ station.name.substr(11) }}&nbsp; </span>
-            <!--按鈕(修改暱稱)-->
-            <q-btn
-              size="10px"
-              padding="xs"
-              round
-              color="secondary"
-              icon="edit"
-              @click="openEditNicknameDialog(station.name)"
-            />
           </div>
           <!--資訊-->
           <div class="text" v-if="station.available_rent_bikes !== null">
@@ -39,15 +30,35 @@
           </div>
           <div v-else>Loading...</div>
         </q-card-section>
-        <!--按鈕(刪除站點)-->
+        <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
+          <q-icon name="more_vert" />
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item
+                clickable
+                v-close-popup
+                @click="openEditNicknameDialog(station.name)"
+              >
+                <q-item-section>修改暱稱</q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-close-popup
+                @click="openDeleteStationDialog(key)"
+              >
+                <q-item-section>刪除此站</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+        <!--狀態圓形-->
         <q-btn
-          class="absolute-bottom-right delete-btn"
-          size="sm"
+          class="absolute-bottom-right circle"
+          size="10px"
           round
-          color="accent"
-          icon="delete"
-          @click="openDeleteStationDialog(key)"
-        />
+          unelevated
+          :color="getStatusColor(station)"
+        ></q-btn>
       </q-card>
     </div>
 
@@ -55,9 +66,9 @@
     <q-page-sticky position="bottom-right" :offset="[16, 16]">
       <q-btn
         round
-        color="accent"
+        color="negative"
         icon="add"
-        fab
+        size="md"
         @click="showAddStationDialog = true"
       />
     </q-page-sticky>
@@ -232,6 +243,9 @@ export default defineComponent({
       }
       return [];
     },
+    statusColor() {
+      return "green";
+    },
   },
   methods: {
     async fetchData() {
@@ -266,6 +280,19 @@ export default defineComponent({
           this.stations[key].infoTime = "Error fetching data";
         }
       }
+    },
+    getStatusColor(station) {
+      if (
+        station.available_rent_bikes > 0 &&
+        station.available_return_bikes > 0
+      ) {
+        return "light-green-14";
+      } else if (station.available_rent_bikes == 0) {
+        return "amber-8";
+      } else if (station.available_return_bikes == 0) {
+        return "red-10";
+      }
+      return "grey";
     },
     async addStation() {
       if (this.selectedStation) {
@@ -440,7 +467,7 @@ export default defineComponent({
 .header {
   font-weight: Bold;
   color: #a58d36;
-  font-size: 19px;
+  font-size: 20px;
 }
 .text {
   font-size: 16px;
@@ -454,5 +481,13 @@ export default defineComponent({
 .delete-btn {
   margin-bottom: 8px;
   margin-right: 8px;
+}
+.menu-btn {
+  margin-top: 10px;
+  margin-right: 6px;
+}
+.circle {
+  margin-bottom: 10px;
+  margin-right: 12px;
 }
 </style>

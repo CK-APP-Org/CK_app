@@ -12,7 +12,7 @@
     "dev": "cd CK_app && quasar dev",
     "build": "cd CK_app && quasar build",
     "start": "node server.js",
-    "heroku-postbuild": "cd CK_app && yarn && yarn build"
+    "heroku-postbuild": "yarn && yarn build"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",

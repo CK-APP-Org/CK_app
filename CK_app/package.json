@@ -10,7 +10,8 @@
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
-    "build": "quasar build"
+    "build": "quasar build",
+    "heroku-postbuild": "npm install && npm run build"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",

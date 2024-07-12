@@ -1,0 +1,1 @@
+web: cd CK_app && npm start

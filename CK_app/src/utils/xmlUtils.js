@@ -1,12 +1,19 @@
 // Ensure you export both functions correctly
 export async function fetchXMLData(url) {
-  const response = await fetch(`/api${url}`);
-  const xmlText = await response.text();
-  console.log("1");
-  console.log(xmlText); // Log the fetched XML data
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, "application/xml");
-  return xmlDoc;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const xmlText = await response.text();
+    console.log("XML Data:", xmlText);
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+    return xmlDoc;
+  } catch (error) {
+    console.error("Error fetching XML:", error);
+    throw error;
+  }
 }
 
 export function parseXMLData(xmlDoc) {

@@ -1,33 +1,28 @@
 <template>
   <q-page class="q-pa-md">
-    <q-table :rows="newsData" :columns="columns" row-key="title">
+    <q-table :rows="news" :columns="columns" row-key="title">
       <template v-slot:body-cell-title="props">
         <q-td :props="props">
           {{ props.row.title }}
         </q-td>
       </template>
-
       <template v-slot:body-cell-pubDate="props">
         <q-td :props="props">
           {{ props.row.pubDate }}
         </q-td>
       </template>
     </q-table>
-    <q-banner v-if="error" class="q-mt-md" type="negative" icon="error">
-      {{ error }}
-    </q-banner>
   </q-page>
 </template>
 
 <script>
 import { ref, onMounted } from "vue";
-import { fetchXMLData, parseXMLData } from "../utils/xmlUtils"; // Make sure the path is correct
+import axios from "axios";
 
 export default {
   name: "NewsPage",
   setup() {
-    const newsData = ref([]);
-    const error = ref(null);
+    const news = ref([]);
     const columns = [
       {
         name: "title",
@@ -35,6 +30,8 @@ export default {
         label: "Title",
         align: "left",
         field: (row) => row.title,
+        format: (val) => `${val}`,
+        sortable: true,
       },
       {
         name: "pubDate",
@@ -42,30 +39,46 @@ export default {
         label: "Publication Date",
         align: "left",
         field: (row) => row.pubDate,
+        format: (val) => `${val}`,
+        sortable: true,
       },
     ];
 
-    onMounted(async () => {
+    const fetchNews = async () => {
       try {
-        const xmlDoc = await fetchXMLData(
-          "/nss/main/feeder/5abf2d62aa93092cee58ceb4/KG5mY0d9355?f=normal&%240=hhyrNQJ0110&vector=private&static=false"
+        const response = await axios.get(
+          "https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy",
+          {
+            params: {
+              url: "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/KG5mY0d9355?f=normal&%240=hhyrNQJ0110&vector=private&static=false",
+            },
+          }
         );
-        if (xmlDoc) {
-          newsData.value = parseXMLData(xmlDoc);
-        } else {
-          error.value = "Failed to fetch news data. Please try again later.";
-        }
-      } catch (err) {
-        error.value = "An unexpected error occurred. Please try again later.";
-        console.error(err);
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(response.data, "text/xml");
+        const items = Array.from(xml.querySelectorAll("item"));
+        const newsData = items.map((item) => ({
+          title: item.querySelector("title").textContent,
+          pubDate: item.querySelector("pubDate").textContent,
+        }));
+        news.value = newsData;
+      } catch (error) {
+        console.error("Error fetching news:", error);
       }
-    });
+    };
+
+    onMounted(fetchNews);
 
     return {
-      newsData,
+      news,
       columns,
-      error,
     };
   },
 };
 </script>
+
+<style scoped>
+.q-pa-md {
+  padding: 16px;
+}
+</style>

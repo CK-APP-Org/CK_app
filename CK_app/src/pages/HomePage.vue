@@ -25,24 +25,24 @@ export default {
   data() {
     return {
       items: [
-        { name: '課表', icon: 'book', link: '/schedule' },
-        { name: '行事曆', icon: 'calendar_month', link: '/todo' },
-        { name: 'Youbike', icon: 'directions_bike', link: '/todo' },
-        { name: '熱食部', icon: 'dining', link: '/todo' },
-        { name: '美食', icon: 'newspaper', link: '/todo' },
-        { name: '校網', icon: 'newspaper', link: '/todo' },
-        { name: '設定', icon: 'settings', link: '/todo' },
-        { name: '關於', icon: 'info', link: '/todo' },
-        { name: '無功能:(', icon: 'close', link: '/' },
-      ]
-    }
+        { name: "課表", icon: "book", link: "/schedule" },
+        { name: "行事曆", icon: "calendar_month", link: "/todo" },
+        { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
+        { name: "熱食部", icon: "dining", link: "/menu" },
+        { name: "美食", icon: "newspaper", link: "/" },
+        { name: "校網", icon: "newspaper", link: "/news" },
+        { name: "設定", icon: "settings", link: "/settings" },
+        { name: "關於", icon: "info", link: "/about" },
+        { name: "無功能:(", icon: "close", link: "/" },
+      ],
+    };
   },
   methods: {
     navigateTo(link) {
       this.$router.push(link);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -58,7 +58,7 @@ export default {
   padding-left: 1em;
   border-radius: 15px;
   margin-bottom: 20px;
-  background-image: url('https://i.imgur.com/dkAQeoi.jpeg');
+  background-image: url("https://i.imgur.com/dkAQeoi.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

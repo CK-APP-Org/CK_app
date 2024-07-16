@@ -35,9 +35,9 @@ export default createStore({
     }
   },
   actions: {
-    // loadScheduleData({ commit }) {
-    //   commit('SET_SCHEDULE_DATA', scheduleData)
-    // },
+    loadScheduleData({ commit }) {
+      commit('SET_SCHEDULE_DATA', scheduleData)
+    },
     updateCell({ commit }, payload) {
       commit('UPDATE_CELL', payload)
     }

@@ -4,7 +4,7 @@
       <q-card-section style="height: 45px; width: 350px">
         <div class="title">熱食部</div>
       </q-card-section>
-      <img src="\src\assets\menu.jpg" style="height: 265px; max-width: 800px" />
+      <img src="https://i.imgur.com/ncM6IAg.jpeg" style="height: 265px; max-width: 800px" />
       <q-btn
         class="absolute-top-right status-btn"
         :label="statusLabel"

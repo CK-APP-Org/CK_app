@@ -9,13 +9,14 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleDrawer"
-          v-if="$q.screen.gt.sm"
+          v-if="$q.screen.gt.sm && !isHomePage"
         />
         <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
     <q-drawer
+      v-if="!isHomePage"
       v-model="drawer"
       show-if-above
       :width="200"
@@ -55,8 +56,8 @@
       <router-view />
     </q-page-container>
 
-    <q-footer class="lt-md">
-      <q-tabs>
+    <q-footer class="lt-md" v-if="!isHomePage">
+      <q-tabs >
         <q-route-tab
           v-for="item in menuItems"
           :key="item.link"
@@ -118,6 +119,11 @@ export default {
         },
       ],
     };
+  },
+  computed: {
+    isHomePage() {
+      return this.$route.path === '/';
+    }
   },
   methods: {
     toggleDrawer() {

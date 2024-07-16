@@ -12,26 +12,21 @@
       separator="cell"
       :rows-per-page-options="[0]"
     >
-      <template v-slot:top>
+    <template v-slot:top>
+      <div class="row items-center justify-between q-mb-md">
         <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+        <div class="row q-gutter-sm">
+          <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
+            :key="day"
+            :label="getDayLabel(day)"
+            :color="visibleColumns.includes(day) ? 'primary' : 'secondary'"
+            @click="changeVisibleColumn(day)"
+            dense
+            outline />
+        </div>
+      </div>
 
-        <q-space />
-
-        <q-select
-          v-model="visibleColumns"
-          outlined
-          dense
-          options-dense
-          :display-value="$q.lang.table.columns"
-          emit-value
-          map-options
-          :options="columns"
-          option-value="name"
-          options-cover
-          style="min-width: 150px"
-          bg-color="blue-1"
-        />
-      </template>
+    </template>
 
       <template v-slot:body-cell="props">
         <q-td
@@ -131,8 +126,10 @@ const columns = [
 ];
 export default {
   setup() {
-    const visibleColumns = ref(["name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
-
+    const visibleColumns = ref(["name", "Monday"]);
+    const changeVisibleColumn = (columnName) => {
+      visibleColumns.value = ["name", columnName];
+    };
 
 
     const scheduleData = computed(() => store.getters.getScheduleData);
@@ -167,6 +164,17 @@ export default {
       return row[colName] && row[colName].note ? row[colName].note : "";
     };
 
+    const getDayLabel = (day) => {
+      const labels = {
+        Monday: '星期一',
+        Tuesday: '星期二',
+        Wednesday: '星期三',
+        Thursday: '星期四',
+        Friday: '星期五'
+      };
+      return labels[day] || day;
+    };
+
     return {
       visibleColumns,
       columns,
@@ -178,6 +186,8 @@ export default {
       getCellSubject,
       updateCell,
       getCellNote,
+      changeVisibleColumn,
+      getDayLabel
     };
   },
 };
@@ -257,5 +267,15 @@ export default {
 
 .cell-content:hover {
   filter: brightness(0.9);
+}
+
+.q-table__top {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.q-table__top .row.q-gutter-sm {
+  justify-content: center;
+  margin-top: 8px;
 }
 </style>

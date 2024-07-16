@@ -133,14 +133,17 @@ export default {
   setup() {
     const visibleColumns = ref(["name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
 
-    onMounted(() => {
-      store.dispatch('loadScheduleData');
-    });
+
 
     const scheduleData = computed(() => store.getters.getScheduleData);
     const userClass = computed(() => store.getters.getUserClass);
     const options = computed(() => store.getters.getOptions);
     const colorOptions = computed(() => store.getters.getColorOptions);
+    onMounted(() => {
+      if (store.state.scheduleData.length === 0) {
+        store.dispatch('loadScheduleData');
+      }
+    });
 
     const getCellColor = (row, colName) => {
       if (colName === "name") return "";
@@ -178,10 +181,6 @@ export default {
     };
   },
 };
-
-
-
-
 </script>
 
 

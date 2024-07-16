@@ -4,7 +4,7 @@
       flat
       bordered
       title="217 課表"
-      :rows="rows"
+      :rows="scheduleData"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
@@ -109,8 +109,9 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
-import scheduleData from "../data/ClassSchedule.json";
+import { onMounted, ref, computed } from "vue";
+import store from '../store/store';
+
 
 const columns = [
   {
@@ -127,71 +128,63 @@ const columns = [
   { name: "Thursday", align: "center", label: "星期四", field: "Thursday" },
   { name: "Friday", align: "center", label: "星期五", field: "Friday" },
 ];
-
 export default {
   setup() {
-    const rows = ref([]);
+    const visibleColumns = ref(["name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
 
     onMounted(() => {
-      rows.value = scheduleData;
-      console.log(scheduleData);
+      store.dispatch('loadScheduleData');
     });
 
-    return {
-      visibleColumns: ref(["name", "Monday"]),
-      columns,
-      rows,
-      userClass: "217",
-      options: [
-        "國文",
-        "數學",
-        "英文",
-        "地理",
-        "歷史",
-        "公民",
-        "生物",
-        "物理",
-        "化學",
-        "地科",
-        "音樂",
-        "美術",
-      ],
-      colorOptions: [
-        { label: "Default", value: "#ffecb3" },
-        { label: "Red", value: "#FFCCCB" },
-        { label: "Orange", value: "#f5c884" },
-        { label: "Yellow", value: "#FFFFE0" },
-        { label: "Green", value: "#90EE90" },
-        { label: "Blue", value: "#ADD8E6" },
-        { label: "Purple", value: "#e299ff" },
-        { label: "Pink", value: "#ffa1e4" },
-      ],
-    };
-  },
-  methods: {
-    getCellColor(row, colName) {
-      if (colName === "name") return ""; // No color for the first column
+    const scheduleData = computed(() => store.getters.getScheduleData);
+    const userClass = computed(() => store.getters.getUserClass);
+    const options = computed(() => store.getters.getOptions);
+    const colorOptions = computed(() => store.getters.getColorOptions);
+
+    const getCellColor = (row, colName) => {
+      if (colName === "name") return "";
       return row[colName] && row[colName].color
         ? row[colName].color
         : "#ffecb3";
-    },
-    getCellSubject(row, colName) {
-      if (colName === "name") return row[colName]; // Return the period number for the first column
+    };
+
+    const getCellSubject = (row, colName) => {
+      if (colName === "name") return row[colName];
       return row[colName] && row[colName].subject ? row[colName].subject : "";
-    },
-    updateCellColor(row, colName, newColor) {
-      if (row[colName]) {
-        row[colName].color = newColor.value;
-        console.log(newColor);
-      }
-    },
-    getCellNote(row, colName) {
+    };
+
+    const updateCellColor = (row, colName, newColor) => {
+      const rowIndex = scheduleData.value.indexOf(row);
+      const newValue = { ...row[colName], color: newColor.value };
+      store.dispatch('updateCell', { rowIndex, colName, newValue });
+    };
+
+    const getCellNote = (row, colName) => {
       if (colName === "name") return "";
       return row[colName] && row[colName].note ? row[colName].note : "";
-    },
+    };
+
+    return {
+      visibleColumns,
+      columns,
+      scheduleData,
+      userClass,
+      options,
+      colorOptions,
+      getCellColor,
+      getCellSubject,
+      updateCellColor,
+      getCellNote,
+    };
   },
 };
+
+
+
+
 </script>
+
+
 
 <style>
 .my-custom-table {

@@ -65,12 +65,14 @@
                 dense
                 options-dense
                 class="q-mb-sm"
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, subject: $event})"
               />
               <q-input
                 v-model="scope.value.note"
                 label="備註"
                 dense
                 class="q-mb-sm"
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, note: $event})"
               />
               <q-select
                 :options="colorOptions"
@@ -78,10 +80,9 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="
-                  updateCellColor(props.row, props.col.name, $event)
-                "
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, color: $event.value})"
               >
+
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
                     <q-item-section side>
@@ -132,9 +133,9 @@ export default {
   setup() {
     const visibleColumns = ref(["name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
 
-    onMounted(() => {
-      store.dispatch('loadScheduleData');
-    });
+    // onMounted(() => {
+    //   store.dispatch('loadScheduleData');
+    // });
 
     const scheduleData = computed(() => store.getters.getScheduleData);
     const userClass = computed(() => store.getters.getUserClass);
@@ -153,10 +154,9 @@ export default {
       return row[colName] && row[colName].subject ? row[colName].subject : "";
     };
 
-    const updateCellColor = (row, colName, newColor) => {
+    const updateCell = (row, colName, newValue) => {
       const rowIndex = scheduleData.value.indexOf(row);
-      const newValue = { ...row[colName], color: newColor.value };
-      store.dispatch('updateCell', { rowIndex, colName, newValue });
+      store.commit('UPDATE_CELL', { rowIndex, colName, newValue });
     };
 
     const getCellNote = (row, colName) => {
@@ -173,7 +173,7 @@ export default {
       colorOptions,
       getCellColor,
       getCellSubject,
-      updateCellColor,
+      updateCell,
       getCellNote,
     };
   },

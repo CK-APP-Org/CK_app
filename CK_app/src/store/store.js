@@ -31,12 +31,13 @@ export default createStore({
     UPDATE_CELL(state, { rowIndex, colName, newValue }) {
       state.scheduleData[rowIndex][colName] = newValue
       localStorage.setItem('store', JSON.stringify(state))
+      console.log('Saved to localStorage:', JSON.parse(localStorage.getItem('store')))
     }
   },
   actions: {
-    loadScheduleData({ commit }) {
-      commit('SET_SCHEDULE_DATA', scheduleData)
-    },
+    // loadScheduleData({ commit }) {
+    //   commit('SET_SCHEDULE_DATA', scheduleData)
+    // },
     updateCell({ commit }, payload) {
       commit('UPDATE_CELL', payload)
     }

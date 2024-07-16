@@ -133,9 +133,9 @@ export default {
   setup() {
     const visibleColumns = ref(["name", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
 
-    // onMounted(() => {
-    //   store.dispatch('loadScheduleData');
-    // });
+    onMounted(() => {
+      store.dispatch('loadScheduleData');
+    });
 
     const scheduleData = computed(() => store.getters.getScheduleData);
     const userClass = computed(() => store.getters.getUserClass);

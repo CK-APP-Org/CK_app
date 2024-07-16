@@ -22,7 +22,5 @@ export function parseXMLData(xmlDoc) {
     title: item.querySelector("title").textContent,
     pubDate: item.querySelector("pubDate").textContent,
   }));
-  console.log("2");
-  console.log(data); // Log the parsed data
   return data;
 }

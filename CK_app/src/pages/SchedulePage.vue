@@ -4,7 +4,7 @@
       flat
       bordered
       title="217 課表"
-      :rows="rows"
+      :rows="scheduleData"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
@@ -12,26 +12,21 @@
       separator="cell"
       :rows-per-page-options="[0]"
     >
-      <template v-slot:top>
+    <template v-slot:top>
+      <div class="row items-center justify-between q-mb-md">
         <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+        <div class="row q-gutter-sm">
+          <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
+            :key="day"
+            :label="getDayLabel(day)"
+            :color="visibleColumns.includes(day) ? 'primary' : 'secondary'"
+            @click="changeVisibleColumn(day)"
+            dense
+            outline />
+        </div>
+      </div>
 
-        <q-space />
-
-        <q-select
-          v-model="visibleColumns"
-          outlined
-          dense
-          options-dense
-          :display-value="$q.lang.table.columns"
-          emit-value
-          map-options
-          :options="columns"
-          option-value="name"
-          options-cover
-          style="min-width: 150px"
-          bg-color="blue-1"
-        />
-      </template>
+    </template>
 
       <template v-slot:body-cell="props">
         <q-td
@@ -65,12 +60,14 @@
                 dense
                 options-dense
                 class="q-mb-sm"
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, subject: $event})"
               />
               <q-input
                 v-model="scope.value.note"
                 label="備註"
                 dense
                 class="q-mb-sm"
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, note: $event})"
               />
               <q-select
                 :options="colorOptions"
@@ -78,10 +75,9 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="
-                  updateCellColor(props.row, props.col.name, $event)
-                "
+                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, color: $event.value})"
               >
+
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
                     <q-item-section side>
@@ -109,8 +105,9 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
-import scheduleData from "../data/ClassSchedule.json";
+import { onMounted, ref, computed } from "vue";
+import store from '../store/store';
+
 
 const columns = [
   {
@@ -127,71 +124,76 @@ const columns = [
   { name: "Thursday", align: "center", label: "星期四", field: "Thursday" },
   { name: "Friday", align: "center", label: "星期五", field: "Friday" },
 ];
-
 export default {
   setup() {
-    const rows = ref([]);
+    const visibleColumns = ref(["name", "Monday"]);
+    const changeVisibleColumn = (columnName) => {
+      visibleColumns.value = ["name", columnName];
+    };
 
+
+    const scheduleData = computed(() => store.getters.getScheduleData);
+    const userClass = computed(() => store.getters.getUserClass);
+    const options = computed(() => store.getters.getOptions);
+    const colorOptions = computed(() => store.getters.getColorOptions);
     onMounted(() => {
-      rows.value = scheduleData;
-      console.log(scheduleData);
+      if (store.state.scheduleData.length === 0) {
+        store.dispatch('loadScheduleData');
+      }
     });
 
-    return {
-      visibleColumns: ref(["name", "Monday"]),
-      columns,
-      rows,
-      userClass: "217",
-      options: [
-        "國文",
-        "數學",
-        "英文",
-        "地理",
-        "歷史",
-        "公民",
-        "生物",
-        "物理",
-        "化學",
-        "地科",
-        "音樂",
-        "美術",
-      ],
-      colorOptions: [
-        { label: "Default", value: "#ffecb3" },
-        { label: "Red", value: "#FFCCCB" },
-        { label: "Orange", value: "#f5c884" },
-        { label: "Yellow", value: "#FFFFE0" },
-        { label: "Green", value: "#90EE90" },
-        { label: "Blue", value: "#ADD8E6" },
-        { label: "Purple", value: "#e299ff" },
-        { label: "Pink", value: "#ffa1e4" },
-      ],
-    };
-  },
-  methods: {
-    getCellColor(row, colName) {
-      if (colName === "name") return ""; // No color for the first column
+    const getCellColor = (row, colName) => {
+      if (colName === "name") return "";
       return row[colName] && row[colName].color
         ? row[colName].color
         : "#ffecb3";
-    },
-    getCellSubject(row, colName) {
-      if (colName === "name") return row[colName]; // Return the period number for the first column
+    };
+
+    const getCellSubject = (row, colName) => {
+      if (colName === "name") return row[colName];
       return row[colName] && row[colName].subject ? row[colName].subject : "";
-    },
-    updateCellColor(row, colName, newColor) {
-      if (row[colName]) {
-        row[colName].color = newColor.value;
-        console.log(newColor);
-      }
-    },
-    getCellNote(row, colName) {
+    };
+
+    const updateCell = (row, colName, newValue) => {
+      const rowIndex = scheduleData.value.indexOf(row);
+      store.commit('UPDATE_CELL', { rowIndex, colName, newValue });
+    };
+
+    const getCellNote = (row, colName) => {
       if (colName === "name") return "";
       return row[colName] && row[colName].note ? row[colName].note : "";
-    },
+    };
+
+    const getDayLabel = (day) => {
+      const labels = {
+        Monday: '星期一',
+        Tuesday: '星期二',
+        Wednesday: '星期三',
+        Thursday: '星期四',
+        Friday: '星期五'
+      };
+      return labels[day] || day;
+    };
+
+    return {
+      visibleColumns,
+      columns,
+      scheduleData,
+      userClass,
+      options,
+      colorOptions,
+      getCellColor,
+      getCellSubject,
+      updateCell,
+      getCellNote,
+      changeVisibleColumn,
+      getDayLabel
+    };
   },
 };
 </script>
+
+
 
 <style>
 .my-custom-table {
@@ -265,5 +267,15 @@ export default {
 
 .cell-content:hover {
   filter: brightness(0.9);
+}
+
+.q-table__top {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.q-table__top .row.q-gutter-sm {
+  justify-content: center;
+  margin-top: 8px;
 }
 </style>

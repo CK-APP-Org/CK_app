@@ -19,7 +19,7 @@
           <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
             :key="day"
             :label="getDayLabel(day)"
-            :color="visibleColumns.includes(day) ? 'primary' : 'secondary'"
+            :color="visibleColumns.includes(day) ? 'black' : 'grey'"
             @click="changeVisibleColumn(day)"
             dense
             outline />
@@ -140,13 +140,14 @@ export default {
       if (store.state.scheduleData.length === 0) {
         store.dispatch('loadScheduleData');
       }
+      store.dispatch('loadColorData');
     });
 
     const getCellColor = (row, colName) => {
       if (colName === "name") return "";
       return row[colName] && row[colName].color
         ? row[colName].color
-        : "#ffecb3";
+        : "#f4f4f1";
     };
 
     const getCellSubject = (row, colName) => {
@@ -157,6 +158,7 @@ export default {
     const updateCell = (row, colName, newValue) => {
       const rowIndex = scheduleData.value.indexOf(row);
       store.commit('UPDATE_CELL', { rowIndex, colName, newValue });
+      console.log(newValue)
     };
 
     const getCellNote = (row, colName) => {
@@ -205,13 +207,13 @@ export default {
 .my-custom-table .q-table__top {
   font-size: 1.5em;
   padding: 16px;
-  background-color: #ebd57d;
-  color: white;
+  background-color: #d9d9d9;
+  color: rgb(255, 255, 255);
 }
 
 .my-custom-table .q-table thead tr th {
   font-size: 1.6em;
-  background-color: #ebd57d;
+  background-color: #d9d9d9;;
 }
 
 .my-custom-table .q-table tbody td {
@@ -222,7 +224,8 @@ export default {
 .my-custom-table .q-table tbody td.smaller-column {
   font-size: 1.5em;
   width: 20px;
-  color: #efcf4e;
+  color: #353102;
+  background-color: #d9d9d9;
   font-weight: bolder;
   padding: 0.2em;
   text-align: center; /* Add this line to center the text */
@@ -257,7 +260,7 @@ export default {
 
 .note-slot {
   font-size: 0.8em;
-  color: #616161;
+  color: #d9d9d9;
   flex: 2;
   border-left: 1px solid rgba(0, 0, 0, 0.12);
   overflow: hidden;

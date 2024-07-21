@@ -164,21 +164,20 @@ class Station {
   }
 }
 
+const stationList = {
+  "YouBike2.0_泉州寧波西街口": "泉州寧波西街口(建中側門)",
+  "YouBike2.0_郵政博物館": "郵政博物館",
+  "YouBike2.0_植物園": "台北植物園",
+  "YouBike2.0_捷運中正紀念堂站(2號出口)": "中正紀念堂站(2號出口)",
+};
+
 export default defineComponent({
   data() {
     return {
-      stations: {
-        quan: new Station("YouBike2.0_泉州寧波西街口"),
-        you: new Station("YouBike2.0_郵政博物館"),
-        tai: new Station("YouBike2.0_植物園"),
-        zhong: new Station("YouBike2.0_捷運中正紀念堂站(2號出口)"),
-      },
-      stationsNickname: {
-        "YouBike2.0_泉州寧波西街口": "泉州寧波西街口(建中側門)",
-        "YouBike2.0_郵政博物館": "郵政博物館",
-        "YouBike2.0_植物園": "台北植物園",
-        "YouBike2.0_捷運中正紀念堂站(2號出口)": "中正紀念堂站(2號出口)",
-      },
+      stations: Object.fromEntries(
+        Object.keys(stationList).map((name) => [name, new Station(name)])
+      ),
+      stationsNickname: { ...stationList },
       showAddStationDialog: false,
       showEditNicknameDialog: false,
       showDeleteStationDialog: false,

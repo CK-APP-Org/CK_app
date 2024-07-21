@@ -404,6 +404,15 @@ export default defineComponent({
           return;
         }
 
+        // Update store
+        store.dispatch("addStation", {
+          stationName: this.selectedStation["value"],
+          stationData: {
+            nickname: this.selectedStation.label,
+            city: this.selectedCity.value,
+          },
+        });
+
         this.showAddStationDialog = false;
         this.selectedCity = null;
         this.selectedDistrict = null;
@@ -460,10 +469,17 @@ export default defineComponent({
     },
     updateNickname() {
       if (this.selectedStationForEdit && this.newNickname) {
+        // Update local state
         this.stationsNickname = {
           ...this.stationsNickname,
           [this.selectedStationForEdit]: this.newNickname,
         };
+
+        // Update store
+        store.dispatch("updateStationNickname", {
+          stationName: this.selectedStationForEdit,
+          newNickname: this.newNickname,
+        });
       }
       this.showEditNicknameDialog = false;
     },
@@ -473,8 +489,17 @@ export default defineComponent({
     },
     deleteStation(key) {
       if (this.stations[key]) {
-        delete this.stationsNickname[this.stations[key].name];
+        const stationName = this.stations[key].name;
+
+        // Remove from local component state
+        delete this.stationsNickname[stationName];
         delete this.stations[key];
+
+        // Update store
+        store.dispatch("deleteStation", stationName);
+      } else {
+        // If the station is not in the local state, it might be directly in the store
+        store.dispatch("deleteStation", key);
       }
       this.showDeleteStationDialog = false;
     },
@@ -491,13 +516,13 @@ export default defineComponent({
       // If it's not a string, return it as is (it might already be a Date object)
       return timestamp;
     },
-
     timeAgo(time) {
       const parsedTime = this.parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
     },
   },
   mounted() {
+    //store.dispatch("clearALL");
     this.fetchData();
   },
 });

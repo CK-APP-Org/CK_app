@@ -46,7 +46,15 @@
             :key="col.name"
             :props="props"
           >
-            {{ col.value }}
+            <a
+              v-if="col.name === 'title'"
+              :href="props.row.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ col.value }}
+            </a>
+            <template v-else>{{ col.value }}</template>
           </q-td>
         </q-tr>
       </template>
@@ -96,18 +104,6 @@
         </q-tr>
       </template>
 
-      <template v-slot:body-cell-title="props">
-        <q-td :props="props">
-          {{ props.row.title }}
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-pubDate="props">
-        <q-td :props="props">
-          {{ formatTimeAgo(props.row.pubDate) }}
-        </q-td>
-      </template>
-
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td auto-width>
@@ -125,7 +121,15 @@
             :key="col.name"
             :props="props"
           >
-            {{ col.value }}
+            <a
+              v-if="col.name === 'title'"
+              :href="props.row.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ col.value }}
+            </a>
+            <template v-else>{{ col.value }}</template>
           </q-td>
         </q-tr>
       </template>
@@ -242,6 +246,7 @@ export default {
             .map((item) => ({
               title: item.querySelector("title").textContent,
               pubDate: new Date(item.querySelector("pubDate").textContent),
+              link: item.querySelector("link").textContent,
             }))
             .filter(
               (item) =>
@@ -275,6 +280,7 @@ export default {
     };
 
     onMounted(() => {
+      //store.dispatch("clearALL");
       register("zh_TW", zh_TW);
       fetchNews();
     });

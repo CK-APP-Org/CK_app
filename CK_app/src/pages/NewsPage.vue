@@ -133,16 +133,17 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
+import store from "../store/store";
 
 export default {
   name: "NewsPage",
   setup() {
+    const pinnedNews = computed(() => store.getters.getPinnedNews);
     const isLoading = ref(true);
-    const pinnedNews = ref([]);
     const news = ref([]);
     const columns = [
       {
@@ -175,17 +176,13 @@ export default {
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
-        pinnedNews.value.push(news.value.splice(index, 1)[0]);
+        store.dispatch("pinNews", news.value.splice(index, 1)[0]);
       }
     };
 
     const unpinRow = (row) => {
-      const index = pinnedNews.value.findIndex(
-        (item) => item.title === row.title
-      );
-      if (index !== -1) {
-        news.value.push(pinnedNews.value.splice(index, 1)[0]);
-      }
+      store.dispatch("unpinNews", row.title);
+      news.value.push(row);
     };
 
     const pagination = ref({

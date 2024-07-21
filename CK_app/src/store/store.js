@@ -24,7 +24,8 @@ export default createStore({
         "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
         "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
         "YouBike2.0_捷運中正紀念堂站(2號出口)": { nickname: "中正紀念堂站(2號出口)", city: "臺北市" },
-      }
+      },
+      pinnedNews: []
     }
   },
   mutations: {
@@ -67,6 +68,16 @@ export default createStore({
       localStorage.setItem('store', JSON.stringify(state));
       console.log('Saved to localStorage:', JSON.parse(localStorage.getItem('store')));
     },
+
+    PIN_NEWS(state, newsItem) {
+      state.pinnedNews.push(newsItem);
+      localStorage.setItem('store', JSON.stringify(state));
+    },
+
+    UNPIN_NEWS(state, newsItemTitle) {
+      state.pinnedNews = state.pinnedNews.filter(item => item.title !== newsItemTitle);
+      localStorage.setItem('store', JSON.stringify(state));
+    }
   },
   actions: {
     updateSchedule({ commit }, payload) {
@@ -90,10 +101,18 @@ export default createStore({
     addStation({ commit }, payload) {
       commit('ADD_STATION', payload);
     },
+    pinNews({ commit }, newsItem) {
+      commit('PIN_NEWS', newsItem);
+    },
+
+    unpinNews({ commit }, newsItemTitle) {
+      commit('UNPIN_NEWS', newsItemTitle);
+    }
   },
   getters: {
     getScheduleData: state => state.scheduleData,
     getUserClass: state => state.userClass,
-    getStationList: state => state.stationList
+    getStationList: state => state.stationList,
+    getPinnedNews: state => state.pinnedNews
   }
 })

@@ -1,15 +1,132 @@
 <template>
   <q-page class="q-pa-md">
-    <q-table :rows="news" :columns="columns" row-key="title">
+    <!-- Pinned News Table -->
+    <q-table
+      v-if="pinnedNews.length > 0"
+      :rows="pinnedNews"
+      :columns="columns"
+      row-key="title"
+      class="my-custom-table q-mb-md"
+      :wrap-cells="true"
+      :dense="$q.screen.lt.md"
+      :rows-per-page-options="[0]"
+      hide-pagination
+    >
+      <template v-slot:top>
+        <div class="text-h6 div-header">已釘選</div>
+      </template>
+
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="custom-header"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-btn
+              size="sm"
+              color="negative"
+              round
+              dense
+              icon="push_pin"
+              @click="unpinRow(props.row)"
+            />
+          </q-td>
+          <q-td
+            v-for="col in props.cols.slice(1)"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.value }}
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+
+    <!-- Original News Table -->
+    <q-table
+      :rows="news"
+      :columns="columns"
+      row-key="title"
+      class="my-custom-table"
+      :wrap-cells="true"
+      :dense="$q.screen.lt.md"
+      :rows-per-page-options="[20, 50, 100, 0]"
+      v-model:pagination="pagination"
+      :loading="isLoading"
+    >
+      <template v-slot:top>
+        <div class="row items-center full-width q-px-sm">
+          <div class="col-2">
+            <!-- Empty space to balance the layout -->
+          </div>
+          <div class="col-8 text-center">
+            <div class="text-h6">未讀訊息</div>
+          </div>
+          <div class="col-2 text-right">
+            <q-btn color="negative" icon="delete" @click="clearAllNews" dense />
+          </div>
+        </div>
+      </template>
+
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="custom-header"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
       <template v-slot:body-cell-title="props">
         <q-td :props="props">
           {{ props.row.title }}
         </q-td>
       </template>
+
       <template v-slot:body-cell-pubDate="props">
         <q-td :props="props">
-          {{ props.row.pubDate }}
+          {{ formatTimeAgo(props.row.pubDate) }}
         </q-td>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-btn
+              size="sm"
+              color="primary"
+              round
+              dense
+              icon="push_pin"
+              @click="pinRow(props.row)"
+            />
+          </q-td>
+          <q-td
+            v-for="col in props.cols.slice(1)"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.value }}
+          </q-td>
+        </q-tr>
+      </template>
+
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary" />
       </template>
     </q-table>
   </q-page>
@@ -18,60 +135,127 @@
 <script>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { format, register } from "timeago.js";
+import zh_TW from "timeago.js/lib/lang/zh_TW";
 
 export default {
   name: "NewsPage",
   setup() {
+    const isLoading = ref(true);
+    const pinnedNews = ref([]);
     const news = ref([]);
     const columns = [
       {
+        name: "pin",
+        required: true,
+        label: "",
+        align: "left",
+        field: () => null,
+      },
+      {
         name: "title",
         required: true,
-        label: "Title",
+        label: "公告標題",
         align: "left",
         field: (row) => row.title,
         format: (val) => `${val}`,
         sortable: true,
+        classes: "title-cell",
       },
       {
         name: "pubDate",
         required: true,
-        label: "Publication Date",
-        align: "left",
+        label: "時間",
+        align: "right",
         field: (row) => row.pubDate,
-        format: (val) => `${val}`,
+        format: (val) => formatTimeAgo(val),
         sortable: true,
       },
     ];
-
-    const fetchNews = async () => {
-      try {
-        const response = await axios.get(
-          "https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy",
-          {
-            params: {
-              url: "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/KG5mY0d9355?f=normal&%240=hhyrNQJ0110&vector=private&static=false",
-            },
-          }
-        );
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(response.data, "text/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
-        const newsData = items.map((item) => ({
-          title: item.querySelector("title").textContent,
-          pubDate: item.querySelector("pubDate").textContent,
-        }));
-        news.value = newsData;
-      } catch (error) {
-        console.error("Error fetching news:", error);
+    const pinRow = (row) => {
+      const index = news.value.findIndex((item) => item.title === row.title);
+      if (index !== -1) {
+        pinnedNews.value.push(news.value.splice(index, 1)[0]);
       }
     };
 
-    onMounted(fetchNews);
+    const unpinRow = (row) => {
+      const index = pinnedNews.value.findIndex(
+        (item) => item.title === row.title
+      );
+      if (index !== -1) {
+        news.value.push(pinnedNews.value.splice(index, 1)[0]);
+      }
+    };
+
+    const pagination = ref({
+      sortBy: "pubDate",
+      descending: true,
+      page: 1,
+      rowsPerPage: 20,
+    });
+
+    const fetchNews = async () => {
+      isLoading.value = true;
+      const urls = [
+        "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/KG5mY0d9355?f=normal&%240=hhyrNQJ0110&vector=private&static=false", //重要公告
+        "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/IXZld9j7619?f=normal&%240=kpenVCJ9015&vector=private&static=false", //最新消息
+      ];
+
+      try {
+        const promises = urls.map((url) =>
+          axios.get("https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy", {
+            params: { url },
+          })
+        );
+
+        const responses = await Promise.all(promises);
+        let allNews = [];
+
+        responses.forEach((response) => {
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(response.data, "text/xml");
+          const items = Array.from(xml.querySelectorAll("item"));
+          const newsData = items.map((item) => ({
+            title: item.querySelector("title").textContent,
+            pubDate: new Date(item.querySelector("pubDate").textContent),
+          }));
+          allNews = allNews.concat(newsData);
+        });
+
+        allNews.sort((a, b) => b.pubDate - a.pubDate);
+
+        news.value = allNews;
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const formatTimeAgo = (date) => {
+      return format(date, "zh_TW");
+    };
+
+    const clearAllNews = () => {
+      news.value = [];
+    };
+
+    onMounted(() => {
+      register("zh_TW", zh_TW);
+      fetchNews();
+    });
 
     return {
       news,
       columns,
+      formatTimeAgo,
+      pagination,
+      isLoading,
+      pinnedNews,
+      pinRow,
+      unpinRow,
+      clearAllNews,
     };
   },
 };
@@ -80,5 +264,33 @@ export default {
 <style scoped>
 .q-pa-md {
   padding: 16px;
+}
+.div-header {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+.my-custom-table .custom-header {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #1976d2;
+  background-color: #e3f2fd;
+  text-transform: none;
+}
+.my-custom-table .title-cell {
+  max-width: 230px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+/* Make the table responsive */
+.my-custom-table {
+  width: 100%;
+  max-width: 100%;
+}
+/* Ensure consistent padding in header and data cells */
+.my-custom-table .q-td,
+.my-custom-table .q-th {
+  padding: 12px 8px;
 }
 </style>

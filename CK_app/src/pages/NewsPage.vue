@@ -6,7 +6,7 @@
       :rows="pinnedNews"
       :columns="columns"
       row-key="title"
-      class="my-custom-table q-mb-md"
+      class="my-custom-table-2 q-mb-md"
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[0]"
@@ -65,7 +65,7 @@
       :rows="news"
       :columns="columns"
       row-key="title"
-      class="my-custom-table"
+      class="my-custom-table-2"
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[20, 50, 100, 0]"
@@ -311,26 +311,26 @@ export default {
   width: 100%;
   text-align: center;
 }
-.my-custom-table .custom-header {
+.my-custom-table-2 .custom-header {
   font-weight: bold;
   font-size: 1.1em;
   color: #1976d2;
   background-color: #e3f2fd;
   text-transform: none;
 }
-.my-custom-table .title-cell {
+.my-custom-table-2 .title-cell {
   max-width: 230px;
   white-space: normal;
   word-wrap: break-word;
 }
 /* Make the table responsive */
-.my-custom-table {
+.my-custom-table-2 {
   width: 100%;
   max-width: 100%;
 }
 /* Ensure consistent padding in header and data cells */
-.my-custom-table .q-td,
-.my-custom-table .q-th {
+.my-custom-table-2 .q-td,
+.my-custom-table-2 .q-th {
   padding: 12px 8px;
 }
 </style>

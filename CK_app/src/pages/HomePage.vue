@@ -47,25 +47,34 @@ export default {
 
 <style scoped>
 .app-container {
-  padding: 20px;
+  padding: 25px;
   font-weight: bold;
 }
 
 .header {
   color: white;
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-  padding-left: 1em;
+  padding: 20px;
   border-radius: 15px;
   margin-bottom: 20px;
-  background-image: url("https://i.imgur.com/dkAQeoi.jpeg");
+  background-image: linear-gradient(to top, #e6b980 0%, #eacda3 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   width: 100%;
-  height: 200px;
+  height: 125px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
+.header h5 {
+  margin: 4px;
+  margin-bottom: 5px;
+}
+
+.header h6 {
+  margin: 4px;
+}
 .icon-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

@@ -6,7 +6,7 @@
       :rows="pinnedNews"
       :columns="columns"
       row-key="title"
-      class="my-custom-table q-mb-md"
+      class="my-custom-table-2 q-mb-md"
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[0]"
@@ -46,7 +46,15 @@
             :key="col.name"
             :props="props"
           >
-            {{ col.value }}
+            <a
+              v-if="col.name === 'title'"
+              :href="props.row.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ col.value }}
+            </a>
+            <template v-else>{{ col.value }}</template>
           </q-td>
         </q-tr>
       </template>
@@ -57,7 +65,7 @@
       :rows="news"
       :columns="columns"
       row-key="title"
-      class="my-custom-table"
+      class="my-custom-table-2"
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[20, 50, 100, 0]"
@@ -73,7 +81,12 @@
             <div class="text-h6">未讀訊息</div>
           </div>
           <div class="col-2 text-right">
-            <q-btn color="negative" icon="delete" @click="clearAllNews" dense />
+            <q-btn
+              color="negative"
+              icon="delete"
+              @click="showDeleteDialog = true"
+              dense
+            />
           </div>
         </div>
       </template>
@@ -89,18 +102,6 @@
             {{ col.label }}
           </q-th>
         </q-tr>
-      </template>
-
-      <template v-slot:body-cell-title="props">
-        <q-td :props="props">
-          {{ props.row.title }}
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-pubDate="props">
-        <q-td :props="props">
-          {{ formatTimeAgo(props.row.pubDate) }}
-        </q-td>
       </template>
 
       <template v-slot:body="props">
@@ -120,7 +121,15 @@
             :key="col.name"
             :props="props"
           >
-            {{ col.value }}
+            <a
+              v-if="col.name === 'title'"
+              :href="props.row.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ col.value }}
+            </a>
+            <template v-else>{{ col.value }}</template>
           </q-td>
         </q-tr>
       </template>
@@ -128,22 +137,42 @@
       <template v-slot:loading>
         <q-inner-loading showing color="primary" />
       </template>
+
+      <template v-slot:no-data>
+        <div class="full-width row flex-center q-gutter-sm text-body1">
+          沒有更新的公告
+        </div>
+      </template>
     </q-table>
+    <!--對話框(已讀所有訊息)-->
+    <q-dialog v-model="showDeleteDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">確認已讀所有訊息?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showDeleteDialog = false" />
+          <q-btn flat label="確認" @click="deleteAllNews" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
+import store from "../store/store";
 
 export default {
   name: "NewsPage",
   setup() {
+    const pinnedNews = computed(() => store.getters.getPinnedNews);
     const isLoading = ref(true);
-    const pinnedNews = ref([]);
     const news = ref([]);
+    const showDeleteDialog = ref(false);
     const columns = [
       {
         name: "pin",
@@ -175,17 +204,13 @@ export default {
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
-        pinnedNews.value.push(news.value.splice(index, 1)[0]);
+        store.dispatch("pinNews", news.value.splice(index, 1)[0]);
       }
     };
 
     const unpinRow = (row) => {
-      const index = pinnedNews.value.findIndex(
-        (item) => item.title === row.title
-      );
-      if (index !== -1) {
-        news.value.push(pinnedNews.value.splice(index, 1)[0]);
-      }
+      store.dispatch("unpinNews", row.title);
+      news.value.push(row);
     };
 
     const pagination = ref({
@@ -203,6 +228,7 @@ export default {
       ];
 
       try {
+        const lastClearedTime = store.getters.getLastClearedTime;
         const promises = urls.map((url) =>
           axios.get("https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy", {
             params: { url },
@@ -216,10 +242,16 @@ export default {
           const parser = new DOMParser();
           const xml = parser.parseFromString(response.data, "text/xml");
           const items = Array.from(xml.querySelectorAll("item"));
-          const newsData = items.map((item) => ({
-            title: item.querySelector("title").textContent,
-            pubDate: new Date(item.querySelector("pubDate").textContent),
-          }));
+          const newsData = items
+            .map((item) => ({
+              title: item.querySelector("title").textContent,
+              pubDate: new Date(item.querySelector("pubDate").textContent),
+              link: item.querySelector("link").textContent,
+            }))
+            .filter(
+              (item) =>
+                !lastClearedTime || item.pubDate > new Date(lastClearedTime)
+            );
           allNews = allNews.concat(newsData);
         });
 
@@ -237,11 +269,18 @@ export default {
       return format(date, "zh_TW");
     };
 
-    const clearAllNews = () => {
+    const deleteAllNews = () => {
+      // Clear all unpinned news
       news.value = [];
+      // Record the current time
+      const currentTime = new Date();
+      store.dispatch("setLastClearedTime", currentTime);
+
+      showDeleteDialog.value = false;
     };
 
     onMounted(() => {
+      //store.dispatch("clearALL");
       register("zh_TW", zh_TW);
       fetchNews();
     });
@@ -255,7 +294,8 @@ export default {
       pinnedNews,
       pinRow,
       unpinRow,
-      clearAllNews,
+      showDeleteDialog,
+      deleteAllNews,
     };
   },
 };
@@ -271,26 +311,26 @@ export default {
   width: 100%;
   text-align: center;
 }
-.my-custom-table .custom-header {
+.my-custom-table-2 .custom-header {
   font-weight: bold;
   font-size: 1.1em;
   color: #1976d2;
   background-color: #e3f2fd;
   text-transform: none;
 }
-.my-custom-table .title-cell {
+.my-custom-table-2 .title-cell {
   max-width: 230px;
   white-space: normal;
   word-wrap: break-word;
 }
 /* Make the table responsive */
-.my-custom-table {
+.my-custom-table-2 {
   width: 100%;
   max-width: 100%;
 }
 /* Ensure consistent padding in header and data cells */
-.my-custom-table .q-td,
-.my-custom-table .q-th {
+.my-custom-table-2 .q-td,
+.my-custom-table-2 .q-th {
   padding: 12px 8px;
 }
 </style>

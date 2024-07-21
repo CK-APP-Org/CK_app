@@ -15,6 +15,7 @@
     <template v-slot:top>
       <div class="row items-center justify-between q-mb-md">
         <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+        <q-select filled @update:model-value="updateUserClass" :options="classOptions" v-model="userClass" />
         <div class="row q-gutter-sm">
           <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
             :key="day"
@@ -138,8 +139,11 @@ const colorOptions = [
 
 const options = [
         "國文", "數學", "英文", "地理", "歷史", "公民",
-        "生物", "物理", "化學", "地科", "音樂", "美術"
+        "生物", "物理", "化學", "地科", "音樂", "美術",
+        "體育", "社團", "其他"
 ];
+
+const classOptions = [217, 227]
 
 export default {
   setup() {
@@ -159,7 +163,6 @@ export default {
         store.dispatch('loadSchedule');
       }
     });
-
 
 
     const getCellSubject = (row, colName) => {
@@ -192,6 +195,12 @@ export default {
       console.log("UPDATE_SCHEDULE",newValue);
     };
 
+    const updateUserClass = (newClass) => {
+      store.dispatch('setUserClass', newClass);
+      // Optionally, you might want to reload the schedule for the new class
+      store.dispatch('loadSchedule');
+    };
+
 
     const getDayLabel = (day) => {
       const labels = {
@@ -218,7 +227,9 @@ export default {
       changeVisibleColumn,
       getDayLabel,
       getLabelValue,
-      getFormattedColor
+      getFormattedColor,
+      classOptions,
+      updateUserClass
     };
   },
 };
@@ -231,23 +242,27 @@ export default {
   background-color: var(--q-primary-accent);
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #d0d0d0; /* Thinner, grey border for the entire table */
 }
 
 .my-custom-table .q-table__top {
   font-size: 1.5em;
   padding: 16px;
   background-color: #d9d9d9;
-  color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  border-bottom: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table thead tr th {
   font-size: 1.6em;
-  background-color: #d9d9d9;;
+  background-color: #d9d9d9;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table tbody td {
   font-size: 1.5em;
   padding: 0;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table tbody td.smaller-column {
@@ -257,7 +272,8 @@ export default {
   background-color: #d9d9d9;
   font-weight: bolder;
   padding: 0.2em;
-  text-align: center; /* Add this line to center the text */
+  text-align: center;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .split-cell {
@@ -289,9 +305,9 @@ export default {
 
 .note-slot {
   font-size: 0.8em;
-  color: #d9d9d9;
+  color: #00000085;
   flex: 2;
-  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  border-left: 5px solid rgba(0, 0, 0, 0.12); /* This border remains 5px as before */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

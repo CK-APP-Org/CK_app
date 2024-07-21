@@ -150,10 +150,11 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import axios from "axios";
 import { formatDistanceToNow, parseISO, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
+import store from "../store/store";
 
 class Station {
   constructor(name) {
@@ -165,20 +166,14 @@ class Station {
 }
 
 export default defineComponent({
+  setup() {
+    const StationList = computed(() => store.getters.getStationList);
+    return { StationList };
+  },
   data() {
     return {
-      stations: {
-        quan: new Station("YouBike2.0_泉州寧波西街口"),
-        you: new Station("YouBike2.0_郵政博物館"),
-        tai: new Station("YouBike2.0_植物園"),
-        zhong: new Station("YouBike2.0_捷運中正紀念堂站(2號出口)"),
-      },
-      stationsNickname: {
-        "YouBike2.0_泉州寧波西街口": "泉州寧波西街口(建中側門)",
-        "YouBike2.0_郵政博物館": "郵政博物館",
-        "YouBike2.0_植物園": "台北植物園",
-        "YouBike2.0_捷運中正紀念堂站(2號出口)": "中正紀念堂站(2號出口)",
-      },
+      stations: {},
+      stationsNickname: {},
       showAddStationDialog: false,
       showEditNicknameDialog: false,
       showDeleteStationDialog: false,
@@ -256,27 +251,65 @@ export default defineComponent({
   },
   methods: {
     async fetchData() {
+      console.log(JSON.parse(localStorage.getItem("store")));
+      const stationList = this.StationList;
+      this.stations = Object.fromEntries(
+        Object.keys(stationList).map((name) => [name, new Station(name)])
+      );
+      this.stationsNickname = Object.fromEntries(
+        Object.entries(stationList).map(([key, value]) => [key, value.nickname])
+      );
       try {
-        const response = await axios.get(
+        //Fetch data from TPC API
+        const responseTPC = await axios.get(
           "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
         );
-        const data = response.data;
-        //將YouBike Json檔裡的Object抓到四個預設Station
-        for (const key in this.stations) {
-          const stationData = data.find(
-            (station) => station.sna === this.stations[key].name
-          );
+        const dataTPC = responseTPC.data;
+        //Fetch data from NTC API
+        var responseNTC;
+        var dataNTC;
+        responseNTC = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+        );
+        dataNTC = responseNTC.data;
+        //Fetch the data of the second page of the NTC API
+        responseNTC = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+        );
+        dataNTC = [...dataNTC, ...responseNTC.data]; //Merging the two arrays of objects together
 
-          if (stationData) {
-            this.stations[key].available_rent_bikes =
-              stationData.available_rent_bikes;
-            this.stations[key].available_return_bikes =
-              stationData.available_return_bikes;
-            this.stations[key].infoTime = stationData.mday;
-          } else {
-            this.stations[key].available_rent_bikes = "Station not found";
-            this.stations[key].available_return_bikes = "Station not found";
-            this.stations[key].infoTime = "Station not found";
+        //Fetch data for each station
+        for (const key in this.stations) {
+          if (stationList[key].city == "臺北市") {
+            const stationData = dataTPC.find(
+              (station) => station.sna === this.stations[key].name
+            );
+
+            if (stationData) {
+              this.stations[key].available_rent_bikes =
+                stationData.available_rent_bikes;
+              this.stations[key].available_return_bikes =
+                stationData.available_return_bikes;
+              this.stations[key].infoTime = stationData.mday;
+            } else {
+              this.stations[key].available_rent_bikes = "Station not found";
+              this.stations[key].available_return_bikes = "Station not found";
+              this.stations[key].infoTime = "Station not found";
+            }
+          } else if (stationList[key].city == "新北市") {
+            const stationData = dataNTC.find(
+              (station) => station.sna === this.stations[key].name
+            );
+
+            if (stationData) {
+              this.stations[key].available_rent_bikes = stationData.sbi;
+              this.stations[key].available_return_bikes = stationData.bemp;
+              this.stations[key].infoTime = stationData.mday;
+            } else {
+              this.stations[key].available_rent_bikes = "Station not found";
+              this.stations[key].available_return_bikes = "Station not found";
+              this.stations[key].infoTime = "Station not found";
+            }
           }
         }
       } catch (error) {
@@ -371,6 +404,15 @@ export default defineComponent({
           return;
         }
 
+        // Update store
+        store.dispatch("addStation", {
+          stationName: this.selectedStation["value"],
+          stationData: {
+            nickname: this.selectedStation.label,
+            city: this.selectedCity.value,
+          },
+        });
+
         this.showAddStationDialog = false;
         this.selectedCity = null;
         this.selectedDistrict = null;
@@ -427,10 +469,17 @@ export default defineComponent({
     },
     updateNickname() {
       if (this.selectedStationForEdit && this.newNickname) {
+        // Update local state
         this.stationsNickname = {
           ...this.stationsNickname,
           [this.selectedStationForEdit]: this.newNickname,
         };
+
+        // Update store
+        store.dispatch("updateStationNickname", {
+          stationName: this.selectedStationForEdit,
+          newNickname: this.newNickname,
+        });
       }
       this.showEditNicknameDialog = false;
     },
@@ -440,8 +489,17 @@ export default defineComponent({
     },
     deleteStation(key) {
       if (this.stations[key]) {
-        delete this.stationsNickname[this.stations[key].name];
+        const stationName = this.stations[key].name;
+
+        // Remove from local component state
+        delete this.stationsNickname[stationName];
         delete this.stations[key];
+
+        // Update store
+        store.dispatch("deleteStation", stationName);
+      } else {
+        // If the station is not in the local state, it might be directly in the store
+        store.dispatch("deleteStation", key);
       }
       this.showDeleteStationDialog = false;
     },
@@ -458,13 +516,13 @@ export default defineComponent({
       // If it's not a string, return it as is (it might already be a Date object)
       return timestamp;
     },
-
     timeAgo(time) {
       const parsedTime = this.parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
     },
   },
   mounted() {
+    // store.dispatch("clearALL");
     this.fetchData();
   },
 });

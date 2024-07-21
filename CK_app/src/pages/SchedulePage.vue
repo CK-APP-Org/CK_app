@@ -231,23 +231,27 @@ export default {
   background-color: var(--q-primary-accent);
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #d0d0d0; /* Thinner, grey border for the entire table */
 }
 
 .my-custom-table .q-table__top {
   font-size: 1.5em;
   padding: 16px;
   background-color: #d9d9d9;
-  color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  border-bottom: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table thead tr th {
   font-size: 1.6em;
-  background-color: #d9d9d9;;
+  background-color: #d9d9d9;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table tbody td {
   font-size: 1.5em;
   padding: 0;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .my-custom-table .q-table tbody td.smaller-column {
@@ -257,7 +261,8 @@ export default {
   background-color: #d9d9d9;
   font-weight: bolder;
   padding: 0.2em;
-  text-align: center; /* Add this line to center the text */
+  text-align: center;
+  border: 1px solid #d0d0d0; /* Thinner, grey border */
 }
 
 .split-cell {
@@ -289,9 +294,9 @@ export default {
 
 .note-slot {
   font-size: 0.8em;
-  color: #d9d9d9;
+  color: #00000085;
   flex: 2;
-  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  border-left: 5px solid rgba(0, 0, 0, 0.12); /* This border remains 5px as before */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

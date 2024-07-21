@@ -84,12 +84,19 @@ export default createStore({
       state.lastClearedTime = time;
       localStorage.setItem('store', JSON.stringify(state));
       console.log('Last cleared time saved:', state.lastClearedTime);
-    }
+    },
+    SET_USER_CLASS(state, newClass) {
+      state.userClass = newClass;
+    },
   },
   actions: {
     updateSchedule({ commit }, payload) {
       commit('UPDATE_SCHEDULE', payload)
       console.log('1');
+    },
+    setUserClass({ commit }, newClass) {
+      commit('SET_USER_CLASS', newClass);
+      localStorage.setItem('userClass', newClass);
     },
     loadSchedule({ commit }) {
       commit('SET_SCHEDULE_DATA', scheduleData)

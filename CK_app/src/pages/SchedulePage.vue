@@ -15,6 +15,7 @@
     <template v-slot:top>
       <div class="row items-center justify-between q-mb-md">
         <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+        <q-select filled @update:model-value="updateUserClass" :options="classOptions" v-model="userClass" />
         <div class="row q-gutter-sm">
           <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
             :key="day"
@@ -138,8 +139,11 @@ const colorOptions = [
 
 const options = [
         "國文", "數學", "英文", "地理", "歷史", "公民",
-        "生物", "物理", "化學", "地科", "音樂", "美術"
+        "生物", "物理", "化學", "地科", "音樂", "美術",
+        "體育", "社團", "其他"
 ];
+
+const classOptions = [217, 227]
 
 export default {
   setup() {
@@ -159,7 +163,6 @@ export default {
         store.dispatch('loadSchedule');
       }
     });
-
 
 
     const getCellSubject = (row, colName) => {
@@ -192,6 +195,12 @@ export default {
       console.log("UPDATE_SCHEDULE",newValue);
     };
 
+    const updateUserClass = (newClass) => {
+      store.dispatch('setUserClass', newClass);
+      // Optionally, you might want to reload the schedule for the new class
+      store.dispatch('loadSchedule');
+    };
+
 
     const getDayLabel = (day) => {
       const labels = {
@@ -218,7 +227,9 @@ export default {
       changeVisibleColumn,
       getDayLabel,
       getLabelValue,
-      getFormattedColor
+      getFormattedColor,
+      classOptions,
+      updateUserClass
     };
   },
 };

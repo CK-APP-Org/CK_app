@@ -56,7 +56,7 @@ export default {
   padding: 20px;
   border-radius: 15px;
   margin-bottom: 20px;
-  background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+  background-image: linear-gradient(to top, #e6b980 0%, #eacda3 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

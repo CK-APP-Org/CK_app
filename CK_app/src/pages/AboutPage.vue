@@ -14,7 +14,8 @@
         padding
         arrows
         height="300px"
-        class="bg-purple text-white shadow-1 rounded-borders"
+        class="text-white shadow-1 rounded-borders"
+        style="background-image: linear-gradient(to Left, #C5B061 0%, #d9c88b 100%);"
       >
       <q-carousel-slide name="Intro" class="column no-wrap flex-center">
         <q-icon name="help" size="56px" />
@@ -56,7 +57,7 @@
 
     <div class="q-mt-md"></div>
 
-    <q-banner class="bg-secondary text-white">
+    <q-banner class="text-white" style="background-image: linear-gradient(to Left, #C5B061 0%, #d9c88b 100%)">
       <div class="text-h5">關於這個APP</div>
       <div>....CK APP 是一個革命性的建中校園應用程式，它的誕生源於一個崇高的使命：徹底改變建中學子的校園生活體驗。
         這款app不僅僅是一個工具，它是每個建中人的得力助手、貼心夥伴和充滿智慧的嚮導。</div>
@@ -66,7 +67,7 @@
 
     <div class="q-mt-md"></div>
 
-    <q-banner class="bg-primary text-white text-h5">
+    <q-banner class="text-white text-h5" style="background-image: linear-gradient(to Left, #C5B061 0%, #d9c88b 100%)">
       <div class="text-h5">聯絡我們</div>
       <template v-slot:action>
         <q-btn flat color="white" label="Gmail" @click="openGmailCompose"/>

@@ -73,7 +73,12 @@
             <div class="text-h6">未讀訊息</div>
           </div>
           <div class="col-2 text-right">
-            <q-btn color="negative" icon="delete" @click="clearAllNews" dense />
+            <q-btn
+              color="negative"
+              icon="delete"
+              @click="showDeleteDialog = true"
+              dense
+            />
           </div>
         </div>
       </template>
@@ -128,7 +133,25 @@
       <template v-slot:loading>
         <q-inner-loading showing color="primary" />
       </template>
+
+      <template v-slot:no-data>
+        <div class="full-width row flex-center q-gutter-sm text-body1">
+          沒有更新的公告
+        </div>
+      </template>
     </q-table>
+    <!--對話框(已讀所有訊息)-->
+    <q-dialog v-model="showDeleteDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">確認已讀所有訊息?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showDeleteDialog = false" />
+          <q-btn flat label="確認" @click="deleteAllNews" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -145,6 +168,7 @@ export default {
     const pinnedNews = computed(() => store.getters.getPinnedNews);
     const isLoading = ref(true);
     const news = ref([]);
+    const showDeleteDialog = ref(false);
     const columns = [
       {
         name: "pin",
@@ -200,6 +224,7 @@ export default {
       ];
 
       try {
+        const lastClearedTime = store.getters.getLastClearedTime;
         const promises = urls.map((url) =>
           axios.get("https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy", {
             params: { url },
@@ -213,10 +238,15 @@ export default {
           const parser = new DOMParser();
           const xml = parser.parseFromString(response.data, "text/xml");
           const items = Array.from(xml.querySelectorAll("item"));
-          const newsData = items.map((item) => ({
-            title: item.querySelector("title").textContent,
-            pubDate: new Date(item.querySelector("pubDate").textContent),
-          }));
+          const newsData = items
+            .map((item) => ({
+              title: item.querySelector("title").textContent,
+              pubDate: new Date(item.querySelector("pubDate").textContent),
+            }))
+            .filter(
+              (item) =>
+                !lastClearedTime || item.pubDate > new Date(lastClearedTime)
+            );
           allNews = allNews.concat(newsData);
         });
 
@@ -234,8 +264,14 @@ export default {
       return format(date, "zh_TW");
     };
 
-    const clearAllNews = () => {
+    const deleteAllNews = () => {
+      // Clear all unpinned news
       news.value = [];
+      // Record the current time
+      const currentTime = new Date();
+      store.dispatch("setLastClearedTime", currentTime);
+
+      showDeleteDialog.value = false;
     };
 
     onMounted(() => {
@@ -252,7 +288,8 @@ export default {
       pinnedNews,
       pinRow,
       unpinRow,
-      clearAllNews,
+      showDeleteDialog,
+      deleteAllNews,
     };
   },
 };

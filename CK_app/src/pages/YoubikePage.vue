@@ -522,7 +522,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    //store.dispatch("clearALL");
+    // store.dispatch("clearALL");
     this.fetchData();
   },
 });

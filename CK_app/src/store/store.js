@@ -25,7 +25,8 @@ export default createStore({
         "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
         "YouBike2.0_捷運中正紀念堂站(2號出口)": { nickname: "中正紀念堂站(2號出口)", city: "臺北市" },
       },
-      pinnedNews: []
+      pinnedNews: [],
+      lastClearedTime: null
     }
   },
   mutations: {
@@ -77,6 +78,12 @@ export default createStore({
     UNPIN_NEWS(state, newsItemTitle) {
       state.pinnedNews = state.pinnedNews.filter(item => item.title !== newsItemTitle);
       localStorage.setItem('store', JSON.stringify(state));
+    },
+
+    SET_LAST_CLEARED_TIME(state, time) {
+      state.lastClearedTime = time;
+      localStorage.setItem('store', JSON.stringify(state));
+      console.log('Last cleared time saved:', state.lastClearedTime);
     }
   },
   actions: {
@@ -104,15 +111,18 @@ export default createStore({
     pinNews({ commit }, newsItem) {
       commit('PIN_NEWS', newsItem);
     },
-
     unpinNews({ commit }, newsItemTitle) {
       commit('UNPIN_NEWS', newsItemTitle);
+    },
+    setLastClearedTime({ commit }, time) {
+      commit('SET_LAST_CLEARED_TIME', time);
     }
   },
   getters: {
     getScheduleData: state => state.scheduleData,
     getUserClass: state => state.userClass,
     getStationList: state => state.stationList,
-    getPinnedNews: state => state.pinnedNews
+    getPinnedNews: state => state.pinnedNews,
+    getLastClearedTime: state => state.lastClearedTime
   }
 })

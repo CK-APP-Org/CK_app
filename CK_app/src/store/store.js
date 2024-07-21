@@ -45,6 +45,28 @@ export default createStore({
       localStorage.removeItem('store');
       console.log('Data cleared from state and localStorage');
     },
+
+    UPDATE_STATION_NICKNAME(state, { stationName, newNickname }) {
+      if (state.stationList[stationName]) {
+        state.stationList[stationName].nickname = newNickname;
+      }
+      localStorage.setItem('store', JSON.stringify(state));
+      console.log('Saved to localStorage:', JSON.parse(localStorage.getItem('store')));
+    },
+
+    DELETE_STATION(state, stationName) {
+      if (state.stationList[stationName]) {
+        delete state.stationList[stationName];
+      }
+      localStorage.setItem('store', JSON.stringify(state));
+      console.log('Saved to localStorage:', JSON.parse(localStorage.getItem('store')));
+    },
+
+    ADD_STATION(state, { stationName, stationData }) {
+      state.stationList[stationName] = {nickname: stationData.nickname, city: stationData.city }
+      localStorage.setItem('store', JSON.stringify(state));
+      console.log('Saved to localStorage:', JSON.parse(localStorage.getItem('store')));
+    },
   },
   actions: {
     updateSchedule({ commit }, payload) {
@@ -58,7 +80,16 @@ export default createStore({
     clearALL({ commit }) {
       commit('CLEAR_DATA')
       console.log('3');
-    }
+    },
+    updateStationNickname({ commit }, payload) {
+      commit('UPDATE_STATION_NICKNAME', payload);
+    },
+    deleteStation({ commit }, stationName) {
+      commit('DELETE_STATION', stationName);
+    },
+    addStation({ commit }, payload) {
+      commit('ADD_STATION', payload);
+    },
   },
   getters: {
     getScheduleData: state => state.scheduleData,

@@ -150,10 +150,11 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import axios from "axios";
 import { formatDistanceToNow, parseISO, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
+import store from "../store/store";
 
 class Station {
   constructor(name) {
@@ -164,23 +165,15 @@ class Station {
   }
 }
 
-// prettier-ignore
-const stationList = {
-  "YouBike2.0_泉州寧波西街口": { nickname: "泉州寧波西街口(建中側門)", city: "臺北市" },
-  "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
-  "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
-  "YouBike2.0_捷運中正紀念堂站(2號出口)": { nickname: "中正紀念堂站(2號出口)", city: "臺北市" },
-};
-
 export default defineComponent({
+  setup() {
+    const StationList = computed(() => store.getters.getStationList);
+    return { StationList };
+  },
   data() {
     return {
-      stations: Object.fromEntries(
-        Object.keys(stationList).map((name) => [name, new Station(name)])
-      ),
-      stationsNickname: Object.fromEntries(
-        Object.entries(stationList).map(([key, value]) => [key, value.nickname])
-      ),
+      stations: {},
+      stationsNickname: {},
       showAddStationDialog: false,
       showEditNicknameDialog: false,
       showDeleteStationDialog: false,
@@ -258,6 +251,14 @@ export default defineComponent({
   },
   methods: {
     async fetchData() {
+      console.log(JSON.parse(localStorage.getItem("store")));
+      const stationList = this.StationList;
+      this.stations = Object.fromEntries(
+        Object.keys(stationList).map((name) => [name, new Station(name)])
+      );
+      this.stationsNickname = Object.fromEntries(
+        Object.entries(stationList).map(([key, value]) => [key, value.nickname])
+      );
       try {
         //Fetch data from TPC API
         const responseTPC = await axios.get(

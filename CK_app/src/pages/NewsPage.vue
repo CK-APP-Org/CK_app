@@ -69,6 +69,7 @@
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[20, 50, 100, 0]"
+      rows-per-page-label="每頁最大顯示數量:"
       v-model:pagination="pagination"
       :loading="isLoading"
     >
@@ -144,6 +145,7 @@
         </div>
       </template>
     </q-table>
+
     <!--對話框(已讀所有訊息)-->
     <q-dialog v-model="showDeleteDialog">
       <q-card>
@@ -201,6 +203,7 @@ export default {
         sortable: true,
       },
     ];
+
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
@@ -303,7 +306,7 @@ export default {
 
 <style scoped>
 .q-pa-md {
-  padding: 16px;
+  padding: 11px;
 }
 .div-header {
   display: flex;

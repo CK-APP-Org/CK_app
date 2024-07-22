@@ -16,7 +16,7 @@ const storeWatcherPlugin = (store) => {
 export default createStore({
   plugins: [storeWatcherPlugin],
   state() {
-    const defaultState = {
+    return JSON.parse(localStorage.getItem('store')) || {
       scheduleData: scheduleData,
       userClass: "217",
       stationList: {
@@ -27,17 +27,7 @@ export default createStore({
       },
       pinnedNews: [],
       lastClearedTime: null
-    };
-
-    const storedState = JSON.parse(localStorage.getItem('store')) || {};
-
-    // Merge the stored state with the default state
-    return {
-      ...defaultState,
-      ...storedState,
-      // Ensure that objects are merged properly
-      stationList: { ...defaultState.stationList, ...storedState.stationList },
-    };
+    }
   },
   mutations: {
     UPDATE_SCHEDULE(state, { rowIndex, colName, newValue }) {

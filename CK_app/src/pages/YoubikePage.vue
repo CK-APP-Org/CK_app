@@ -154,7 +154,7 @@ import { defineComponent, computed } from "vue";
 import axios from "axios";
 import { formatDistanceToNow, parseISO, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
-import store from "../store/store";
+import store from "../store/index";
 
 class Station {
   constructor(name) {
@@ -251,7 +251,6 @@ export default defineComponent({
   },
   methods: {
     async fetchData() {
-      console.log(JSON.parse(localStorage.getItem("store")));
       const stationList = this.StationList;
       this.stations = Object.fromEntries(
         Object.keys(stationList).map((name) => [name, new Station(name)])
@@ -522,7 +521,7 @@ export default defineComponent({
     },
   },
   mounted() {
-    // store.dispatch("clearALL");
+    console.log(JSON.parse(localStorage.getItem("store")));
     this.fetchData();
   },
 });

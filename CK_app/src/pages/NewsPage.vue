@@ -166,7 +166,7 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
-import store from "../store/store";
+import store from "../store/index";
 
 export default {
   name: "NewsPage",
@@ -283,7 +283,7 @@ export default {
     };
 
     onMounted(() => {
-      //store.dispatch("clearALL");
+      console.log(JSON.parse(localStorage.getItem("store")));
       register("zh_TW", zh_TW);
       fetchNews();
     });

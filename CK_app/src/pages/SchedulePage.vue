@@ -12,22 +12,34 @@
       separator="cell"
       :rows-per-page-options="[0]"
     >
-    <template v-slot:top>
-      <div class="row items-center justify-between q-mb-md">
-        <div class="text-h5 text-bold">{{ userClass }} 課表</div>
-        <q-select filled @update:model-value="updateUserClass" :options="classOptions" v-model="userClass" />
-        <div class="row q-gutter-sm">
-          <q-btn v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']"
-            :key="day"
-            :label="getDayLabel(day)"
-            :color="visibleColumns.includes(day) ? 'black' : 'grey'"
-            @click="changeVisibleColumn(day)"
-            dense
-            outline />
+      <template v-slot:top>
+        <div class="row items-center justify-between q-mb-md">
+          <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+          <q-select
+            filled
+            @update:model-value="updateUserClass"
+            :options="classOptions"
+            v-model="userClass"
+          />
+          <div class="row q-gutter-sm">
+            <q-btn
+              v-for="day in [
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+              ]"
+              :key="day"
+              :label="getDayLabel(day)"
+              :color="visibleColumns.includes(day) ? 'black' : 'grey'"
+              @click="changeVisibleColumn(day)"
+              dense
+              outline
+            />
+          </div>
         </div>
-      </div>
-
-    </template>
+      </template>
 
       <template v-slot:body-cell="props">
         <q-td
@@ -38,7 +50,9 @@
             <div
               class="cell-content"
               :style="{
-                backgroundColor: getLabelValue(getCellColor(props.row, props.col.name)),
+                backgroundColor: getLabelValue(
+                  getCellColor(props.row, props.col.name)
+                ),
               }"
             >
               <div class="subject-slot">
@@ -61,14 +75,24 @@
                 dense
                 options-dense
                 class="q-mb-sm"
-                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, subject: $event})"
+                @update:model-value="
+                  updateCell(props.row, props.col.name, {
+                    ...scope.value,
+                    subject: $event,
+                  })
+                "
               />
               <q-input
                 v-model="scope.value.note"
                 label="備註"
                 dense
                 class="q-mb-sm"
-                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, note: $event})"
+                @update:model-value="
+                  updateCell(props.row, props.col.name, {
+                    ...scope.value,
+                    note: $event,
+                  })
+                "
               />
               <q-select
                 :options="colorOptions"
@@ -76,9 +100,13 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="updateCell(props.row, props.col.name, {...scope.value, color: $event.label})"
+                @update:model-value="
+                  updateCell(props.row, props.col.name, {
+                    ...scope.value,
+                    color: $event.label,
+                  })
+                "
               >
-
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
                     <q-item-section side>
@@ -107,8 +135,7 @@
 
 <script>
 import { onMounted, ref, computed } from "vue";
-import store from '../store/store';
-
+import store from "../store/index";
 
 const columns = [
   {
@@ -138,12 +165,24 @@ const colorOptions = [
 ];
 
 const options = [
-        "國文", "數學", "英文", "地理", "歷史", "公民",
-        "生物", "物理", "化學", "地科", "音樂", "美術",
-        "體育", "社團", "其他"
+  "國文",
+  "數學",
+  "英文",
+  "地理",
+  "歷史",
+  "公民",
+  "生物",
+  "物理",
+  "化學",
+  "地科",
+  "音樂",
+  "美術",
+  "體育",
+  "社團",
+  "其他",
 ];
 
-const classOptions = [217, 227]
+const classOptions = [217, 227];
 
 export default {
   setup() {
@@ -152,18 +191,14 @@ export default {
       visibleColumns.value = ["name", columnName];
     };
 
-
     const scheduleData = computed(() => store.getters.getScheduleData);
     const userClass = computed(() => store.getters.getUserClass);
 
-
     onMounted(() => {
-      // store.dispatch('clearALL');
-      if (store.state.scheduleData.length === 0) {
-        store.dispatch('loadSchedule');
+      if (scheduleData.value.length === 0) {
+        store.dispatch("loadSchedule");
       }
     });
-
 
     const getCellSubject = (row, colName) => {
       if (colName === "name") return row[colName];
@@ -174,41 +209,39 @@ export default {
       return getFormattedColor(row[colName]?.color);
     };
     const getFormattedColor = (color) => {
-      if (color && typeof color === 'object' && color.label) {
+      if (color && typeof color === "object" && color.label) {
         return color.label;
       }
-      return color || 'Default';
+      return color || "Default";
     };
     const getCellNote = (row, colName) => {
       if (colName === "name") return "";
       return row[colName] && row[colName].note ? row[colName].note : "";
     };
     const getLabelValue = (label) => {
-      const option = colorOptions.find(opt => opt.label === label);
-      console.log(option ? option.value : "#f4f4f1")
+      const option = colorOptions.find((opt) => opt.label === label);
+      console.log(option ? option.value : "#f4f4f1");
       return option ? option.value : "#f4f4f1"; // Default color if not found
     };
 
     const updateCell = (row, colName, newValue) => {
       const rowIndex = scheduleData.value.indexOf(row);
-      store.dispatch('updateSchedule', { rowIndex, colName, newValue });
-      console.log("UPDATE_SCHEDULE",newValue);
+      store.dispatch("updateSchedule", { rowIndex, colName, newValue });
+      console.log("UPDATE_SCHEDULE", newValue);
     };
 
     const updateUserClass = (newClass) => {
-      store.dispatch('setUserClass', newClass);
-      // Optionally, you might want to reload the schedule for the new class
-      store.dispatch('loadSchedule');
+      store.dispatch("setUserClass", newClass);
+      store.dispatch("loadSchedule");
     };
-
 
     const getDayLabel = (day) => {
       const labels = {
-        Monday: '星期一',
-        Tuesday: '星期二',
-        Wednesday: '星期三',
-        Thursday: '星期四',
-        Friday: '星期五'
+        Monday: "星期一",
+        Tuesday: "星期二",
+        Wednesday: "星期三",
+        Thursday: "星期四",
+        Friday: "星期五",
       };
       return labels[day] || day;
     };
@@ -229,13 +262,11 @@ export default {
       getLabelValue,
       getFormattedColor,
       classOptions,
-      updateUserClass
+      updateUserClass,
     };
   },
 };
 </script>
-
-
 
 <style>
 .my-custom-table {

@@ -38,7 +38,12 @@
       <template v-slot:body-cell="props">
         <q-td
           :props="props"
-          :class="{ 'split-cell': props.col.name !== 'name' }"
+          :class="[
+            { 'split-cell': props.col.name !== 'name' },
+            {
+              'thick-border-bottom': props.row.name === '五',
+            },
+          ]"
         >
           <template v-if="props.col.name !== 'name'">
             <div
@@ -224,7 +229,6 @@ export default {
       console.log("UPDATE_SCHEDULE", newValue);
     };
 
-
     const getDayLabel = (day) => {
       const labels = {
         Monday: "星期一",
@@ -345,5 +349,20 @@ export default {
 .q-table__top .row.q-gutter-sm {
   justify-content: center;
   margin-top: 8px;
+}
+
+.my-custom-table .q-table tbody td.thick-border-bottom {
+  position: relative;
+}
+
+.my-custom-table .q-table tbody td.thick-border-bottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background-color: #d9d9d9; /* Adjust color as needed */
+  z-index: 1;
 }
 </style>

@@ -1,4 +1,4 @@
-import scheduleData from "../../data/ClassSchedule.json";
+import scheduleData from "../../data/ClassesSchedule.json";
 
 export default {
   state: () => ({
@@ -24,8 +24,10 @@ export default {
       commit("SET_USER_CLASS", newClass);
       localStorage.setItem("userClass", newClass);
     },
-    loadSchedule({ commit }) {
-      commit("SET_SCHEDULE_DATA", scheduleData);
+    loadSchedule({ commit, state }) {
+      const classSchedule = scheduleData[state.userClass]['schedule']
+      console.log(classSchedule)
+      commit("SET_SCHEDULE_DATA", classSchedule);
     },
   },
   getters: {
@@ -33,3 +35,4 @@ export default {
     getUserClass: (state) => state.userClass,
   },
 };
+

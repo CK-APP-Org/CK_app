@@ -15,12 +15,6 @@
       <template v-slot:top>
         <div class="row items-center justify-between q-mb-md">
           <div class="text-h5 text-bold">{{ userClass }} 課表</div>
-          <q-select
-            filled
-            @update:model-value="updateUserClass"
-            :options="classOptions"
-            v-model="userClass"
-          />
           <div class="row q-gutter-sm">
             <q-btn
               v-for="day in [
@@ -230,10 +224,6 @@ export default {
       console.log("UPDATE_SCHEDULE", newValue);
     };
 
-    const updateUserClass = (newClass) => {
-      store.dispatch("setUserClass", newClass);
-      store.dispatch("loadSchedule");
-    };
 
     const getDayLabel = (day) => {
       const labels = {
@@ -262,7 +252,6 @@ export default {
       getLabelValue,
       getFormattedColor,
       classOptions,
-      updateUserClass,
     };
   },
 };

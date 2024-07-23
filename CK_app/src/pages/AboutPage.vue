@@ -31,6 +31,13 @@
           你不但能夠自訂每天的科目名稱，還能針對課目加上註解並客製化每一格的顏色
         </div>
       </q-carousel-slide>
+      <q-carousel-slide name="News" class="column no-wrap flex-center">
+          <q-icon name="newspaper" size="56px" />
+          <div class="q-mt-md text-center text-h5">行事曆 : 輕鬆規劃每一天</div>
+          <div class="q-mt-md text-center">
+            有別於其他行事曆，CK APP中的行事曆專為學生打造，每一個介面和功能都配合著學生繁忙的上課生活
+          </div>
+      </q-carousel-slide>
       <q-carousel-slide name="Youbike" class="column no-wrap flex-center">
         <q-icon name="directions_bike" size="56px" />
         <div class="q-mt-md text-center text-h5">

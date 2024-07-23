@@ -1,0 +1,138 @@
+{
+  "217": {
+    "schedule": [
+      {
+        "name": "一",
+        "Monday": { "subject": "物理", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Thursday": { "subject": "數學", "note": "", "color": "Default" },
+        "Friday": { "subject": "化學", "note": "", "color": "Default" }
+      },
+      {
+        "name": "二",
+        "Monday": { "subject": "物理", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Thursday": { "subject": "數學", "note": "", "color": "Default" },
+        "Friday": { "subject": "化學", "note": "", "color": "Default" }
+      },
+      {
+        "name": "三",
+        "Monday": { "subject": "化學", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "國文", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Thursday": { "subject": "英文", "note": "", "color": "Default" },
+        "Friday": { "subject": "物理", "note": "", "color": "Default" }
+      },
+      {
+        "name": "四",
+        "Monday": { "subject": "化學", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "國文", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Thursday": { "subject": "英文", "note": "", "color": "Default" },
+        "Friday": { "subject": "物理", "note": "", "color": "Default" }
+      },
+      {
+        "name": "五",
+        "Monday": { "subject": "英文", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "國文", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "六",
+        "Monday": { "subject": "英文", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "國文", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "七",
+        "Monday": { "subject": "無", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "無", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "無", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "課後",
+        "Monday": { "subject": "補習", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "補習", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "補習", "note": "", "color": "Default" },
+        "Thursday": { "subject": "補習", "note": "", "color": "Default" },
+        "Friday": { "subject": "補習", "note": "", "color": "Default" }
+      }
+    ]
+  },
+  "227": {
+    "schedule": [
+      {
+        "name": "一",
+        "Monday": { "subject": "227", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "英文", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "物理", "note": "", "color": "Default" },
+        "Thursday": { "subject": "化學", "note": "", "color": "Default" },
+        "Friday": { "subject": "生物", "note": "", "color": "Default" }
+      },
+      {
+        "name": "二",
+        "Monday": { "subject": "數學", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "英文", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "物理", "note": "", "color": "Default" },
+        "Thursday": { "subject": "化學", "note": "", "color": "Default" },
+        "Friday": { "subject": "生物", "note": "", "color": "Default" }
+      },
+      {
+        "name": "三",
+        "Monday": { "subject": "國文", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "物理", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "英文", "note": "", "color": "Default" },
+        "Thursday": { "subject": "生物", "note": "", "color": "Default" },
+        "Friday": { "subject": "化學", "note": "", "color": "Default" }
+      },
+      {
+        "name": "四",
+        "Monday": { "subject": "國文", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "物理", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "英文", "note": "", "color": "Default" },
+        "Thursday": { "subject": "生物", "note": "", "color": "Default" },
+        "Friday": { "subject": "化學", "note": "", "color": "Default" }
+      },
+      {
+        "name": "五",
+        "Monday": { "subject": "化學", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "六",
+        "Monday": { "subject": "化學", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "七",
+        "Monday": { "subject": "無", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "無", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "無", "note": "", "color": "Default" },
+        "Thursday": { "subject": "無", "note": "", "color": "Default" },
+        "Friday": { "subject": "無", "note": "", "color": "Default" }
+      },
+      {
+        "name": "課後",
+        "Monday": { "subject": "補習", "note": "", "color": "Default" },
+        "Tuesday": { "subject": "補習", "note": "", "color": "Default" },
+        "Wednesday": { "subject": "補習", "note": "", "color": "Default" },
+        "Thursday": { "subject": "補習", "note": "", "color": "Default" },
+        "Friday": { "subject": "補習", "note": "", "color": "Default" }
+      }
+    ]
+  }
+}

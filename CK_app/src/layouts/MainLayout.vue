@@ -136,3 +136,4 @@ export default {
 <style>
 /* No need for media query, we're using Quasar's responsive classes */
 </style>
+

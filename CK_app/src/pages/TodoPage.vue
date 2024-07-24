@@ -1,6 +1,10 @@
 <template>
-  <q-page
-    >Todo</q-page
+  <q-page>
+    <q-btn-group push>
+      <q-btn push label="Calendar" icon="timeline" />
+      <q-btn push label="Todo" icon="visibility" />
+    </q-btn-group>
+  </q-page
   >
 </template>
 

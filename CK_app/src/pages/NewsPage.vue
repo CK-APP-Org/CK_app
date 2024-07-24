@@ -69,6 +69,7 @@
       :wrap-cells="true"
       :dense="$q.screen.lt.md"
       :rows-per-page-options="[20, 50, 100, 0]"
+      rows-per-page-label="每頁最大顯示數量:"
       v-model:pagination="pagination"
       :loading="isLoading"
     >
@@ -144,6 +145,7 @@
         </div>
       </template>
     </q-table>
+
     <!--對話框(已讀所有訊息)-->
     <q-dialog v-model="showDeleteDialog">
       <q-card>
@@ -164,7 +166,7 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
-import store from "../store/store";
+import store from "../store/index";
 
 export default {
   name: "NewsPage",
@@ -201,6 +203,7 @@ export default {
         sortable: true,
       },
     ];
+
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
@@ -280,7 +283,7 @@ export default {
     };
 
     onMounted(() => {
-      //store.dispatch("clearALL");
+      console.log(JSON.parse(localStorage.getItem("store")));
       register("zh_TW", zh_TW);
       fetchNews();
     });
@@ -303,7 +306,7 @@ export default {
 
 <style scoped>
 .q-pa-md {
-  padding: 16px;
+  padding: 11px;
 }
 .div-header {
   display: flex;

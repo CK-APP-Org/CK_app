@@ -3,7 +3,7 @@
     <q-table
       flat
       bordered
-      title="217 課表"
+      :title="userClass + ' 課表'"
       :rows="scheduleData"
       :columns="columns"
       row-key="name"
@@ -17,16 +17,10 @@
           <div class="text-h5 text-bold">{{ userClass }} 課表</div>
           <div class="row q-gutter-sm">
             <q-btn
-              v-for="day in [
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-              ]"
+              v-for="day in days"
               :key="day"
               :label="getDayLabel(day)"
-              :color="visibleColumns.includes(day) ? 'black' : 'grey'"
+              :color="visibleColumns.includes(day) ? 'primary' : 'grey'"
               @click="changeVisibleColumn(day)"
               dense
               outline
@@ -40,9 +34,8 @@
           :props="props"
           :class="[
             { 'split-cell': props.col.name !== 'name' },
-            {
-              'thick-border-bottom': props.row.name === '五',
-            },
+            { 'thick-border-bottom': props.row.name === '五' },
+            { 'current-class': isCurrentClass(props.row, props.col.name) }
           ]"
         >
           <template v-if="props.col.name !== 'name'">
@@ -186,6 +179,8 @@ const classOptions = [217, 227];
 export default {
   setup() {
     const visibleColumns = ref(["name", "Monday"]);
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
     const changeVisibleColumn = (columnName) => {
       visibleColumns.value = ["name", columnName];
     };
@@ -219,14 +214,12 @@ export default {
     };
     const getLabelValue = (label) => {
       const option = colorOptions.find((opt) => opt.label === label);
-      console.log(option ? option.value : "#f4f4f1");
       return option ? option.value : "#f4f4f1"; // Default color if not found
     };
 
     const updateCell = (row, colName, newValue) => {
       const rowIndex = scheduleData.value.indexOf(row);
       store.dispatch("updateSchedule", { rowIndex, colName, newValue });
-      console.log("UPDATE_SCHEDULE", newValue);
     };
 
     const getDayLabel = (day) => {
@@ -238,6 +231,17 @@ export default {
         Friday: "星期五",
       };
       return labels[day] || day;
+    };
+
+    const isCurrentClass = (row, colName) => {
+      const now = new Date();
+      const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+      const currentHour = now.getHours();
+
+      // Assuming classes start at 8 AM and each period is 1 hour
+      const currentPeriod = currentHour - 7;
+
+      return colName === currentDay && row.name === currentPeriod.toString();
     };
 
     return {
@@ -256,6 +260,8 @@ export default {
       getLabelValue,
       getFormattedColor,
       classOptions,
+      days,
+      isCurrentClass
     };
   },
 };
@@ -266,7 +272,7 @@ export default {
   background-color: var(--q-primary-accent);
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #d0d0d0; /* Thinner, grey border for the entire table */
+  border: 1px solid #d0d0d0;
 }
 
 .my-custom-table .q-table__top {
@@ -274,19 +280,19 @@ export default {
   padding: 16px;
   background-color: #d9d9d9;
   color: rgb(0, 0, 0);
-  border-bottom: 1px solid #d0d0d0; /* Thinner, grey border */
+  border-bottom: 1px solid #d0d0d0;
 }
 
 .my-custom-table .q-table thead tr th {
   font-size: 1.6em;
   background-color: #d9d9d9;
-  border: 1px solid #d0d0d0; /* Thinner, grey border */
+  border: 1px solid #d0d0d0;
 }
 
 .my-custom-table .q-table tbody td {
   font-size: 1.5em;
   padding: 0;
-  border: 1px solid #d0d0d0; /* Thinner, grey border */
+  border: 1px solid #d0d0d0;
 }
 
 .my-custom-table .q-table tbody td.smaller-column {
@@ -297,7 +303,7 @@ export default {
   font-weight: bolder;
   padding: 0.2em;
   text-align: center;
-  border: 1px solid #d0d0d0; /* Thinner, grey border */
+  border: 1px solid #d0d0d0;
 }
 
 .split-cell {
@@ -331,7 +337,7 @@ export default {
   font-size: 0.8em;
   color: #00000085;
   flex: 2;
-  border-left: 5px solid rgba(0, 0, 0, 0.12); /* This border remains 5px as before */
+  border-left: 5px solid rgba(0, 0, 0, 0.12);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -362,7 +368,23 @@ export default {
   right: 0;
   bottom: -1px;
   height: 1px;
-  background-color: #d9d9d9; /* Adjust color as needed */
+  background-color: #d9d9d9;
   z-index: 1;
+}
+
+.current-class {
+  position: relative;
+}
+
+.current-class::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid #FF4081;
+  pointer-events: none;
+  z-index: 2;
 }
 </style>

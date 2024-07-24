@@ -8,10 +8,10 @@
       最新公告：今天下午在禮堂有全校集會
     </q-banner>
 
-    <div class="header">
+    <!-- <div class="header">
       <h5 class="font-weight-bold">歡迎使用 CK APP</h5>
       <h6>為你量身打造的專屬校園APP</h6>
-    </div>
+    </div> -->
 
     <!-- Current Class Section -->
     <div class="current-class-section q-mb-md">

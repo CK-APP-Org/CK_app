@@ -2,7 +2,7 @@ import scheduleData from "../../data/ClassesSchedule.json";
 
 export default {
   state: () => ({
-    scheduleData: scheduleData,
+    scheduleData: scheduleData['217']['schedule'],
     userClass: "217",
   }),
   mutations: {

@@ -2,6 +2,7 @@ export default {
   state: () => ({
     pinnedNews: [],
     lastClearedTime: null,
+    displayNewsWidget: true
   }),
   mutations: {
     PIN_NEWS(state, newsItem) {
@@ -30,5 +31,6 @@ export default {
   getters: {
     getPinnedNews: (state) => state.pinnedNews,
     getLastClearedTime: (state) => state.lastClearedTime,
+    getNewsWidget: (state) => state.displayNewsWidget,
   },
 };

@@ -87,10 +87,11 @@ export default {
       const now = new Date();
       const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
       const currentHour = now.getHours();
-
+      console.log(currentDay)
+      console.log(currentHour)
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod = currentHour - 7;
-
+      console.log(currentPeriod)
       if (currentPeriod < 1 || currentPeriod > 7 || currentDay === "Saturday" || currentDay === "Sunday") {
         return {
           subject: "目前無課",

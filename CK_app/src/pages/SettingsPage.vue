@@ -28,17 +28,45 @@
           @click="confirmClear"
           class="full-width q-mb-md"
         />
-
       </div>
     </div>
 
-    <!-- Existing dialogs remain unchanged -->
     <q-dialog v-model="confirmDialog">
-      <!-- ... (unchanged) ... -->
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm">確定重置所有資料?注意，此動作無法復原</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="確定"
+            color="negative"
+            @click="clearAllData"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
     </q-dialog>
 
     <q-dialog v-model="confirmClassChangeDialog">
-      <!-- ... (unchanged) ... -->
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm" style="font-size: 1.5rem"
+            >確定更改班級為 <strong>{{ selectedClass }}</strong
+            >?</span
+          >
+          <span class="q-ml-sm"
+            >(請注意，本動作會導致所有過去自訂的顏色和標籤全部消失並無法復原)</span
+          >
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" @click="cancelClassChange" />
+          <q-btn flat label="確定" color="primary" @click="updateUserClass" />
+        </q-card-actions>
+      </q-card>
     </q-dialog>
   </q-page>
 </template>
@@ -52,7 +80,9 @@ const classOptions = [217, 227];
 
 export default {
   setup() {
-    const displayScheduleWidget = computed(() => store.getters.getScheduleWidget);
+    const displayScheduleWidget = computed(
+      () => store.getters.getScheduleWidget
+    );
     const displayNewsWidget = computed(() => store.getters.getNewsWidget);
 
     const store = useStore();
@@ -103,7 +133,7 @@ export default {
       selectedClass,
       showSchedule,
       showTodo,
-      showSchoolNews
+      showSchoolNews,
     };
   },
 };

@@ -85,12 +85,12 @@ export default {
 
     const currentClass = computed(() => {
       const now = new Date();
-      const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+      const currentDay = ["日", "一", "二", "三", "四", "五", "六"][now.getDay()];
       const currentHour = now.getHours();
       console.log(currentDay)
       console.log(currentHour)
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = currentHour - 7;
+      const currentPeriod = currentHour - 7 -1;
       console.log(currentPeriod)
       if (currentPeriod < 1 || currentPeriod > 7 || currentDay === "Saturday" || currentDay === "Sunday") {
         return {
@@ -100,7 +100,7 @@ export default {
       }
 
       const currentClassData = scheduleData.value.find(row => row.name === currentPeriod.toString())?.[currentDay];
-
+      console.log(currentClassData)
       return currentClassData ? {
         subject: currentClassData.subject,
         note: currentClassData.note

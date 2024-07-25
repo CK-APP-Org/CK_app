@@ -1,0 +1,496 @@
+<libraries>
+  <library
+      name="androidx.appcompat:appcompat:1.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4ce7c60d257b8629ab4c81cf615a92a1\transformed\appcompat-1.6.1\jars\classes.jar"
+      resolved="androidx.appcompat:appcompat:1.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4ce7c60d257b8629ab4c81cf615a92a1\transformed\appcompat-1.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.coordinatorlayout:coordinatorlayout:1.2.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\44b764ef4a0c2818774bd443073d6bc9\transformed\coordinatorlayout-1.2.0\jars\classes.jar"
+      resolved="androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\44b764ef4a0c2818774bd443073d6bc9\transformed\coordinatorlayout-1.2.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.core:core-splashscreen:1.0.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\02af67d3594ada2148314bae886ebee9\transformed\core-splashscreen-1.0.1\jars\classes.jar"
+      resolved="androidx.core:core-splashscreen:1.0.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\02af67d3594ada2148314bae886ebee9\transformed\core-splashscreen-1.0.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name=":@@:capacitor-android::release"
+      project=":capacitor-android"/>
+  <library
+      name=":@@:capacitor-cordova-android-plugins::release"
+      project=":capacitor-cordova-android-plugins"/>
+  <library
+      name=":@@:capacitor-app::release"
+      project=":capacitor-app"/>
+  <library
+      name="androidx.fragment:fragment:1.6.2@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\b7681978623fb5a34dc59f8ae14b69b9\transformed\fragment-1.6.2\jars\classes.jar"
+      resolved="androidx.fragment:fragment:1.6.2"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\b7681978623fb5a34dc59f8ae14b69b9\transformed\fragment-1.6.2"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.activity:activity:1.8.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\e7c087e2e63ca40d4727b77d524bd515\transformed\activity-1.8.0\jars\classes.jar"
+      resolved="androidx.activity:activity:1.8.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\e7c087e2e63ca40d4727b77d524bd515\transformed\activity-1.8.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.appcompat:appcompat-resources:1.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\88a6080fbc42bac50aa5f58be10a395a\transformed\appcompat-resources-1.6.1\jars\classes.jar"
+      resolved="androidx.appcompat:appcompat-resources:1.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\88a6080fbc42bac50aa5f58be10a395a\transformed\appcompat-resources-1.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.drawerlayout:drawerlayout:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3fc31ff6fb6f61980a375fe0e8644210\transformed\drawerlayout-1.0.0\jars\classes.jar"
+      resolved="androidx.drawerlayout:drawerlayout:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3fc31ff6fb6f61980a375fe0e8644210\transformed\drawerlayout-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.viewpager:viewpager:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\fc2f139bc6b6b6e64916bbd629c687b9\transformed\viewpager-1.0.0\jars\classes.jar"
+      resolved="androidx.viewpager:viewpager:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\fc2f139bc6b6b6e64916bbd629c687b9\transformed\viewpager-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.customview:customview:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\c262db5defd6bd210a75fdd04203e20b\transformed\customview-1.0.0\jars\classes.jar"
+      resolved="androidx.customview:customview:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\c262db5defd6bd210a75fdd04203e20b\transformed\customview-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.vectordrawable:vectordrawable-animated:1.1.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\d7a99d4d8d208219a76655dfe6642b5f\transformed\vectordrawable-animated-1.1.0\jars\classes.jar"
+      resolved="androidx.vectordrawable:vectordrawable-animated:1.1.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\d7a99d4d8d208219a76655dfe6642b5f\transformed\vectordrawable-animated-1.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.vectordrawable:vectordrawable:1.1.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\7612c75160e5074bf55899402c3ed6ba\transformed\vectordrawable-1.1.0\jars\classes.jar"
+      resolved="androidx.vectordrawable:vectordrawable:1.1.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\7612c75160e5074bf55899402c3ed6ba\transformed\vectordrawable-1.1.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.loader:loader:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\1eb069c0fcd8b93a15fdf80b347d1cae\transformed\loader-1.0.0\jars\classes.jar"
+      resolved="androidx.loader:loader:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\1eb069c0fcd8b93a15fdf80b347d1cae\transformed\loader-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-livedata:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\1f19457a2094334ede033edaa680eac5\transformed\lifecycle-livedata-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-livedata:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\1f19457a2094334ede033edaa680eac5\transformed\lifecycle-livedata-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-common:2.6.1@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.lifecycle\lifecycle-common\2.6.1\10f354fdb64868baecd67128560c5a0d6312c495\lifecycle-common-2.6.1.jar"
+      resolved="androidx.lifecycle:lifecycle-common:2.6.1"/>
+  <library
+      name="androidx.lifecycle:lifecycle-livedata-core:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4c53b51485172d5b85fe5f785784822d\transformed\lifecycle-livedata-core-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-livedata-core:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4c53b51485172d5b85fe5f785784822d\transformed\lifecycle-livedata-core-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-viewmodel:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\8a0149cb8706549bf60addc48f773184\transformed\lifecycle-viewmodel-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-viewmodel:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\8a0149cb8706549bf60addc48f773184\transformed\lifecycle-viewmodel-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-runtime:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\df72a2f8f860ffef94040cce25609171\transformed\lifecycle-runtime-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-runtime:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\df72a2f8f860ffef94040cce25609171\transformed\lifecycle-runtime-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\f1d278e9cc7f2bb6532c81f7b267fbc2\transformed\lifecycle-viewmodel-savedstate-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\f1d278e9cc7f2bb6532c81f7b267fbc2\transformed\lifecycle-viewmodel-savedstate-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.core:core-ktx:1.12.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\84d9786aaf5bcddfba07ca3ef005c797\transformed\core-ktx-1.12.0\jars\classes.jar"
+      resolved="androidx.core:core-ktx:1.12.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\84d9786aaf5bcddfba07ca3ef005c797\transformed\core-ktx-1.12.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.core:core:1.12.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4f7b0d764f8b5d0d84c4d0344e1adc27\transformed\core-1.12.0\jars\classes.jar"
+      resolved="androidx.core:core:1.12.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\4f7b0d764f8b5d0d84c4d0344e1adc27\transformed\core-1.12.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.cursoradapter:cursoradapter:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\f3a565aa25f09ab5646e47f1b0b3f33e\transformed\cursoradapter-1.0.0\jars\classes.jar"
+      resolved="androidx.cursoradapter:cursoradapter:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\f3a565aa25f09ab5646e47f1b0b3f33e\transformed\cursoradapter-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.savedstate:savedstate:1.2.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3d3e07e4c9c329b75d857f1a545e7b19\transformed\savedstate-1.2.1\jars\classes.jar"
+      resolved="androidx.savedstate:savedstate:1.2.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3d3e07e4c9c329b75d857f1a545e7b19\transformed\savedstate-1.2.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.versionedparcelable:versionedparcelable:1.1.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\6de92c6ebde913d3b53ba4b61d49b388\transformed\versionedparcelable-1.1.1\jars\classes.jar"
+      resolved="androidx.versionedparcelable:versionedparcelable:1.1.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\6de92c6ebde913d3b53ba4b61d49b388\transformed\versionedparcelable-1.1.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.collection:collection:1.1.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.collection\collection\1.1.0\1f27220b47669781457de0d600849a5de0e89909\collection-1.1.0.jar"
+      resolved="androidx.collection:collection:1.1.0"/>
+  <library
+      name="androidx.arch.core:core-runtime:2.2.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\25d31c664b03672e3208c0be7777f9e4\transformed\core-runtime-2.2.0\jars\classes.jar"
+      resolved="androidx.arch.core:core-runtime:2.2.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\25d31c664b03672e3208c0be7777f9e4\transformed\core-runtime-2.2.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.arch.core:core-common:2.2.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.arch.core\core-common\2.2.0\5e1b8b81dfd5f52c56a8d53b18ca759c19a301f3\core-common-2.2.0.jar"
+      resolved="androidx.arch.core:core-common:2.2.0"/>
+  <library
+      name="androidx.interpolator:interpolator:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\33652e34ba5047e7ff0573b2cdb10523\transformed\interpolator-1.0.0\jars\classes.jar"
+      resolved="androidx.interpolator:interpolator:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\33652e34ba5047e7ff0573b2cdb10523\transformed\interpolator-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.annotation:annotation-jvm:1.6.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.annotation\annotation-jvm\1.6.0\a7257339a052df0f91433cf9651231bbb802b502\annotation-jvm-1.6.0.jar"
+      resolved="androidx.annotation:annotation-jvm:1.6.0"/>
+  <library
+      name="androidx.annotation:annotation-experimental:1.3.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\bd8e71c95da9a0410fe961116180ea2e\transformed\annotation-experimental-1.3.0\jars\classes.jar"
+      resolved="androidx.annotation:annotation-experimental:1.3.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\bd8e71c95da9a0410fe961116180ea2e\transformed\annotation-experimental-1.3.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlinx\kotlinx-coroutines-core-jvm\1.6.4\2c997cd1c0ef33f3e751d3831929aeff1390cb30\kotlinx-coroutines-core-jvm-1.6.4.jar"
+      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"/>
+  <library
+      name="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlinx\kotlinx-coroutines-android\1.6.4\f955fc8b2ad196e2f4429598440e15f7492eeb2b\kotlinx-coroutines-android-1.6.4.jar"
+      resolved="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"/>
+  <library
+      name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib-jdk8\1.9.10\c7510d64a83411a649c76f2778304ddf71d7437b\kotlin-stdlib-jdk8-1.9.10.jar"
+      resolved="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"/>
+  <library
+      name="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib-jdk7\1.9.10\bc5bfc2690338defd5195b05c57562f2194eeb10\kotlin-stdlib-jdk7-1.9.10.jar"
+      resolved="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"/>
+  <library
+      name="org.jetbrains.kotlin:kotlin-stdlib:1.9.10@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\1.9.10\72812e8a368917ab5c0a5081b56915ffdfec93b7\kotlin-stdlib-1.9.10.jar"
+      resolved="org.jetbrains.kotlin:kotlin-stdlib:1.9.10"/>
+  <library
+      name="org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib-common\1.9.10\dafaf2c27f27c09220cee312df10917d9a5d97ce\kotlin-stdlib-common-1.9.10.jar"
+      resolved="org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10"/>
+  <library
+      name="org.jetbrains:annotations:13.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\org.jetbrains\annotations\13.0\919f0dfe192fb4e063e7dacadee7f8bb9a2672a9\annotations-13.0.jar"
+      resolved="org.jetbrains:annotations:13.0"/>
+  <library
+      name="androidx.emoji2:emoji2-views-helper:1.2.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\53359f3038cb13de1318f37b05a9ec5d\transformed\emoji2-views-helper-1.2.0\jars\classes.jar"
+      resolved="androidx.emoji2:emoji2-views-helper:1.2.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\53359f3038cb13de1318f37b05a9ec5d\transformed\emoji2-views-helper-1.2.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.emoji2:emoji2:1.2.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\61f606930917a64588c199b54d3d711a\transformed\emoji2-1.2.0\jars\classes.jar;C:\Users\Kimi Yang\.gradle\caches\transforms-3\61f606930917a64588c199b54d3d711a\transformed\emoji2-1.2.0\jars\libs\repackaged.jar"
+      resolved="androidx.emoji2:emoji2:1.2.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\61f606930917a64588c199b54d3d711a\transformed\emoji2-1.2.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.resourceinspection:resourceinspection-annotation:1.0.1@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.resourceinspection\resourceinspection-annotation\1.0.1\8c21f8ff5d96d5d52c948707f7e4d6ca6773feef\resourceinspection-annotation-1.0.1.jar"
+      resolved="androidx.resourceinspection:resourceinspection-annotation:1.0.1"/>
+  <library
+      name="androidx.webkit:webkit:1.9.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\b948559cdc2cc7d0142d11d80ac027fd\transformed\webkit-1.9.0\jars\classes.jar"
+      resolved="androidx.webkit:webkit:1.9.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\b948559cdc2cc7d0142d11d80ac027fd\transformed\webkit-1.9.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-process:2.6.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\7d158143758428a9a27e664e481c199e\transformed\lifecycle-process-2.6.1\jars\classes.jar"
+      resolved="androidx.lifecycle:lifecycle-process:2.6.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\7d158143758428a9a27e664e481c199e\transformed\lifecycle-process-2.6.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.profileinstaller:profileinstaller:1.3.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\c4b6893a58c24e59df590ee54241c077\transformed\profileinstaller-1.3.0\jars\classes.jar"
+      resolved="androidx.profileinstaller:profileinstaller:1.3.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\c4b6893a58c24e59df590ee54241c077\transformed\profileinstaller-1.3.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.startup:startup-runtime:1.1.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\2b19c49b9055d666a310de3e6f33c8a9\transformed\startup-runtime-1.1.1\jars\classes.jar"
+      resolved="androidx.startup:startup-runtime:1.1.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\2b19c49b9055d666a310de3e6f33c8a9\transformed\startup-runtime-1.1.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.tracing:tracing:1.0.0@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\186b0f3051d75ccae7d6a5c0bd95509a\transformed\tracing-1.0.0\jars\classes.jar"
+      resolved="androidx.tracing:tracing:1.0.0"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\186b0f3051d75ccae7d6a5c0bd95509a\transformed\tracing-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.concurrent:concurrent-futures:1.1.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\androidx.concurrent\concurrent-futures\1.1.0\50b7fb98350d5f42a4e49704b03278542293ba48\concurrent-futures-1.1.0.jar"
+      resolved="androidx.concurrent:concurrent-futures:1.1.0"/>
+  <library
+      name="org.apache.cordova:framework:10.1.1@aar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3e6973c88b0bd7e6b7ec07957e48cfc9\transformed\framework-10.1.1\jars\classes.jar"
+      resolved="org.apache.cordova:framework:10.1.1"
+      folder="C:\Users\Kimi Yang\.gradle\caches\transforms-3\3e6973c88b0bd7e6b7ec07957e48cfc9\transformed\framework-10.1.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="com.google.guava:listenablefuture:1.0@jar"
+      jars="C:\Users\Kimi Yang\.gradle\caches\modules-2\files-2.1\com.google.guava\listenablefuture\1.0\c949a840a6acbc5268d088e47b04177bf90b3cad\listenablefuture-1.0.jar"
+      resolved="com.google.guava:listenablefuture:1.0"/>
+</libraries>

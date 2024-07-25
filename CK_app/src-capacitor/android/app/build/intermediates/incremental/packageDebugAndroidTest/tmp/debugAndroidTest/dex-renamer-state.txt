@@ -1,0 +1,10 @@
+#Thu Jul 25 17:06:27 CST 2024
+base.0=E\:\\code\\CK_app\\CK_app\\src-capacitor\\android\\app\\build\\intermediates\\dex\\debugAndroidTest\\mergeExtDexDebugAndroidTest\\classes.dex
+base.1=E\:\\code\\CK_app\\CK_app\\src-capacitor\\android\\app\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\0\\classes.dex
+base.2=E\:\\code\\CK_app\\CK_app\\src-capacitor\\android\\app\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\10\\classes.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=10/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex

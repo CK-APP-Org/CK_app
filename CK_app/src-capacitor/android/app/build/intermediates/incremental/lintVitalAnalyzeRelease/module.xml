@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="E:\code\CK_app\CK_app\src-capacitor\android\app"
+    name=":app"
+    type="APP"
+    maven="android:app:"
+    agpVersion="8.2.1"
+    buildFolder="build"
+    bootClassPath="C:\Users\Kimi Yang\AppData\Local\Android\Sdk\platforms\android-34\android.jar;C:\Users\Kimi Yang\AppData\Local\Android\Sdk\build-tools\34.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

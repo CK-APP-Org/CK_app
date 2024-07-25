@@ -1,0 +1,3 @@
+org.capacitor.quasar.ckapp.test
+style WhiteBackgroundDialogTheme
+style WhiteBackgroundTheme

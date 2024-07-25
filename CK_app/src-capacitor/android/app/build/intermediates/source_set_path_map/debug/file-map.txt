@@ -1,0 +1,32 @@
+org.capacitor.quasar.ckapp-core-splashscreen-1.0.1-0 C:\Users\Kimi Yang\.gradle\caches\transforms-3\02af67d3594ada2148314bae886ebee9\transformed\core-splashscreen-1.0.1\res
+org.capacitor.quasar.ckapp-lifecycle-livedata-2.6.1-1 C:\Users\Kimi Yang\.gradle\caches\transforms-3\1f19457a2094334ede033edaa680eac5\transformed\lifecycle-livedata-2.6.1\res
+org.capacitor.quasar.ckapp-core-runtime-2.2.0-2 C:\Users\Kimi Yang\.gradle\caches\transforms-3\25d31c664b03672e3208c0be7777f9e4\transformed\core-runtime-2.2.0\res
+org.capacitor.quasar.ckapp-startup-runtime-1.1.1-3 C:\Users\Kimi Yang\.gradle\caches\transforms-3\2b19c49b9055d666a310de3e6f33c8a9\transformed\startup-runtime-1.1.1\res
+org.capacitor.quasar.ckapp-savedstate-1.2.1-4 C:\Users\Kimi Yang\.gradle\caches\transforms-3\3d3e07e4c9c329b75d857f1a545e7b19\transformed\savedstate-1.2.1\res
+org.capacitor.quasar.ckapp-coordinatorlayout-1.2.0-5 C:\Users\Kimi Yang\.gradle\caches\transforms-3\44b764ef4a0c2818774bd443073d6bc9\transformed\coordinatorlayout-1.2.0\res
+org.capacitor.quasar.ckapp-lifecycle-livedata-core-2.6.1-6 C:\Users\Kimi Yang\.gradle\caches\transforms-3\4c53b51485172d5b85fe5f785784822d\transformed\lifecycle-livedata-core-2.6.1\res
+org.capacitor.quasar.ckapp-appcompat-1.6.1-7 C:\Users\Kimi Yang\.gradle\caches\transforms-3\4ce7c60d257b8629ab4c81cf615a92a1\transformed\appcompat-1.6.1\res
+org.capacitor.quasar.ckapp-core-1.12.0-8 C:\Users\Kimi Yang\.gradle\caches\transforms-3\4f7b0d764f8b5d0d84c4d0344e1adc27\transformed\core-1.12.0\res
+org.capacitor.quasar.ckapp-emoji2-views-helper-1.2.0-9 C:\Users\Kimi Yang\.gradle\caches\transforms-3\53359f3038cb13de1318f37b05a9ec5d\transformed\emoji2-views-helper-1.2.0\res
+org.capacitor.quasar.ckapp-emoji2-1.2.0-10 C:\Users\Kimi Yang\.gradle\caches\transforms-3\61f606930917a64588c199b54d3d711a\transformed\emoji2-1.2.0\res
+org.capacitor.quasar.ckapp-lifecycle-process-2.6.1-11 C:\Users\Kimi Yang\.gradle\caches\transforms-3\7d158143758428a9a27e664e481c199e\transformed\lifecycle-process-2.6.1\res
+org.capacitor.quasar.ckapp-core-ktx-1.12.0-12 C:\Users\Kimi Yang\.gradle\caches\transforms-3\84d9786aaf5bcddfba07ca3ef005c797\transformed\core-ktx-1.12.0\res
+org.capacitor.quasar.ckapp-appcompat-resources-1.6.1-13 C:\Users\Kimi Yang\.gradle\caches\transforms-3\88a6080fbc42bac50aa5f58be10a395a\transformed\appcompat-resources-1.6.1\res
+org.capacitor.quasar.ckapp-lifecycle-viewmodel-2.6.1-14 C:\Users\Kimi Yang\.gradle\caches\transforms-3\8a0149cb8706549bf60addc48f773184\transformed\lifecycle-viewmodel-2.6.1\res
+org.capacitor.quasar.ckapp-fragment-1.6.2-15 C:\Users\Kimi Yang\.gradle\caches\transforms-3\b7681978623fb5a34dc59f8ae14b69b9\transformed\fragment-1.6.2\res
+org.capacitor.quasar.ckapp-webkit-1.9.0-16 C:\Users\Kimi Yang\.gradle\caches\transforms-3\b948559cdc2cc7d0142d11d80ac027fd\transformed\webkit-1.9.0\res
+org.capacitor.quasar.ckapp-annotation-experimental-1.3.0-17 C:\Users\Kimi Yang\.gradle\caches\transforms-3\bd8e71c95da9a0410fe961116180ea2e\transformed\annotation-experimental-1.3.0\res
+org.capacitor.quasar.ckapp-profileinstaller-1.3.0-18 C:\Users\Kimi Yang\.gradle\caches\transforms-3\c4b6893a58c24e59df590ee54241c077\transformed\profileinstaller-1.3.0\res
+org.capacitor.quasar.ckapp-lifecycle-runtime-2.6.1-19 C:\Users\Kimi Yang\.gradle\caches\transforms-3\df72a2f8f860ffef94040cce25609171\transformed\lifecycle-runtime-2.6.1\res
+org.capacitor.quasar.ckapp-activity-1.8.0-20 C:\Users\Kimi Yang\.gradle\caches\transforms-3\e7c087e2e63ca40d4727b77d524bd515\transformed\activity-1.8.0\res
+org.capacitor.quasar.ckapp-lifecycle-viewmodel-savedstate-2.6.1-21 C:\Users\Kimi Yang\.gradle\caches\transforms-3\f1d278e9cc7f2bb6532c81f7b267fbc2\transformed\lifecycle-viewmodel-savedstate-2.6.1\res
+org.capacitor.quasar.ckapp-pngs-22 E:\code\CK_app\CK_app\src-capacitor\android\app\build\generated\res\pngs\debug
+org.capacitor.quasar.ckapp-resValues-23 E:\code\CK_app\CK_app\src-capacitor\android\app\build\generated\res\resValues\debug
+org.capacitor.quasar.ckapp-packageDebugResources-24 E:\code\CK_app\CK_app\src-capacitor\android\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+org.capacitor.quasar.ckapp-packageDebugResources-25 E:\code\CK_app\CK_app\src-capacitor\android\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+org.capacitor.quasar.ckapp-merged_res-26 E:\code\CK_app\CK_app\src-capacitor\android\app\build\intermediates\merged_res\debug
+org.capacitor.quasar.ckapp-debug-27 E:\code\CK_app\CK_app\src-capacitor\android\app\src\debug\res
+org.capacitor.quasar.ckapp-main-28 E:\code\CK_app\CK_app\src-capacitor\android\app\src\main\res
+org.capacitor.quasar.ckapp-packaged_res-29 E:\code\CK_app\CK_app\src-capacitor\android\capacitor-cordova-android-plugins\build\intermediates\packaged_res\debug
+org.capacitor.quasar.ckapp-packaged_res-30 E:\code\CK_app\CK_app\src-capacitor\node_modules\@capacitor\android\capacitor\build\intermediates\packaged_res\debug
+org.capacitor.quasar.ckapp-packaged_res-31 E:\code\CK_app\CK_app\src-capacitor\node_modules\@capacitor\app\android\build\intermediates\packaged_res\debug

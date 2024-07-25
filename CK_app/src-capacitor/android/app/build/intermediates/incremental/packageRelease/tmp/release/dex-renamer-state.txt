@@ -1,0 +1,7 @@
+#Thu Jul 25 16:31:52 CST 2024
+base.1=E\:\\code\\CK_app\\CK_app\\src-capacitor\\android\\app\\build\\intermediates\\global_synthetics_dex\\release\\classes.dex
+path.1=classes.dex
+base.0=E\:\\code\\CK_app\\CK_app\\src-capacitor\\android\\app\\build\\intermediates\\dex\\release\\mergeDexRelease\\classes.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex

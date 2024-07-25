@@ -98,7 +98,8 @@ export default {
           note: "現在是下課時間或假日"
         };
       }
-
+      console.log(currentClassData.value)
+      console.log(currentClassData.value.find(row => row.name === currentDay))
       const currentClassData = scheduleData.value.find(row => row.name === currentDay)?.[currentPeriod.toString()];
       console.log(currentClassData)
       return currentClassData ? {

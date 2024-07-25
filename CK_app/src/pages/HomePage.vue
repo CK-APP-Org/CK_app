@@ -85,7 +85,7 @@ export default {
 
     const currentClass = computed(() => {
       const now = new Date();
-      const currentDay = ["日", "一", "二", "三", "四", "五", "六"][now.getDay()];
+      const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
       const currentHour = now.getHours();
       console.log(currentDay)
       console.log(currentHour)
@@ -99,7 +99,7 @@ export default {
         };
       }
 
-      const currentClassData = scheduleData.value.find(row => row.name === currentPeriod.toString())?.[currentDay];
+      const currentClassData = scheduleData.value.find(row => row.name === currentDay)?.[currentPeriod.toString()];
       console.log(currentClassData)
       return currentClassData ? {
         subject: currentClassData.subject,

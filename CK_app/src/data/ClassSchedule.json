@@ -1,66 +1,66 @@
 [
   {
     "name": "一",
-    "Monday": { "subject": "美術", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "物理", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "英文", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "多元選修", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "化學", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "物理", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+    "Thursday": { "subject": "數學", "note": "", "color": "Default" },
+    "Friday": { "subject": "化學", "note": "", "color": "Default" }
   },
   {
     "name": "二",
-    "Monday": { "subject": "美術", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "物理", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "英文", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "多元選修", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "化學", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "物理", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "生物", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "數學", "note": "", "color": "Default" },
+    "Thursday": { "subject": "數學", "note": "", "color": "Default" },
+    "Friday": { "subject": "化學", "note": "", "color": "Default" }
   },
   {
     "name": "三",
-    "Monday": { "subject": "體育", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "數學", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "體育", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "國文", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "彈性學習", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "化學", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "國文", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "生物", "note": "", "color": "Default" },
+    "Thursday": { "subject": "英文", "note": "", "color": "Default" },
+    "Friday": { "subject": "物理", "note": "", "color": "Default" }
   },
   {
     "name": "四",
-    "Monday": { "subject": "音樂", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "數學", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "物理", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "國文", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "彈性學習", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "化學", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "國文", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "生物", "note": "", "color": "Default" },
+    "Thursday": { "subject": "英文", "note": "", "color": "Default" },
+    "Friday": { "subject": "物理", "note": "", "color": "Default" }
   },
   {
     "name": "五",
-    "Monday": { "subject": "國文", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "英文", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "國文", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "音樂", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "社團", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "英文", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "數學", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "國文", "note": "", "color": "Default" },
+    "Thursday": { "subject": "無", "note": "", "color": "Default" },
+    "Friday": { "subject": "無", "note": "", "color": "Default" }
   },
   {
     "name": "六",
-    "Monday": { "subject": "化學", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "英文", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "歷史", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "生物", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "數學", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "英文", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "數學", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "國文", "note": "", "color": "Default" },
+    "Thursday": { "subject": "無", "note": "", "color": "Default" },
+    "Friday": { "subject": "無", "note": "", "color": "Default" }
   },
   {
     "name": "七",
-    "Monday": { "subject": "化學", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "英文", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "歷史", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "生物", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "數學", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "無", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "無", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "無", "note": "", "color": "Default" },
+    "Thursday": { "subject": "無", "note": "", "color": "Default" },
+    "Friday": { "subject": "無", "note": "", "color": "Default" }
   },
   {
     "name": "課後",
-    "Monday": { "subject": "補習", "note": "", "color": "#f5ebc4" },
-    "Tuesday": { "subject": "補習", "note": "", "color": "#f5ebc4" },
-    "Wednesday": { "subject": "補習", "note": "", "color": "#f5ebc4" },
-    "Thursday": { "subject": "補習", "note": "", "color": "#f5ebc4" },
-    "Friday": { "subject": "補習", "note": "", "color": "#f5ebc4" }
+    "Monday": { "subject": "補習", "note": "", "color": "Default" },
+    "Tuesday": { "subject": "補習", "note": "", "color": "Default" },
+    "Wednesday": { "subject": "補習", "note": "", "color": "Default" },
+    "Thursday": { "subject": "補習", "note": "", "color": "Default" },
+    "Friday": { "subject": "補習", "note": "", "color": "Default" }
   }
 ]

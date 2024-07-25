@@ -239,7 +239,7 @@ export default {
       const currentHour = now.getHours();
 
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = currentHour - 7;
+      const currentPeriod = ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -383,7 +383,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  border: 2px solid #FF4081;
+  border: 2px solid #423f40;
   pointer-events: none;
   z-index: 2;
 }

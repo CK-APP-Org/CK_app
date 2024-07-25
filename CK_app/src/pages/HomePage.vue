@@ -16,8 +16,9 @@
     <!-- Current Class Section -->
     <div class="current-class-section q-mb-md">
       <q-card>
-        <q-card-section>
+        <q-card-section :style="{ backgroundColor: currentClass.color }">
           <div class="text-h6">目前課程</div>
+
           <div class="text-subtitle1">{{ currentClass.subject }}</div>
           <q-separator class="q-my-sm" />
           <div class="text-caption">課程備註：</div>
@@ -81,6 +82,16 @@ export default {
     },
   },
     setup() {
+    const colorOptions = [
+      { label: "Default", value: "#f4f4f1" },
+      { label: "Red", value: "#FFCCCB" },
+      { label: "Orange", value: "#f5c884" },
+      { label: "Yellow", value: "#FFFFE0" },
+      { label: "Green", value: "#90EE90" },
+      { label: "Blue", value: "#ADD8E6" },
+      { label: "Purple", value: "#e299ff" },
+      { label: "Pink", value: "#ffa1e4" },
+    ];
     const scheduleData = computed(() => store.getters.getScheduleData);
 
     const currentClass = computed(() => {
@@ -90,7 +101,7 @@ export default {
       console.log(currentDay)
       console.log(currentHour)
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = currentHour - 7 -1;
+      const currentPeriod = ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
       console.log(currentPeriod)
       if (currentPeriod < 1 || currentPeriod > 7 || currentDay === "Saturday" || currentDay === "Sunday") {
         return {
@@ -98,19 +109,30 @@ export default {
           note: "現在是下課時間或假日"
         };
       }
-      console.log(currentClassData.value)
-      console.log(currentClassData.value.find(row => row.name === currentDay))
-      const currentClassData = scheduleData.value.find(row => row.name === currentDay)?.[currentPeriod.toString()];
+      console.log(scheduleData.value)
+      console.log(scheduleData.value.find(row => row.name === '一')[currentDay])
+      const currentClassData = scheduleData.value.find(row => row.name === currentPeriod)?.[currentDay.toString()];
       console.log(currentClassData)
+      const getFormattedColor = (color) => {
+        if (color && typeof color === "object" && color.label) {
+          return color.label;
+        }
+        return color || "Default";
+      };
+      const getLabelValue = (label) => {
+        const option = colorOptions.find((opt) => opt.label === label);
+        return option ? option.value : "#f4f4f1"; // Default color if not found
+      };
+      console.log(getLabelValue(getFormattedColor(currentClassData.color)))
       return currentClassData ? {
         subject: currentClassData.subject,
-        note: currentClassData.note
+        note: currentClassData.note,
+        color: getLabelValue(getFormattedColor(currentClassData.color))
       } : {
         subject: "目前無課",
         note: "這個時段沒有安排課程"
       };
     });
-
     return {
       currentClass
     };

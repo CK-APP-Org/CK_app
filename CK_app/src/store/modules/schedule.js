@@ -4,6 +4,7 @@ export default {
   state: () => ({
     scheduleData: scheduleData['217']['schedule'],
     userClass: "217",
+    displayScheduleWidget: true
   }),
   mutations: {
     UPDATE_SCHEDULE(state, { rowIndex, colName, newValue }) {
@@ -33,5 +34,6 @@ export default {
   getters: {
     getScheduleData: (state) => state.scheduleData,
     getUserClass: (state) => state.userClass,
+    getScheduleWidget: (state) => state.displayScheduleWidget,
   },
 };

@@ -27,6 +27,46 @@
       </q-card>
     </div>
 
+    <!-- Todo Tasks Section -->
+    <!-- <div class="todo-tasks-section q-mb-md">
+      <q-card>
+        <q-card-section class="bg-orange-2">
+          <div class="text-h6">待辦事項</div>
+          <q-list dense>
+            <q-item v-for="(task, index) in todoTasks" :key="index">
+              <q-item-section avatar>
+                <q-checkbox v-model="task.completed" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ task.title }}</q-item-label>
+                <q-item-label caption>{{ task.dueDate }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+    </div> -->
+
+    <!-- Pinned School News Section -->
+    <div class="school-news-section q-mb-md">
+      <q-card>
+        <q-card-section class="bg-blue-2">
+          <div class="text-h6">置頂校園新聞</div>
+          <q-list dense>
+            <q-item v-for="(news, index) in pinnedNews" :key="index" clickable v-ripple>
+              <q-item-section side>
+                <q-icon name="fiber_manual_record" size="xs" color="primary" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ news.title }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+    </div>
+
+
     <!-- <q-input filled v-model="search" label="搜尋功能" dense class="q-mb-md">
       <template v-slot:append>
         <q-icon name="search" />
@@ -64,8 +104,8 @@ export default {
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "language", link: "/news" },
-        { name: "設定", icon: "settings", link: "/settings" },
-        { name: "關於", icon: "info", link: "/about" },
+        // { name: "設定", icon: "settings", link: "/settings" },
+        // { name: "關於", icon: "info", link: "/about" },
       ],
     };
   },
@@ -92,7 +132,22 @@ export default {
       { label: "Purple", value: "#e299ff" },
       { label: "Pink", value: "#ffa1e4" },
     ];
+
+    const todoTasks = ref([
+      { title: "完成數學作業", dueDate: "2023-07-26", completed: false },
+      { title: "準備英文報告", dueDate: "2023-07-28", completed: false },
+    ]);
+
+    // Pinned School News data
+    // const pinnedNews = ref([
+    //   { title: "下週一校慶活動安排", date: "2023-07-25" },
+    //   { title: "暑期輔導課程開放報名", date: "2023-07-24" },
+    // ]);
+
+
     const scheduleData = computed(() => store.getters.getScheduleData);
+    const pinnedNews = computed(() => store.getters.getPinnedNews);
+
 
     const currentClass = computed(() => {
       const now = new Date();
@@ -125,7 +180,7 @@ export default {
       };
       console.log(getLabelValue(getFormattedColor(currentClassData.color)))
       return currentClassData ? {
-        subject: currentClassData.subject,
+        subject: currentPeriod + ' ---- ' + currentClassData.subject,
         note: currentClassData.note,
         color: getLabelValue(getFormattedColor(currentClassData.color))
       } : {
@@ -134,7 +189,9 @@ export default {
       };
     });
     return {
-      currentClass
+      currentClass,
+      todoTasks,
+      pinnedNews
     };
   }
 };

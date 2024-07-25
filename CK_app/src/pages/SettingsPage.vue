@@ -46,11 +46,15 @@
 <script>
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
+import store from "../store/index";
 
 const classOptions = [217, 227];
 
 export default {
   setup() {
+    const displayScheduleWidget = computed(() => store.getters.getScheduleWidget);
+    const displayNewsWidget = computed(() => store.getters.getNewsWidget);
+
     const store = useStore();
     const confirmDialog = ref(false);
     const confirmClassChangeDialog = ref(false);

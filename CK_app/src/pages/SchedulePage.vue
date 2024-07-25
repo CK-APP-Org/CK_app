@@ -11,6 +11,8 @@
       class="my-custom-table"
       separator="cell"
       :rows-per-page-options="[0]"
+      hide-pagination
+      hide-bottom
     >
       <template v-slot:top>
         <div class="row items-center justify-between q-mb-md">

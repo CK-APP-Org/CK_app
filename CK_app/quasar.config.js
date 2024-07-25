@@ -59,8 +59,9 @@ module.exports = configure(function (/* ctx */) {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
         node: 'node16'
       },
-
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      htmlVariables: {
+        myMetaTag: '<meta name="google-site-verification" content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg" />'
+      },
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,

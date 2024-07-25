@@ -14,21 +14,53 @@
     >
       <template v-slot:top>
         <div class="row items-center justify-between q-mb-md">
-          <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+          <div class="row items-center">
+            <q-btn
+              flat
+              dense
+              round
+              icon="help"
+              color="primary"
+              class="q-mr-sm"
+              @click="classHelp=true"
+            />
+            <q-dialog v-model="classHelp">
+              <q-card>
+                <q-card-section class="row items-center q-pb-none">
+                  <div class="text-h6">設定班級</div>
+                  <q-space />
+                  <q-btn icon="close" flat round dense v-close-popup />
+                </q-card-section>
+
+                <q-card-section>
+                  目前的班級為{{userClass}}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
+                </q-card-section>
+                <q-card-section class="row items-center q-pb-none">
+                  <div class="text-h6">編輯課表</div>
+                  <q-space />
+                </q-card-section>
+
+                <q-card-section>
+                  若要自訂義課表任何一節的顏色、科目，或加入註解，請點選該格進行編輯
+                </q-card-section>
+              </q-card>
+            </q-dialog>
+            <div class="text-h5 text-bold">{{ userClass }} 課表</div>
+          </div>
           <div class="row q-gutter-sm">
             <q-btn
               v-for="day in days"
               :key="day"
               :label="getDayLabel(day)"
-              :color="visibleColumns.includes(day) ? 'primary' : 'grey'"
+              :color="visibleColumns.includes(day) ? 'primary' : 'grey-7'"
               @click="changeVisibleColumn(day)"
               dense
               outline
+              no-caps
             />
           </div>
         </div>
       </template>
-
       <template v-slot:body-cell="props">
         <q-td
           :props="props"
@@ -239,7 +271,7 @@ export default {
       const currentHour = now.getHours();
 
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = currentHour - 7;
+      const currentPeriod = ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -261,7 +293,8 @@ export default {
       getFormattedColor,
       classOptions,
       days,
-      isCurrentClass
+      isCurrentClass,
+      classHelp: ref(false)
     };
   },
 };
@@ -334,7 +367,7 @@ export default {
 }
 
 .note-slot {
-  font-size: 0.8em;
+  font-size: 0.6em;
   color: #00000085;
   flex: 2;
   border-left: 5px solid rgba(0, 0, 0, 0.12);
@@ -383,7 +416,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  border: 2px solid #FF4081;
+  border: 2px solid #423f40;
   pointer-events: none;
   z-index: 2;
 }

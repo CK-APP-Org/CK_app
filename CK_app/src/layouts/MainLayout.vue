@@ -1,4 +1,5 @@
 <template>
+  <meta name="google-site-verification" content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg" />
   <q-layout view="hHh lpR fFf">
     <q-header elevated>
       <q-toolbar>
@@ -6,16 +7,23 @@
           flat
           dense
           round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleDrawer"
-          v-if="$q.screen.gt.sm && !isHomePage"
+          icon="info"
+          href="/#/about"
+          class="absolute-left q-ml-md"
+        />
+        <q-btn
+          flat
+          dense
+          round
+          icon="settings"
+          href="/#/settings"
+          class="absolute-right q-mr-md"
         />
         <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
+    <!-- <q-drawer
       v-if="!isHomePage"
       v-model="drawer"
       show-if-above
@@ -50,13 +58,13 @@
           </template>
         </q-list>
       </q-scroll-area>
-    </q-drawer>
+    </q-drawer> -->
 
     <q-page-container>
       <router-view />
     </q-page-container>
 
-    <q-footer class="lt-md" v-if="!isHomePage">
+    <q-footer class="" v-if="!isHomePage">
       <q-tabs >
         <q-route-tab
           v-for="item in menuItems"
@@ -93,12 +101,12 @@ export default {
           link: "/todo",
         },
         {
-          label: "Youbike即時",
+          label: "Youbike",
           icon: "directions_bike",
           link: "/Youbike",
         },
         {
-          label: "熱食部菜單",
+          label: "熱食部",
           icon: "dining",
           link: "/menu",
         },
@@ -107,16 +115,11 @@ export default {
           icon: "newspaper",
           link: "/news",
         },
-        {
-          label: "設定",
-          icon: "settings",
-          link: "/settings",
-        },
-        {
-          label: "關於",
-          icon: "info",
-          link: "/about",
-        },
+        // {
+        //   label: "美食",
+        //   icon: "info",
+        //   link: "/about",
+        // },
       ],
     };
   },

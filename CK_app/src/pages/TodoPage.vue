@@ -15,7 +15,17 @@
           :key="day.date"
           :class="{ 'calendar-day': true, 'other-month': !day.isCurrentMonth }"
         >
-          {{ day.date.getDate() }}
+          <div class="day-number">{{ day.date.getDate() }}</div>
+          <div class="day-events">
+            <div
+              v-for="event in day.events"
+              :key="event.title"
+              class="event"
+              :style="getEventStyle(event, day.date)"
+            >
+              <span v-if="event.isStart">{{ event.title }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -144,7 +154,24 @@ export default {
         });
       }
 
-      return calendarDays;
+      return calendarDays.map((day) => {
+        const dayEvents = this.events
+          .filter((event) => {
+            const eventStart = new Date(event.startDate);
+            const eventEnd = new Date(event.endDate);
+            return day.date >= eventStart && day.date <= eventEnd;
+          })
+          .map((event) => ({
+            ...event,
+            isStart:
+              new Date(event.startDate).toDateString() ===
+              day.date.toDateString(),
+            isEnd:
+              new Date(event.endDate).toDateString() ===
+              day.date.toDateString(),
+          }));
+        return { ...day, events: dayEvents };
+      });
     },
     isFormValid() {
       return (
@@ -200,6 +227,37 @@ export default {
     },
     displayEvents() {
       console.log("All events:", this.events);
+    },
+    getEventStyle(event, currentDate) {
+      const startDate = new Date(event.startDate);
+      const endDate = new Date(event.endDate);
+      const durationDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+      const dayOfWeek = currentDate.getDay();
+      const daysUntilEndOfWeek = 7 - dayOfWeek;
+
+      let width = "100%";
+      if (event.isStart) {
+        width = `${100 * Math.min(durationDays, daysUntilEndOfWeek)}%`;
+      } else if (!event.isEnd && dayOfWeek === 0) {
+        width = `${
+          100 *
+          Math.min(
+            durationDays - (currentDate - startDate) / (1000 * 60 * 60 * 24),
+            7
+          )
+        }%`;
+      }
+
+      return {
+        width: width,
+        borderRadius: event.isStart
+          ? "4px 0 0 4px"
+          : event.isEnd
+          ? "0 4px 4px 0"
+          : "0",
+        marginLeft: event.isStart ? "0" : "-1px",
+        borderLeft: event.isStart ? null : "none",
+      };
     },
   },
 };
@@ -296,5 +354,30 @@ export default {
   background-color: transparent;
   cursor: pointer;
   text-align: left;
+}
+
+.calendar-day {
+  position: relative;
+  overflow: visible;
+  border-right: none;
+  border-bottom: none;
+}
+
+.calendar {
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.event {
+  font-size: 12px;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: #4285f4;
+  color: white;
+  border: 1px solid #3367d6;
+  box-sizing: border-box;
 }
 </style>

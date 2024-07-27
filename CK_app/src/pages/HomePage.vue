@@ -5,7 +5,7 @@
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md"/>
       </template>
-      最新公告：今天下午在禮堂有全校集會
+      最新公告：目前沒有最新公告喔
     </q-banner>
 
     <!-- <div class="header">
@@ -27,27 +27,6 @@
       </q-card>
     </div>
 
-    <!-- Todo Tasks Section -->
-    <!-- <div class="todo-tasks-section q-mb-md">
-      <q-card>
-        <q-card-section class="bg-orange-2">
-          <div class="text-h6">待辦事項</div>
-          <q-list dense>
-            <q-item v-for="(task, index) in todoTasks" :key="index">
-              <q-item-section avatar>
-                <q-checkbox v-model="task.completed" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ task.title }}</q-item-label>
-                <q-item-label caption>{{ task.dueDate }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-      </q-card>
-    </div> -->
-
-    <!-- Pinned School News Section -->
     <div class="school-news-section q-mb-md">
       <q-card>
         <q-card-section class="bg-blue-2">
@@ -66,12 +45,6 @@
       </q-card>
     </div>
 
-
-    <!-- <q-input filled v-model="search" label="搜尋功能" dense class="q-mb-md">
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input> -->
     <div class="icon-grid">
       <div v-for="item in filteredItems" :key="item.name" class="icon-item">
         <q-btn
@@ -99,13 +72,11 @@ export default {
       search: '',
       items: [
         { name: "課表", icon: "book", link: "/schedule" },
-        { name: "行事曆", icon: "calendar_month", link: "/todo" },
+        { name: "仍在開發", icon: "calendar_month", link: "/Error" },
         { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
-        { name: "美食", icon: "fastfood", link: "/food" },
+        { name: "仍在開發", icon: "fastfood", link: "/Error" },
         { name: "校網", icon: "language", link: "/news" },
-        // { name: "設定", icon: "settings", link: "/settings" },
-        // { name: "關於", icon: "info", link: "/about" },
       ],
     };
   },

@@ -96,11 +96,6 @@ export default {
           link: "/schedule",
         },
         {
-          label: "行事曆",
-          icon: "calendar_month",
-          link: "/todo",
-        },
-        {
           label: "Youbike",
           icon: "directions_bike",
           link: "/Youbike",
@@ -111,15 +106,10 @@ export default {
           link: "/menu",
         },
         {
-          label: "校網公告",
+          label: "校網",
           icon: "newspaper",
           link: "/news",
         },
-        // {
-        //   label: "美食",
-        //   icon: "info",
-        //   link: "/about",
-        // },
       ],
     };
   },

@@ -2,8 +2,8 @@ import scheduleData from "../../data/ClassesSchedule.json";
 
 export default {
   state: () => ({
-    scheduleData: scheduleData['217']['schedule'],
-    userClass: "217",
+    scheduleData: scheduleData['317']['schedule'],
+    userClass: "317",
     displayScheduleWidget: true
   }),
   mutations: {

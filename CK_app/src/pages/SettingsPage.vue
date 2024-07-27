@@ -11,17 +11,6 @@
           class="q-mb-md"
         />
 
-        <q-card class="q-mb-md">
-          <q-card-section>
-            <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
-            <div class="column q-gutter-y-sm">
-              <q-checkbox v-model="showSchedule" label="顯示課表" />
-              <q-checkbox v-model="showTodo" label="顯示待辦事項" />
-              <q-checkbox v-model="showSchoolNews" label="顯示學校新聞" />
-            </div>
-          </q-card-section>
-        </q-card>
-
         <q-btn
           color="primary"
           label="清除所有資料"
@@ -77,8 +66,8 @@
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import store from "../store/index";
-
-const classOptions = [217, 227];
+const classOptions = [317, 327];
+// const classOptions = [301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 325, 326, 327, 328];
 
 export default {
   setup() {

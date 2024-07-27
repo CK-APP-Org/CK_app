@@ -35,7 +35,7 @@
       <q-card-section class="row items-center">
         <div class="text-h5 text-primary">聯絡我們</div>
         <q-space />
-        <q-btn color="primary" icon="mail" label="Gmail" @click="openGmailCompose" />
+        <q-btn color="primary" icon="mail" label="ckappoffical@gmail.com" @click="openGmailCompose" />
       </q-card-section>
     </q-card>
   </q-page>
@@ -43,6 +43,8 @@
 
 <script>
 import { ref } from "vue";
+// import { Plugins } from '@capacitor/core';
+// import { EmailComposer } from 'capacitor-email-composer';
 
 export default {
   setup() {
@@ -56,12 +58,24 @@ export default {
       { name: "News", icon: "feed", title: "校網追蹤，及時更新", description: "追蹤校網的所有公告，自由已讀或釘選，不再漏接訊息或被不重要的訊息干擾" },
     ];
 
-    const openGmailCompose = () => {
-      const email = "ckappofficial@gmail.com";
-      const subject = "Questions and Recommendations regarding CK_APP";
-      const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`;
-      window.open(gmailComposeUrl, "_blank");
-    };
+    const openGmailCompose = async () => {
+      // const email = "ckappofficial@gmail.com";
+      // const subject = "Questions and Recommendations regarding CK_APP";
+
+      //   const available = await EmailComposer.hasAccount();
+      //   if (available.hasAccount) {
+      //     await EmailComposer.open({
+      //       to: [email],
+      //       subject: subject,
+      //       body: '',
+      //       isHtml: false
+      //     });
+      //   } else {
+      //     // Handle case where email is not set up
+      //     console.log('No email account available');
+      //     // You might want to show a message to the user here
+      //   }
+      };
 
     return {
       slide,

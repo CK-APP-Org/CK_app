@@ -60,7 +60,14 @@
               </q-icon>
             </template>
           </q-input>
-          <q-input v-model="eventEndDate" label="結束日期" dense>
+          <q-input
+            v-model="eventEndDate"
+            label="結束日期"
+            dense
+            :disable="!eventStartDate"
+            :error="!!endDateErrorMessage"
+            :error-message="endDateErrorMessage"
+          >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy
@@ -126,7 +133,7 @@
 
 <script>
 const colorOptions = [
-  { label: "Default", value: "#f4f4f1" },
+  { label: "Default", value: "#ADADAD" },
   { label: "Red", value: "#FFCCCB" },
   { label: "Orange", value: "#f5c884" },
   { label: "Yellow", value: "#FFFFE0" },
@@ -146,8 +153,9 @@ export default {
       eventStartDate: "",
       eventEndDate: "",
       events: [],
-      eventColor: { label: "Default", value: "#f4f4f1" },
+      eventColor: { label: "Default", value: "#ADADAD" },
       colorOptions,
+      endDateErrorMessage: "",
     };
   },
   computed: {
@@ -214,8 +222,13 @@ export default {
         this.eventTitle.trim() !== "" &&
         this.eventStartDate !== "" &&
         this.eventEndDate !== "" &&
-        this.eventColor.value !== ""
+        this.eventColor.value !== "" &&
+        this.isEndDateValid
       );
+    },
+    isEndDateValid() {
+      if (!this.eventStartDate || !this.eventEndDate) return true;
+      return new Date(this.eventEndDate) >= new Date(this.eventStartDate);
     },
   },
   methods: {
@@ -266,6 +279,21 @@ export default {
     },
     displayEvents() {
       console.log("All events:", this.events);
+    },
+    validateEndDate() {
+      if (!this.isEndDateValid) {
+        this.endDateErrorMessage = "結束日期不能早於起始日期";
+      } else {
+        this.endDateErrorMessage = "";
+      }
+    },
+  },
+  watch: {
+    eventStartDate() {
+      this.validateEndDate();
+    },
+    eventEndDate() {
+      this.validateEndDate();
     },
   },
 };

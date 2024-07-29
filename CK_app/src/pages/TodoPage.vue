@@ -15,17 +15,7 @@
           :key="day.date"
           :class="{ 'calendar-day': true, 'other-month': !day.isCurrentMonth }"
         >
-          <div class="day-number">{{ day.date.getDate() }}</div>
-          <div class="day-events">
-            <div
-              v-for="event in day.events"
-              :key="event.title"
-              class="event"
-              :style="getEventStyle(event, day.date)"
-            >
-              <span v-if="event.isStart">{{ event.title }}</span>
-            </div>
-          </div>
+          {{ day.date.getDate() }}
         </div>
       </div>
     </div>
@@ -78,6 +68,35 @@
               </q-icon>
             </template>
           </q-input>
+          <q-select
+            v-model="eventColor"
+            :options="colorOptions"
+            label="活動顏色"
+            dense
+          >
+            <template v-slot:selected>
+              <q-chip
+                square
+                :style="{ backgroundColor: eventColor.value }"
+                class="q-mr-sm"
+              />
+              {{ eventColor.label }}
+            </template>
+            <template v-slot:option="{ itemProps, opt }">
+              <q-item v-bind="itemProps">
+                <q-item-section side>
+                  <q-chip
+                    :style="{ backgroundColor: opt.value }"
+                    square
+                    dense
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ opt.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -97,6 +116,16 @@
 </template>
 
 <script>
+const colorOptions = [
+  { label: "Default", value: "#f4f4f1" },
+  { label: "Red", value: "#FFCCCB" },
+  { label: "Orange", value: "#f5c884" },
+  { label: "Yellow", value: "#FFFFE0" },
+  { label: "Green", value: "#90EE90" },
+  { label: "Blue", value: "#ADD8E6" },
+  { label: "Purple", value: "#e299ff" },
+  { label: "Pink", value: "#ffa1e4" },
+];
 export default {
   data() {
     return {
@@ -108,6 +137,8 @@ export default {
       eventStartDate: "",
       eventEndDate: "",
       events: [],
+      eventColor: { label: "Default", value: "#f4f4f1" },
+      colorOptions,
     };
   },
   computed: {
@@ -154,30 +185,14 @@ export default {
         });
       }
 
-      return calendarDays.map((day) => {
-        const dayEvents = this.events
-          .filter((event) => {
-            const eventStart = new Date(event.startDate);
-            const eventEnd = new Date(event.endDate);
-            return day.date >= eventStart && day.date <= eventEnd;
-          })
-          .map((event) => ({
-            ...event,
-            isStart:
-              new Date(event.startDate).toDateString() ===
-              day.date.toDateString(),
-            isEnd:
-              new Date(event.endDate).toDateString() ===
-              day.date.toDateString(),
-          }));
-        return { ...day, events: dayEvents };
-      });
+      return calendarDays;
     },
     isFormValid() {
       return (
         this.eventTitle.trim() !== "" &&
         this.eventStartDate !== "" &&
-        this.eventEndDate !== ""
+        this.eventEndDate !== "" &&
+        this.eventColor.value !== ""
       );
     },
   },
@@ -214,6 +229,7 @@ export default {
         title: this.eventTitle,
         startDate: this.eventStartDate,
         endDate: this.eventEndDate,
+        color: this.eventColor.value,
       };
       this.events.push(newEvent);
       console.log("Event added:", newEvent);
@@ -224,40 +240,10 @@ export default {
       this.eventTitle = "";
       this.eventStartDate = "";
       this.eventEndDate = "";
+      this.eventColor = { label: "Default", value: "#f4f4f1" };
     },
     displayEvents() {
       console.log("All events:", this.events);
-    },
-    getEventStyle(event, currentDate) {
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
-      const durationDays = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-      const dayOfWeek = currentDate.getDay();
-      const daysUntilEndOfWeek = 7 - dayOfWeek;
-
-      let width = "100%";
-      if (event.isStart) {
-        width = `${100 * Math.min(durationDays, daysUntilEndOfWeek)}%`;
-      } else if (!event.isEnd && dayOfWeek === 0) {
-        width = `${
-          100 *
-          Math.min(
-            durationDays - (currentDate - startDate) / (1000 * 60 * 60 * 24),
-            7
-          )
-        }%`;
-      }
-
-      return {
-        width: width,
-        borderRadius: event.isStart
-          ? "4px 0 0 4px"
-          : event.isEnd
-          ? "0 4px 4px 0"
-          : "0",
-        marginLeft: event.isStart ? "0" : "-1px",
-        borderLeft: event.isStart ? null : "none",
-      };
     },
   },
 };
@@ -354,30 +340,5 @@ export default {
   background-color: transparent;
   cursor: pointer;
   text-align: left;
-}
-
-.calendar-day {
-  position: relative;
-  overflow: visible;
-  border-right: none;
-  border-bottom: none;
-}
-
-.calendar {
-  border-right: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-}
-
-.event {
-  font-size: 12px;
-  padding: 2px 4px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background-color: #4285f4;
-  color: white;
-  border: 1px solid #3367d6;
-  box-sizing: border-box;
 }
 </style>

@@ -16,6 +16,15 @@
           :class="{ 'calendar-day': true, 'other-month': !day.isCurrentMonth }"
         >
           {{ day.date.getDate() }}
+          <div class="event-circles">
+            <div
+              v-for="(event, index) in day.events"
+              :key="index"
+              class="event-circle"
+              :style="{ backgroundColor: event.color }"
+              :class="'position-' + (index + 1)"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
@@ -185,7 +194,20 @@ export default {
         });
       }
 
-      return calendarDays;
+      return calendarDays.map((day) => {
+        const dayEvents = this.events
+          .filter((event) => {
+            const eventStart = new Date(event.startDate);
+            const eventEnd = new Date(event.endDate);
+            return day.date >= eventStart && day.date <= eventEnd;
+          })
+          .slice(0, 4); // Limit to 4 events per day
+
+        return {
+          ...day,
+          events: dayEvents,
+        };
+      });
     },
     isFormValid() {
       return (
@@ -227,8 +249,8 @@ export default {
     addEvent() {
       const newEvent = {
         title: this.eventTitle,
-        startDate: this.eventStartDate,
-        endDate: this.eventEndDate,
+        startDate: new Date(this.eventStartDate),
+        endDate: new Date(this.eventEndDate),
         color: this.eventColor.value,
       };
       this.events.push(newEvent);
@@ -340,5 +362,44 @@ export default {
   background-color: transparent;
   cursor: pointer;
   text-align: left;
+}
+
+.calendar-day {
+  position: relative;
+}
+
+.event-circles {
+  /*Here to adjust position of circles*/
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 25px;
+  height: 25px;
+}
+
+.event-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.position-1 {
+  top: 0;
+  left: 0;
+}
+.position-2 {
+  top: 0;
+  right: 0;
+}
+.position-3 {
+  bottom: 0;
+  left: 0;
+}
+.position-4 {
+  bottom: 0;
+  right: 0;
 }
 </style>

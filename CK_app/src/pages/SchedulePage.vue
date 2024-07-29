@@ -212,7 +212,7 @@ const classOptions = [217, 227];
 
 export default {
   setup() {
-    const visibleColumns = ref(["name", "Monday"]);
+    const visibleColumns = ref(["name", ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()]]);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
     const changeVisibleColumn = (columnName) => {

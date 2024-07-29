@@ -107,7 +107,7 @@ export default {
         },
         {
           label: "熱食部",
-          icon: "dining",
+          icon: "restaurant_menu",
           link: "/menu",
         },
         {

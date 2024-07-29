@@ -15,20 +15,29 @@
 
     <!-- Current Class Section -->
     <div class="current-class-section q-mb-md">
-      <q-card>
+      <q-card class="cursor-pointer">
         <q-card-section :style="{ backgroundColor: currentClass.color }">
-          <div class="text-h6">目前課程</div>
-
-          <div class="text-subtitle1">{{ currentClass.subject }}</div>
+          <div class="row items-center q-mb-sm">
+            <div class="text-h6 q-mr-sm">目前課程</div>
+            <q-btn
+              flat
+              dense
+              round
+              icon="edit"
+              color="primary"
+              size="0.8em"
+              href="/#/schedule"
+            />
+          </div>
+          <div style="font-weight: bold; font-size: x-large;">{{ currentClass.subject }}</div>
           <q-separator class="q-my-sm" />
           <div class="text-caption">課程備註：</div>
           <div>{{ currentClass.note }}</div>
         </q-card-section>
       </q-card>
     </div>
-
     <!-- Todo Tasks Section -->
-    <!-- <div class="todo-tasks-section q-mb-md">
+    <div class="todo-tasks-section q-mb-md">
       <q-card>
         <q-card-section class="bg-orange-2">
           <div class="text-h6">待辦事項</div>
@@ -45,15 +54,26 @@
           </q-list>
         </q-card-section>
       </q-card>
-    </div> -->
+    </div>
 
     <!-- Pinned School News Section -->
     <div class="school-news-section q-mb-md">
       <q-card>
         <q-card-section class="bg-blue-2">
-          <div class="text-h6">置頂校園新聞</div>
-          <q-list dense>
-            <q-item v-for="(news, index) in pinnedNews" :key="index" clickable v-ripple>
+          <div class="row items-center q-mb-sm">
+            <div class="text-h6 q-mr-sm">釘選校網內容</div>
+            <q-btn
+              flat
+              dense
+              round
+              icon="edit"
+              color="primary"
+              size="0.8em"
+              href="/#/news"
+            />
+          </div>
+          <q-list dense v-if="pinnedNews.length > 0">
+            <q-item v-for="(news, index) in pinnedNews" :key="index" clickable v-ripple :href="news.link">
               <q-item-section side>
                 <q-icon name="fiber_manual_record" size="xs" color="primary" />
               </q-item-section>
@@ -62,6 +82,9 @@
               </q-item-section>
             </q-item>
           </q-list>
+          <div v-else style="font-size: large; color: red; font-weight: bold;" class="q-pa-sm">
+            無釘選內容
+          </div>
         </q-card-section>
       </q-card>
     </div>
@@ -103,7 +126,7 @@ export default {
         { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
-        { name: "校網", icon: "language", link: "/news" },
+        { name: "校網", icon: "newspaper", link: "/news" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
       ],
@@ -180,7 +203,7 @@ export default {
       };
       console.log(getLabelValue(getFormattedColor(currentClassData.color)))
       return currentClassData ? {
-        subject: currentPeriod + ' ---- ' + currentClassData.subject,
+        subject: currentPeriod + ': ' + currentClassData.subject,
         note: currentClassData.note,
         color: getLabelValue(getFormattedColor(currentClassData.color))
       } : {

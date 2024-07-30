@@ -76,7 +76,10 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import store from "../store/index";
 
-const classOptions = [217, 227];
+const classOptions = [
+  301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315,
+  316, 317, 318, 319, 320, 321, 322, 323, 325, 326, 327, 328,
+];
 
 export default {
   setup() {

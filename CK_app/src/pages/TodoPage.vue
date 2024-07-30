@@ -14,6 +14,7 @@
           v-for="day in calendarDays"
           :key="day.date"
           :class="{ 'calendar-day': true, 'other-month': !day.isCurrentMonth }"
+          @click="showDayEvents(day)"
         >
           {{ day.date.getDate() }}
           <div class="event-circles">
@@ -128,6 +129,40 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="showDayEventsDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">{{ formatDate(selectedDate) }}活動</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-list v-if="selectedDayEvents.length > 0">
+            <q-item v-for="(event, index) in selectedDayEvents" :key="index">
+              <q-item-section>
+                <q-item-label class="item-title">{{
+                  event.title
+                }}</q-item-label>
+                <q-item-label>
+                  {{ new Date(event.startDate).toLocaleDateString() }} -
+                  {{ new Date(event.endDate).toLocaleDateString() }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <div
+                  class="custom-badge"
+                  :style="{ backgroundColor: event.color }"
+                ></div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+          <div v-else>無。</div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Close" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -156,6 +191,9 @@ export default {
       eventColor: { label: "Default", value: "#ADADAD" },
       colorOptions,
       endDateErrorMessage: "",
+      selectedDate: null,
+      selectedDayEvents: [],
+      showDayEventsDialog: false,
     };
   },
   computed: {
@@ -286,6 +324,19 @@ export default {
       } else {
         this.endDateErrorMessage = "";
       }
+    },
+    showDayEvents(day) {
+      this.selectedDate = day.date;
+      this.selectedDayEvents = this.events.filter((event) => {
+        const eventStart = new Date(event.startDate);
+        const eventEnd = new Date(event.endDate);
+        return day.date >= eventStart && day.date <= eventEnd;
+      });
+      this.showDayEventsDialog = true;
+    },
+
+    formatDate(date) {
+      return `${date.getMonth() + 1}/${date.getDate()}`;
     },
   },
   watch: {
@@ -429,5 +480,23 @@ export default {
 .position-4 {
   bottom: 0;
   right: 0;
+}
+.calendar-day {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.calendar-day:hover {
+  background-color: #f0f0f0;
+}
+
+.item-title {
+  font-weight: bold;
+  font-size: 17px;
+}
+.custom-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
 }
 </style>

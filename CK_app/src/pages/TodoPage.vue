@@ -39,7 +39,7 @@
     <q-dialog v-model="showEventDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">新增活動</div>
+          <div class="text-h6">{{ isEditing ? "編輯活動" : "新增活動" }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -117,10 +117,16 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="取消" color="primary" v-close-popup />
           <q-btn
             flat
-            label="新增活動"
+            label="取消"
+            color="primary"
+            v-close-popup
+            @click="resetEventForm"
+          />
+          <q-btn
+            flat
+            :label="isEditing ? '保存更改' : '新增活動'"
             color="primary"
             @click="addEvent"
             :disable="!isFormValid"
@@ -137,7 +143,12 @@
 
         <q-card-section>
           <q-list v-if="selectedDayEvents.length > 0">
-            <q-item v-for="(event, index) in selectedDayEvents" :key="index">
+            <q-item
+              v-for="(event, index) in selectedDayEvents"
+              :key="index"
+              clickable
+              @click="editEvent(event)"
+            >
               <q-item-section>
                 <q-item-label class="item-title">{{
                   event.title
@@ -171,7 +182,6 @@ const colorOptions = [
   { label: "Default", value: "#ADADAD" },
   { label: "Red", value: "#FFCCCB" },
   { label: "Orange", value: "#f5c884" },
-  { label: "Yellow", value: "#FFFFE0" },
   { label: "Green", value: "#90EE90" },
   { label: "Blue", value: "#ADD8E6" },
   { label: "Purple", value: "#e299ff" },
@@ -194,6 +204,8 @@ export default {
       selectedDate: null,
       selectedDayEvents: [],
       showDayEventsDialog: false,
+      editingEvent: null,
+      isEditing: false,
     };
   },
   computed: {
@@ -298,22 +310,30 @@ export default {
     },
 
     addEvent() {
-      const newEvent = {
-        title: this.eventTitle,
-        startDate: new Date(this.eventStartDate),
-        endDate: new Date(this.eventEndDate),
-        color: this.eventColor.value,
-      };
-      this.events.push(newEvent);
-      console.log("Event added:", newEvent);
-      console.log("All events:", this.events);
-      this.resetEventForm();
+      if (this.isEditing) {
+        this.saveEditedEvent();
+      } else {
+        const newEvent = {
+          title: this.eventTitle,
+          startDate: new Date(this.eventStartDate),
+          endDate: new Date(this.eventEndDate),
+          color: this.eventColor.value,
+        };
+        this.events.push(newEvent);
+        this.resetEventForm();
+        this.showEventDialog = false;
+
+        // Refresh the selected day events if needed
+        this.updateSelectedDayEvents();
+      }
     },
     resetEventForm() {
       this.eventTitle = "";
       this.eventStartDate = "";
       this.eventEndDate = "";
       this.eventColor = { label: "Default", value: "#f4f4f1" };
+      this.isEditing = false;
+      this.editingEvent = null;
     },
     displayEvents() {
       console.log("All events:", this.events);
@@ -337,6 +357,66 @@ export default {
 
     formatDate(date) {
       return `${date.getMonth() + 1}/${date.getDate()}`;
+    },
+    editEvent(event) {
+      this.editingEvent = { ...event };
+      this.eventTitle = event.title;
+      this.eventStartDate = this.formatDateForInput(event.startDate);
+      this.eventEndDate = this.formatDateForInput(event.endDate);
+      this.eventColor = this.colorOptions.find(
+        (color) => color.value === event.color
+      );
+      this.isEditing = true;
+      this.showEventDialog = true;
+      this.showDayEventsDialog = false;
+    },
+    formatDateForInput(date) {
+      const d = new Date(date);
+      let month = "" + (d.getMonth() + 1);
+      let day = "" + d.getDate();
+      const year = d.getFullYear();
+
+      if (month.length < 2) month = "0" + month;
+      if (day.length < 2) day = "0" + day;
+
+      return [year, month, day].join("-");
+    },
+    saveEditedEvent() {
+      const index = this.events.findIndex(
+        (e) =>
+          e.title === this.editingEvent.title &&
+          e.startDate.getTime() ===
+            new Date(this.editingEvent.startDate).getTime() &&
+          e.endDate.getTime() === new Date(this.editingEvent.endDate).getTime()
+      );
+
+      if (index !== -1) {
+        // Update the event in the array
+        this.events.splice(index, 1, {
+          title: this.eventTitle,
+          startDate: new Date(this.eventStartDate),
+          endDate: new Date(this.eventEndDate),
+          color: this.eventColor.value,
+        });
+      }
+
+      this.resetEventForm();
+      this.showEventDialog = false;
+      this.showDayEventsDialog = true;
+
+      // Refresh the selected day events
+      this.updateSelectedDayEvents();
+    },
+    updateSelectedDayEvents() {
+      if (this.selectedDate) {
+        this.selectedDayEvents = this.events.filter((event) => {
+          const eventStart = new Date(event.startDate);
+          const eventEnd = new Date(event.endDate);
+          return (
+            this.selectedDate >= eventStart && this.selectedDate <= eventEnd
+          );
+        });
+      }
     },
   },
   watch: {

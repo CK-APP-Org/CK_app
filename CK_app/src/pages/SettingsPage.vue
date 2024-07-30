@@ -17,11 +17,9 @@
           @click="confirmClear"
           class="full-width q-mb-md"
         />
-
       </div>
     </div>
 
-    <!-- Existing dialogs remain unchanged -->
     <q-dialog v-model="confirmDialog">
       <q-card>
         <q-card-section class="row items-center">
@@ -66,12 +64,17 @@
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import store from "../store/index";
-const classOptions = [317, 327];
-// const classOptions = [301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 325, 326, 327, 328];
+
+const classOptions = [
+  301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315,
+  316, 317, 318, 319, 320, 321, 322, 323, 325, 326, 327, 328,
+];
 
 export default {
   setup() {
-    const displayScheduleWidget = computed(() => store.getters.getScheduleWidget);
+    const displayScheduleWidget = computed(
+      () => store.getters.getScheduleWidget
+    );
     const displayNewsWidget = computed(() => store.getters.getNewsWidget);
 
     const store = useStore();
@@ -122,7 +125,7 @@ export default {
       selectedClass,
       showSchedule,
       showTodo,
-      showSchoolNews
+      showSchoolNews,
     };
   },
 };

@@ -177,7 +177,7 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup />
+          <q-btn flat label="關閉" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -203,6 +203,9 @@
 </template>
 
 <script>
+import { computed } from "vue";
+import store from "../store/index";
+
 const colorOptions = [
   { label: "Default", value: "#ADADAD" },
   { label: "Red", value: "#FFCCCB" },
@@ -213,6 +216,10 @@ const colorOptions = [
   { label: "Pink", value: "#ffa1e4" },
 ];
 export default {
+  setup() {
+    const events = computed(() => store.getters.getEvents);
+    return { events };
+  },
   data() {
     return {
       currentDate: new Date(),
@@ -222,7 +229,6 @@ export default {
       eventTitle: "",
       eventStartDate: "",
       eventEndDate: "",
-      events: [],
       eventColor: { label: "Default", value: "#ADADAD" },
       colorOptions,
       endDateErrorMessage: "",
@@ -328,7 +334,7 @@ export default {
     addItem(type) {
       console.log(`Adding ${type}`);
       // Add your logic here for what should happen when an item is added
-      this.showMenu = false; // Close the menu after selection
+      this.showMenu = false;
     },
     openEventDialog() {
       this.showEventDialog = true;
@@ -345,7 +351,15 @@ export default {
           endDate: new Date(this.eventEndDate),
           color: this.eventColor.value,
         };
-        this.events.push(newEvent);
+        //Update store
+        store.dispatch("addEvent", {
+          id: Date.now(), // Generate a unique ID for the event
+          title: this.eventTitle,
+          startDate: new Date(this.eventStartDate),
+          endDate: new Date(this.eventEndDate),
+          color: this.eventColor.value,
+        });
+
         this.resetEventForm();
         this.showEventDialog = false;
 
@@ -408,23 +422,15 @@ export default {
       return [year, month, day].join("-");
     },
     saveEditedEvent() {
-      const index = this.events.findIndex(
-        (e) =>
-          e.title === this.editingEvent.title &&
-          e.startDate.getTime() ===
-            new Date(this.editingEvent.startDate).getTime() &&
-          e.endDate.getTime() === new Date(this.editingEvent.endDate).getTime()
-      );
+      const updatedEvent = {
+        id: this.editingEvent.id,
+        title: this.eventTitle,
+        startDate: new Date(this.eventStartDate),
+        endDate: new Date(this.eventEndDate),
+        color: this.eventColor.value,
+      };
 
-      if (index !== -1) {
-        // Update the event in the array
-        this.events.splice(index, 1, {
-          title: this.eventTitle,
-          startDate: new Date(this.eventStartDate),
-          endDate: new Date(this.eventEndDate),
-          color: this.eventColor.value,
-        });
-      }
+      store.dispatch("updateEvent", updatedEvent);
 
       this.resetEventForm();
       this.showEventDialog = false;
@@ -435,7 +441,8 @@ export default {
     },
     updateSelectedDayEvents() {
       if (this.selectedDate) {
-        this.selectedDayEvents = this.events.filter((event) => {
+        const allEvents = store.getters.getEvents;
+        this.selectedDayEvents = allEvents.filter((event) => {
           const eventStart = new Date(event.startDate);
           const eventEnd = new Date(event.endDate);
           return (
@@ -449,16 +456,8 @@ export default {
     },
 
     deleteEvent() {
-      const index = this.events.findIndex(
-        (e) =>
-          e.title === this.editingEvent.title &&
-          e.startDate.getTime() ===
-            new Date(this.editingEvent.startDate).getTime() &&
-          e.endDate.getTime() === new Date(this.editingEvent.endDate).getTime()
-      );
-
-      if (index !== -1) {
-        this.events.splice(index, 1);
+      if (this.editingEvent) {
+        store.dispatch("deleteEvent", this.editingEvent.id);
       }
 
       this.resetEventForm();

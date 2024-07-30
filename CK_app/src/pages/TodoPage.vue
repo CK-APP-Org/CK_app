@@ -32,7 +32,9 @@
     <div class="add-button-container">
       <button class="add-button" @click="toggleMenu">+</button>
       <div v-if="showMenu" class="add-menu">
-        <button class="menu-item" @click="addItem('工作')">💼工作</button>
+        <button class="menu-item" disabled @click="addItem('工作')">
+          💼工作
+        </button>
         <button class="menu-item" @click="openEventDialog">📅活動</button>
       </div>
     </div>
@@ -155,7 +157,14 @@
               :key="index"
               clickable
               @click="editEvent(event)"
+              class="q-mb-sm"
             >
+              <q-item-section avatar>
+                <div
+                  class="custom-badge"
+                  :style="{ backgroundColor: event.color }"
+                ></div>
+              </q-item-section>
               <q-item-section>
                 <q-item-label class="item-title">{{
                   event.title
@@ -166,10 +175,7 @@
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
-                <div
-                  class="custom-badge"
-                  :style="{ backgroundColor: event.color }"
-                ></div>
+                <q-icon name="chevron_right" color="grey" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -618,14 +624,29 @@ export default {
 .calendar-day:hover {
   background-color: #f0f0f0;
 }
+.q-item {
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
 
+.q-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
 .item-title {
   font-weight: bold;
-  font-size: 17px;
+  font-size: 18px;
+  margin-bottom: 4px;
 }
+
 .custom-badge {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  margin-right: 10px;
 }
 </style>

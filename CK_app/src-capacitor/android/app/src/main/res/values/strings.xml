@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">CK_app</string>
-    <string name="title_activity_main">CK_app</string>
-    <string name="package_name">org.capacitor.quasar.ckapp</string>
-    <string name="custom_url_scheme">org.capacitor.quasar.ckapp</string>
-</resources>

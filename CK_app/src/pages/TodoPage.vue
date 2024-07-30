@@ -38,8 +38,15 @@
     </div>
     <q-dialog v-model="showEventDialog">
       <q-card style="min-width: 350px">
-        <q-card-section>
+        <q-card-section class="row items-center justify-between">
           <div class="text-h6">{{ isEditing ? "編輯活動" : "新增活動" }}</div>
+          <q-btn
+            v-if="isEditing"
+            flat
+            color="red"
+            label="刪除"
+            @click="confirmDelete"
+          />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -138,7 +145,7 @@
     <q-dialog v-model="showDayEventsDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">{{ formatDate(selectedDate) }}活動</div>
+          <div class="text-h6">{{ formatDate(selectedDate) }}活動列表</div>
         </q-card-section>
 
         <q-card-section>
@@ -174,6 +181,24 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="showDeleteConfirmation">
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm">確定刪除此活動？</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="確定"
+            color="negative"
+            @click="deleteEvent"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -206,6 +231,7 @@ export default {
       showDayEventsDialog: false,
       editingEvent: null,
       isEditing: false,
+      showDeleteConfirmation: false,
     };
   },
   computed: {
@@ -417,6 +443,30 @@ export default {
           );
         });
       }
+    },
+    confirmDelete() {
+      this.showDeleteConfirmation = true;
+    },
+
+    deleteEvent() {
+      const index = this.events.findIndex(
+        (e) =>
+          e.title === this.editingEvent.title &&
+          e.startDate.getTime() ===
+            new Date(this.editingEvent.startDate).getTime() &&
+          e.endDate.getTime() === new Date(this.editingEvent.endDate).getTime()
+      );
+
+      if (index !== -1) {
+        this.events.splice(index, 1);
+      }
+
+      this.resetEventForm();
+      this.showEventDialog = false;
+      this.showDayEventsDialog = true;
+
+      // Refresh the selected day events
+      this.updateSelectedDayEvents();
     },
   },
   watch: {

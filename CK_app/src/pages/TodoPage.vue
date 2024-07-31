@@ -22,7 +22,7 @@
               v-for="(event, index) in day.events"
               :key="index"
               class="event-circle"
-              :style="{ backgroundColor: event.color }"
+              :style="{ backgroundColor: event.category.color }"
               :class="'position-' + (index + 1)"
             ></div>
           </div>
@@ -95,34 +95,37 @@
             </template>
           </q-input>
           <q-select
-            v-model="eventColor"
-            :options="colorOptions"
-            label="活動顏色"
+            v-model="eventCategory"
+            :options="categories"
+            option-label="name"
+            label="活動類別"
             dense
           >
             <template v-slot:selected>
               <q-chip
+                v-if="Object.keys(eventCategory).length != 0"
                 square
-                :style="{ backgroundColor: eventColor.value }"
+                :style="{ backgroundColor: eventCategory.color }"
                 class="q-mr-sm"
               />
-              {{ eventColor.label }}
+              {{ eventCategory.name }}
             </template>
             <template v-slot:option="{ itemProps, opt }">
               <q-item v-bind="itemProps">
                 <q-item-section side>
                   <q-chip
-                    :style="{ backgroundColor: opt.value }"
+                    :style="{ backgroundColor: opt.color }"
                     square
                     dense
                   />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ opt.label }}</q-item-label>
+                  <q-item-label>{{ opt.name }}</q-item-label>
                 </q-item-section>
               </q-item>
             </template>
           </q-select>
+          <q-btn label="管理類別" @click="showCategoryDialog = true" />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -162,7 +165,7 @@
               <q-item-section avatar>
                 <div
                   class="custom-badge"
-                  :style="{ backgroundColor: event.color }"
+                  :style="{ backgroundColor: event.category.color }"
                 ></div>
               </q-item-section>
               <q-item-section>
@@ -205,6 +208,86 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="showCategoryDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">管理類別</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-h7">所有類別</div>
+          <q-list>
+            <q-item v-for="category in categories" :key="category.name">
+              <q-item-section>
+                <q-chip
+                  square
+                  :style="{ backgroundColor: category.color }"
+                  class="q-mr-sm"
+                />
+                {{ category.name }}
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  v-if="Object.keys(categories).length > 1"
+                  flat
+                  round
+                  icon="delete"
+                  @click="deleteCategory(category.name)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input v-model="newCategoryName" label="新類別名稱" dense />
+          <q-input v-model="newCategoryColor" label="新類別顏色" dense>
+            <q-chip
+              square
+              :style="{ backgroundColor: newCategoryColor }"
+              class="q-mr-sm"
+            />
+            <template v-slot:append>
+              <q-icon name="colorize" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-color v-model="newCategoryColor" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-btn label="新增類別" @click="addCategory" />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="showDeleteCategoryConfirmation">
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm"
+            >確定刪除類別 "{{ categoryToDelete }}"
+            嗎？若確定則所有屬於這類別的活動會維持原本的樣式，但往後所有活動將無法選取為此類別。</span
+          >
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="確定"
+            color="negative"
+            @click="confirmDeleteCategory"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -212,19 +295,11 @@
 import { computed } from "vue";
 import store from "../store/index";
 
-const colorOptions = [
-  { label: "Default", value: "#ADADAD" },
-  { label: "Red", value: "#FFCCCB" },
-  { label: "Orange", value: "#f5c884" },
-  { label: "Green", value: "#90EE90" },
-  { label: "Blue", value: "#ADD8E6" },
-  { label: "Purple", value: "#e299ff" },
-  { label: "Pink", value: "#ffa1e4" },
-];
 export default {
   setup() {
     const events = computed(() => store.getters.getEvents);
-    return { events };
+    const categories = computed(() => store.getters.getCategories);
+    return { events, categories };
   },
   data() {
     return {
@@ -235,8 +310,6 @@ export default {
       eventTitle: "",
       eventStartDate: "",
       eventEndDate: "",
-      eventColor: { label: "Default", value: "#ADADAD" },
-      colorOptions,
       endDateErrorMessage: "",
       selectedDate: null,
       selectedDayEvents: [],
@@ -244,6 +317,12 @@ export default {
       editingEvent: null,
       isEditing: false,
       showDeleteConfirmation: false,
+      eventCategory: {},
+      showCategoryDialog: false,
+      newCategoryName: "",
+      newCategoryColor: "#ADADAD",
+      showDeleteCategoryConfirmation: false,
+      categoryToDelete: null,
     };
   },
   computed: {
@@ -301,7 +380,10 @@ export default {
 
         return {
           ...day,
-          events: dayEvents,
+          events: dayEvents.map((event) => ({
+            ...event,
+            color: event.category.color,
+          })),
         };
       });
     },
@@ -310,8 +392,8 @@ export default {
         this.eventTitle.trim() !== "" &&
         this.eventStartDate !== "" &&
         this.eventEndDate !== "" &&
-        this.eventColor.value !== "" &&
-        this.isEndDateValid
+        this.isEndDateValid &&
+        this.eventCategory !== ""
       );
     },
     isEndDateValid() {
@@ -355,21 +437,18 @@ export default {
           title: this.eventTitle,
           startDate: new Date(this.eventStartDate),
           endDate: new Date(this.eventEndDate),
-          color: this.eventColor.value,
+          category: this.eventCategory,
         };
-        //Update store
         store.dispatch("addEvent", {
           id: Date.now(), // Generate a unique ID for the event
           title: this.eventTitle,
           startDate: new Date(this.eventStartDate),
           endDate: new Date(this.eventEndDate),
-          color: this.eventColor.value,
+          category: this.eventCategory,
         });
 
         this.resetEventForm();
         this.showEventDialog = false;
-
-        // Refresh the selected day events if needed
         this.updateSelectedDayEvents();
       }
     },
@@ -377,12 +456,9 @@ export default {
       this.eventTitle = "";
       this.eventStartDate = "";
       this.eventEndDate = "";
-      this.eventColor = { label: "Default", value: "#f4f4f1" };
       this.isEditing = false;
       this.editingEvent = null;
-    },
-    displayEvents() {
-      console.log("All events:", this.events);
+      this.eventCategory = {};
     },
     validateEndDate() {
       if (!this.isEndDateValid) {
@@ -409,9 +485,7 @@ export default {
       this.eventTitle = event.title;
       this.eventStartDate = this.formatDateForInput(event.startDate);
       this.eventEndDate = this.formatDateForInput(event.endDate);
-      this.eventColor = this.colorOptions.find(
-        (color) => color.value === event.color
-      );
+      this.eventCategory = event.category;
       this.isEditing = true;
       this.showEventDialog = true;
       this.showDayEventsDialog = false;
@@ -433,7 +507,7 @@ export default {
         title: this.eventTitle,
         startDate: new Date(this.eventStartDate),
         endDate: new Date(this.eventEndDate),
-        color: this.eventColor.value,
+        category: this.eventCategory,
       };
 
       store.dispatch("updateEvent", updatedEvent);
@@ -472,6 +546,33 @@ export default {
 
       // Refresh the selected day events
       this.updateSelectedDayEvents();
+    },
+    addCategory() {
+      if (this.newCategoryName && this.newCategoryColor) {
+        store.dispatch("addCategory", {
+          name: this.newCategoryName,
+          color: this.newCategoryColor,
+        });
+        this.newCategoryName = "";
+        this.newCategoryColor = "#ADADAD";
+      }
+    },
+
+    deleteCategory(categoryName) {
+      this.showDeleteCategoryConfirmationDialog(categoryName);
+    },
+
+    showDeleteCategoryConfirmationDialog(categoryName) {
+      this.categoryToDelete = categoryName;
+      this.showDeleteCategoryConfirmation = true;
+    },
+
+    confirmDeleteCategory() {
+      if (this.categoryToDelete) {
+        store.dispatch("deleteCategory", this.categoryToDelete);
+      }
+      this.showDeleteCategoryConfirmation = false;
+      this.categoryToDelete = null;
     },
   },
   watch: {
@@ -624,7 +725,7 @@ export default {
 .calendar-day:hover {
   background-color: #f0f0f0;
 }
-.q-item {
+.q-list .q-item:not(.q-select__dropdown .q-item) {
   background-color: #f8f8f8;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -633,7 +734,7 @@ export default {
   transition: all 0.3s ease;
 }
 
-.q-item:hover {
+.q-list .q-item:not(.q-select__dropdown .q-item):hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }

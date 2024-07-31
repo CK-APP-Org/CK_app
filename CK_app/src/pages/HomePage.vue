@@ -5,7 +5,7 @@
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md"/>
       </template>
-      最新公告：今天下午在禮堂有全校集會
+      最新公告：今天下午在禮堂有全校集
     </q-banner>
 
     <!-- <div class="header">
@@ -14,7 +14,7 @@
     </div> -->
 
     <!-- Current Class Section -->
-    <div class="current-class-section q-mb-md">
+    <div class="current-class-section q-mb-md" v-if="showSchedule">
       <q-card class="cursor-pointer">
         <q-card-section :style="{ backgroundColor: currentClass.color }">
           <div class="row items-center q-mb-sm">
@@ -37,7 +37,7 @@
       </q-card>
     </div>
     <!-- Todo Tasks Section -->
-    <div class="todo-tasks-section q-mb-md">
+    <div class="todo-tasks-section q-mb-md" v-if="showTodo">
       <q-card>
         <q-card-section class="bg-orange-2">
           <div class="text-h6">待辦事項</div>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Pinned School News Section -->
-    <div class="school-news-section q-mb-md">
+    <div class="school-news-section q-mb-md" v-if="showSchoolNews">
       <q-card>
         <q-card-section class="bg-blue-2">
           <div class="row items-center q-mb-sm">
@@ -82,7 +82,7 @@
               </q-item-section>
             </q-item>
           </q-list>
-          <div v-else style="font-size: large; color: red; font-weight: bold;" class="q-pa-sm">
+          <div v-else style="font-size: large; color: firebrick; font-weight: bold;" class="q-pa-sm">
             無釘選內容
           </div>
         </q-card-section>
@@ -171,6 +171,9 @@ export default {
     const scheduleData = computed(() => store.getters.getScheduleData);
     const pinnedNews = computed(() => store.getters.getPinnedNews);
 
+    const showSchedule = computed(() => store.getters.getShowSchedule);
+    const showTodo = computed(() => store.getters.getShowTodo);
+    const showSchoolNews = computed(() => store.getters.getShowSchoolNews);
 
     const currentClass = computed(() => {
       const now = new Date();
@@ -214,7 +217,10 @@ export default {
     return {
       currentClass,
       todoTasks,
-      pinnedNews
+      pinnedNews,
+      showSchedule,
+      showSchoolNews,
+      showTodo
     };
   }
 };

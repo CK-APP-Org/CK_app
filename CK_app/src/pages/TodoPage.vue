@@ -656,6 +656,8 @@ export default {
 .weekdays > div {
   font-weight: bold;
   height: 35px;
+  border: none;
+  border-bottom: 1px solid #ddd;
 }
 
 .calendar-day {
@@ -695,6 +697,7 @@ export default {
   border-radius: 4px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 80px;
+  z-index: 10;
 }
 
 .add-menu .menu-item {

@@ -16,6 +16,9 @@ export default {
     SET_USER_CLASS(state, newClass) {
       state.userClass = newClass;
     },
+    SET_SHOW_SCHEDULE(state, value) {
+      state.displayScheduleWidget = value;
+    },
   },
   actions: {
     updateSchedule({ commit }, payload) {
@@ -34,6 +37,6 @@ export default {
   getters: {
     getScheduleData: (state) => state.scheduleData,
     getUserClass: (state) => state.userClass,
-    getScheduleWidget: (state) => state.displayScheduleWidget,
+    getShowSchedule: (state) => state.displayScheduleWidget,
   },
 };

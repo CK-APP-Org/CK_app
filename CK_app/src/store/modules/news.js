@@ -16,6 +16,9 @@ export default {
     SET_LAST_CLEARED_TIME(state, time) {
       state.lastClearedTime = time;
     },
+    SET_SHOW_NEWS(state, value) {
+      state.displayNewsWidget = value
+    }
   },
   actions: {
     pinNews({ commit }, newsItem) {
@@ -31,6 +34,6 @@ export default {
   getters: {
     getPinnedNews: (state) => state.pinnedNews,
     getLastClearedTime: (state) => state.lastClearedTime,
-    getNewsWidget: (state) => state.displayNewsWidget,
+    getShowSchoolNews: (state) => state.displayNewsWidget,
   },
 };

@@ -2,6 +2,7 @@ export default {
   state: () => ({
     events: [],
     categories: [{ name: "Default", color: "#ADADAD" }],
+    displayTodoWidget: true
   }),
   mutations: {
     SET_EVENTS(state, events) {
@@ -35,6 +36,9 @@ export default {
         (c) => c.name !== categoryName
       );
     },
+    SET_SHOW_TODO(state, value) {
+      state.displayTodoWidget = value
+    }
   },
   actions: {
     setEvents({ commit }, events) {
@@ -62,5 +66,6 @@ export default {
   getters: {
     getEvents: (state) => state.events,
     getCategories: (state) => state.categories,
+    getShowTodo: (state) => state.displayTodoWidget
   },
 };

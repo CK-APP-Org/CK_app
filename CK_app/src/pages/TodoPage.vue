@@ -13,10 +13,14 @@
         <div
           v-for="day in calendarDays"
           :key="day.date"
-          :class="{ 'calendar-day': true, 'other-month': !day.isCurrentMonth }"
+          :class="{
+            'calendar-day': true,
+            'other-month': !day.isCurrentMonth,
+            today: day.isToday,
+          }"
           @click="showDayEvents(day)"
         >
-          {{ day.date.getDate() }}
+          <span class="day-number">{{ day.date.getDate() }}</span>
           <div class="event-circles">
             <div
               v-for="(event, index) in day.events"
@@ -376,7 +380,7 @@ export default {
             const eventEnd = new Date(event.endDate);
             return day.date >= eventStart && day.date <= eventEnd;
           })
-          .slice(0, 4); // Limit to 4 events per day
+          .slice(0, 4);
 
         return {
           ...day,
@@ -384,6 +388,7 @@ export default {
             ...event,
             color: event.category.color,
           })),
+          isToday: this.isToday(day.date),
         };
       });
     },
@@ -574,6 +579,15 @@ export default {
       this.showDeleteCategoryConfirmation = false;
       this.categoryToDelete = null;
     },
+
+    isToday(date) {
+      const today = new Date();
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      );
+    },
   },
   watch: {
     eventStartDate() {
@@ -609,11 +623,36 @@ export default {
 
 .weekdays > div,
 .calendar-day {
+  position: relative;
   text-align: center;
   padding: 8px;
   height: 78px; /*Here to change the height of the individual boxes*/
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
+.day-number {
+  position: relative;
+  z-index: 1;
+}
+
+.today .day-number::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25px;
+  height: 25px;
+  background-color: #03328d;
+  border-radius: 50%;
+  z-index: -1;
+}
+.today .day-number {
+  color: white;
+  z-index: 2;
+}
 .weekdays > div {
   font-weight: bold;
   height: 35px;

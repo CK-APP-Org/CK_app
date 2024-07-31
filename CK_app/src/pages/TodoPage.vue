@@ -103,7 +103,6 @@
             :options="categories"
             option-label="name"
             label="活動類別"
-            dense
           >
             <template v-slot:selected>
               <q-chip
@@ -129,7 +128,12 @@
               </q-item>
             </template>
           </q-select>
-          <q-btn label="管理類別" @click="showCategoryDialog = true" />
+          <q-btn
+            outline
+            label="管理類別"
+            @click="showCategoryDialog = true"
+            class="btn-move-down"
+          />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -219,7 +223,7 @@
         </q-card-section>
 
         <q-card-section>
-          <div class="text-h7">所有類別</div>
+          <div class="text-h6 text-center">所有類別</div>
           <q-list>
             <q-item v-for="category in categories" :key="category.name">
               <q-item-section>
@@ -242,11 +246,12 @@
             </q-item>
           </q-list>
         </q-card-section>
-
+        <q-separator inset color="grey" />
         <q-card-section>
           <q-input v-model="newCategoryName" label="新類別名稱" dense />
           <q-input v-model="newCategoryColor" label="新類別顏色" dense>
             <q-chip
+              v-if="newCategoryColor"
               square
               :style="{ backgroundColor: newCategoryColor }"
               class="q-mr-sm"
@@ -258,12 +263,17 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-color v-model="newCategoryColor" />
+                  <q-color v-model="newCategoryColor" no-header-tabs />
                 </q-popup-proxy>
               </q-icon>
             </template>
           </q-input>
-          <q-btn label="新增類別" @click="addCategory" />
+          <q-btn
+            outline
+            label="新增類別"
+            @click="addCategory"
+            class="btn-move-down"
+          />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -324,7 +334,7 @@ export default {
       eventCategory: {},
       showCategoryDialog: false,
       newCategoryName: "",
-      newCategoryColor: "#ADADAD",
+      newCategoryColor: "",
       showDeleteCategoryConfirmation: false,
       categoryToDelete: null,
     };
@@ -791,5 +801,8 @@ export default {
   height: 24px;
   border-radius: 50%;
   margin-right: 10px;
+}
+.btn-move-down {
+  margin-top: 8px;
 }
 </style>

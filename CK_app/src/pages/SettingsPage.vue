@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
 
 const classOptions = [
@@ -107,11 +107,11 @@ const classOptions = [
 ];
 
 const themeColors = [
-  { label: '藍色', value: '#1976D2' },
-  { label: '紅色', value: '#C10015' },
-  { label: '綠色', value: '#4CAF50' },
-  { label: '紫色', value: '#9C27B0' },
-  { label: '橙色', value: '#FF9800' },
+  { label: "藍色", value: "#1976D2" },
+  { label: "紅色", value: "#C10015" },
+  { label: "綠色", value: "#4CAF50" },
+  { label: "紫色", value: "#9C27B0" },
+  { label: "橙色", value: "#FF9800" },
 ];
 
 export default {
@@ -123,29 +123,34 @@ export default {
     const selectedClass = ref(userClass.value);
 
     // Theme color
-    const themeColor = ref('#1976D2'); // Default to blue
+    const themeColor = ref("#1976D2"); // Default to blue
 
     // Watch for theme color changes and apply them
-    watch(themeColor, (newColor) => {
-      $q.dark.set(false);  // Ensure light mode is active
-      document.body.style.setProperty('--q-primary', newColor);
-    }, { immediate: true });
-
+    /*
+    watch(
+      themeColor,
+      (newColor) => {
+        $q.dark.set(false); // Ensure light mode is active
+        document.body.style.setProperty("--q-primary", newColor);
+      },
+      { immediate: true }
+    );
+    */
 
     // Computed properties for checkbox states
     const showSchedule = computed({
       get: () => store.getters.getShowSchedule,
-      set: (value) => store.commit('SET_SHOW_SCHEDULE', value)
+      set: (value) => store.commit("SET_SHOW_SCHEDULE", value),
     });
 
     const showTodo = computed({
       get: () => store.getters.getShowTodo,
-      set: (value) => store.commit('SET_SHOW_TODO', value)
+      set: (value) => store.commit("SET_SHOW_TODO", value),
     });
 
     const showSchoolNews = computed({
       get: () => store.getters.getShowSchoolNews,
-      set: (value) => store.commit('SET_SHOW_NEWS', value)
+      set: (value) => store.commit("SET_SHOW_NEWS", value),
     });
 
     const confirmClear = () => {

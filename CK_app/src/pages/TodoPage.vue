@@ -1,8 +1,19 @@
 <template>
-  <div class="calendar">
+  <div class="view-toggle-container">
+    <q-btn-toggle
+      v-model="currentView"
+      toggle-color="primary"
+      :options="[
+        { label: 'Calendar', value: 'calendar' },
+        { label: 'Todo List', value: 'todoList' },
+      ]"
+      class="q-mb-md"
+    />
+  </div>
+  <div v-if="currentView === 'calendar'" class="calendar">
     <div class="calendar-header">
       <button @click="previousMonth">&lt;</button>
-      <h2>{{ currentMonthYear }}</h2>
+      <div class="text-h5">{{ currentMonthYear }}</div>
       <button @click="nextMonth">&gt;</button>
     </div>
     <div class="calendar-body">
@@ -36,9 +47,7 @@
     <div class="add-button-container">
       <button class="add-button" @click="toggleMenu">+</button>
       <div v-if="showMenu" class="add-menu">
-        <button class="menu-item" disabled @click="addItem('工作')">
-          💼工作
-        </button>
+        <button class="menu-item" @click="openTodoDialog">💼待辦</button>
         <button class="menu-item" @click="openEventDialog">📅活動</button>
       </div>
     </div>
@@ -158,7 +167,7 @@
     <q-dialog v-model="showDayEventsDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">{{ formatDate(selectedDate) }}活動列表</div>
+          <div class="text-h6">{{ formatDate(selectedDate) }}</div>
         </q-card-section>
 
         <q-card-section>
@@ -302,6 +311,80 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showTodoDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section class="row items-center justify-between">
+          <div class="text-h6">新增待辦事項</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input v-model="todoTitle" label="待辦事項標題" dense />
+          <q-input v-model="todoDate" label="日期 (選填)" dense>
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="todoDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="取消"
+            color="primary"
+            v-close-popup
+            @click="resetTodoForm"
+          />
+          <q-btn
+            flat
+            label="新增待辦"
+            color="primary"
+            @click="addTodo"
+            :disable="!todoTitle.trim()"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </div>
+  <div v-if="currentView === 'todoList'" class="todo-list">
+    <div class="todo-header">
+      <div class="text-h5">Todo List</div>
+    </div>
+    <q-list separator>
+      <q-item
+        v-for="todo in sortedTodos"
+        :key="todo.id"
+        clickable
+        v-ripple
+        :class="{ 'completed-todo': todo.completed }"
+      >
+        <q-item-section avatar>
+          <q-checkbox
+            v-model="todo.completed"
+            @update:model-value="onTodoCheck(todo)"
+          />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>{{ todo.title }}</q-item-label>
+          <q-item-label caption v-if="todo.date">
+            {{ formatDate(todo.date) }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
   </div>
 </template>
 
@@ -337,6 +420,13 @@ export default {
       newCategoryColor: "",
       showDeleteCategoryConfirmation: false,
       categoryToDelete: null,
+
+      todos: [],
+      showTodoDialog: false,
+      todoTitle: "",
+      todoDate: "",
+
+      currentView: "calendar",
     };
   },
   computed: {
@@ -415,6 +505,13 @@ export default {
       if (!this.eventStartDate || !this.eventEndDate) return true;
       return new Date(this.eventEndDate) >= new Date(this.eventStartDate);
     },
+    sortedTodos() {
+      return [...this.todos].sort((a, b) => {
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        return new Date(a.date) - new Date(b.date);
+      });
+    },
   },
   methods: {
     previousMonth() {
@@ -434,9 +531,8 @@ export default {
     toggleMenu() {
       this.showMenu = !this.showMenu;
     },
-    addItem(type) {
-      console.log(`Adding ${type}`);
-      // Add your logic here for what should happen when an item is added
+    openTodoDialog() {
+      this.showTodoDialog = true;
       this.showMenu = false;
     },
     openEventDialog() {
@@ -493,7 +589,9 @@ export default {
     },
 
     formatDate(date) {
-      return `${date.getMonth() + 1}/${date.getDate()}`;
+      const days = ["日", "一", "二", "三", "四", "五", "六"];
+      const dayOfWeek = days[date.getDay()];
+      return `${date.getMonth() + 1}/${date.getDate()} (${dayOfWeek})`;
     },
     editEvent(event) {
       this.editingEvent = { ...event };
@@ -598,6 +696,32 @@ export default {
         date.getFullYear() === today.getFullYear()
       );
     },
+
+    addTodo() {
+      const newTodo = {
+        id: Date.now(),
+        title: this.todoTitle,
+        date: this.todoDate ? new Date(this.todoDate) : null,
+        completed: false,
+      };
+      this.todos.push(newTodo);
+      console.log(this.todos);
+      this.resetTodoForm();
+      this.showTodoDialog = false;
+    },
+
+    resetTodoForm() {
+      this.todoTitle = "";
+      this.todoDate = "";
+    },
+    onTodoCheck(todo) {
+      if (todo.completed) {
+        // Add a delay before removing the todo to allow for the animation
+        setTimeout(() => {
+          this.todos = this.todos.filter((t) => t.id !== todo.id);
+        }, 500); // 500ms delay, adjust as needed
+      }
+    },
   },
   watch: {
     eventStartDate() {
@@ -622,7 +746,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0px;
+  margin-top: 25px;
+  margin-bottom: 25px;
 }
 
 .weekdays,
@@ -680,7 +805,7 @@ export default {
 
 .add-button-container {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   right: 20px;
 }
 
@@ -804,5 +929,37 @@ export default {
 }
 .btn-move-down {
   margin-top: 8px;
+}
+
+.todo-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.todo-list .q-item {
+  margin-bottom: 10px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.completed-todo {
+  opacity: 0.6;
+  text-decoration: line-through;
+  transform: translateX(100%);
+}
+
+.view-toggle-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.todo-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  margin-bottom: 25px;
 }
 </style>

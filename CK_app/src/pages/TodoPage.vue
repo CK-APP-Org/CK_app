@@ -8,6 +8,7 @@
         { label: 'Todo List', value: 'todoList' },
       ]"
       class="q-mb-md"
+      @update:model-value="updateView"
     />
   </div>
   <div v-if="currentView === 'calendar'" class="calendar">
@@ -409,7 +410,12 @@ export default {
   setup() {
     const events = computed(() => store.getters.getEvents);
     const categories = computed(() => store.getters.getCategories);
-    return { events, categories };
+    const todos = computed(() => store.getters.getTodos);
+    const currentView = computed({
+      get: () => store.getters.getCurrentView,
+      set: (value) => store.dispatch("updateCurrentView", value),
+    });
+    return { events, categories, todos, currentView };
   },
   data() {
     return {
@@ -434,12 +440,9 @@ export default {
       showDeleteCategoryConfirmation: false,
       categoryToDelete: null,
 
-      todos: [],
       showTodoDialog: false,
       todoTitle: "",
       todoDate: "",
-
-      currentView: "calendar",
     };
   },
   computed: {
@@ -611,6 +614,8 @@ export default {
       }
     },
     showDayEvents(day) {
+      console.log(this.todos);
+      console.log(this.events);
       this.selectedDate = day.date;
 
       // Filter events for the selected day
@@ -641,6 +646,11 @@ export default {
     },
 
     formatDate(date) {
+      if (!(date instanceof Date)) {
+        // If it's a string, try to create a Date object
+        date = new Date(date);
+      }
+
       const days = ["日", "一", "二", "三", "四", "五", "六"];
       const dayOfWeek = days[date.getDay()];
       return `${date.getMonth() + 1}/${date.getDate()} (${dayOfWeek})`;
@@ -756,8 +766,7 @@ export default {
         date: this.todoDate ? new Date(this.todoDate) : null,
         completed: false,
       };
-      this.todos.push(newTodo);
-      console.log(this.todos);
+      store.dispatch("addTodo", newTodo);
       this.resetTodoForm();
       this.showTodoDialog = false;
     },
@@ -768,11 +777,15 @@ export default {
     },
     onTodoCheck(todo) {
       if (todo.completed) {
-        // Add a delay before removing the todo to allow for the animation
         setTimeout(() => {
-          this.todos = this.todos.filter((t) => t.id !== todo.id);
-        }, 500); // 500ms delay, adjust as needed
+          store.dispatch("deleteTodo", todo.id);
+        }, 500);
+      } else {
+        store.dispatch("updateTodo", { ...todo, completed: !todo.completed });
       }
+    },
+    updateView(newView) {
+      store.dispatch("updateCurrentView", newView);
     },
   },
   watch: {

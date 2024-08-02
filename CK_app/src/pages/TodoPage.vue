@@ -59,28 +59,28 @@
     <div class="todo-header">
       <div class="text-h5">待辦事項</div>
     </div>
-    <q-list separator>
-      <q-item
-        v-for="todo in sortedTodos"
-        :key="todo.id"
-        clickable
-        v-ripple
-        :class="{ 'completed-todo': todo.completed }"
-      >
-        <q-item-section avatar>
-          <q-checkbox
-            v-model="todo.completed"
-            @update:model-value="onTodoCheck(todo)"
-          />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>{{ todo.title }}</q-item-label>
-          <q-item-label caption v-if="todo.date">
-            {{ formatDate(todo.date) }}
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
+    <div v-for="group in sortedTodos" :key="group.date" class="todo-group">
+      <div class="todo-date">{{ group.date }}</div>
+      <q-list separator>
+        <q-item
+          v-for="todo in group.todos"
+          :key="todo.id"
+          clickable
+          v-ripple
+          :class="{ 'completed-todo': todo.completed }"
+        >
+          <q-item-section avatar>
+            <q-checkbox
+              v-model="todo.completed"
+              @update:model-value="onTodoCheck(todo)"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="item-title">{{ todo.title }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
   </div>
 
   <div class="add-button-container">
@@ -211,7 +211,7 @@
             v-for="(item, index) in selectedDayItems"
             :key="index"
             clickable
-            @click="item.type === 'event' ? editEvent(item) : editTodo(item)"
+            @click="item.type === 'event' ? editEvent(item) : null"
             class="q-mb-sm"
           >
             <q-item-section avatar>
@@ -541,11 +541,28 @@ export default {
       return new Date(this.eventEndDate) >= new Date(this.eventStartDate);
     },
     sortedTodos() {
-      return [...this.todos].sort((a, b) => {
-        if (!a.date) return 1;
-        if (!b.date) return -1;
-        return new Date(a.date) - new Date(b.date);
-      });
+      const grouped = this.todos.reduce((acc, todo) => {
+        const dateKey = todo.date
+          ? this.formatDate(new Date(todo.date))
+          : "No date";
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(todo);
+        return acc;
+      }, {});
+
+      // Sort the dates
+      return Object.keys(grouped)
+        .sort((a, b) => {
+          if (a === "No date") return 1;
+          if (b === "No date") return -1;
+          return new Date(a) - new Date(b);
+        })
+        .map((date) => ({
+          date,
+          todos: grouped[date],
+        }));
     },
   },
   methods: {
@@ -646,11 +663,6 @@ export default {
     },
 
     formatDate(date) {
-      if (!(date instanceof Date)) {
-        // If it's a string, try to create a Date object
-        date = new Date(date);
-      }
-
       const days = ["日", "一", "二", "三", "四", "五", "六"];
       const dayOfWeek = days[date.getDay()];
       return `${date.getMonth() + 1}/${date.getDate()} (${dayOfWeek})`;
@@ -1067,5 +1079,15 @@ export default {
   width: 10px;
   height: 10px;
   position: absolute;
+}
+.todo-group {
+  margin-bottom: 20px;
+}
+
+.todo-date {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-left: 16px;
 }
 </style>

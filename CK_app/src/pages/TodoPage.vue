@@ -32,336 +32,31 @@
           @click="showDayEvents(day)"
         >
           <span class="day-number">{{ day.date.getDate() }}</span>
-          <div class="event-circles">
+          <div class="item-indicators">
             <div
-              v-for="(event, index) in day.events"
-              :key="index"
-              class="event-circle"
-              :style="{ backgroundColor: event.category.color }"
-              :class="'position-' + (index + 1)"
-            ></div>
+              v-for="(item, index) in day.items.slice(0, 6)"
+              :key="item.type + '-' + index"
+              :class="[
+                'item-indicator',
+                'position-' + (index + 1),
+                item.type === 'event' ? 'event-circle' : 'todo-checkmark',
+              ]"
+              :style="
+                item.type === 'event'
+                  ? { backgroundColor: item.category.color }
+                  : {}
+              "
+            >
+              {{ item.type === "todo" ? "✓" : "" }}
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="add-button-container">
-      <button class="add-button" @click="toggleMenu">+</button>
-      <div v-if="showMenu" class="add-menu">
-        <button class="menu-item" @click="openTodoDialog">💼待辦</button>
-        <button class="menu-item" @click="openEventDialog">📅活動</button>
-      </div>
-    </div>
-    <q-dialog v-model="showEventDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section class="row items-center justify-between">
-          <div class="text-h6">{{ isEditing ? "編輯活動" : "新增活動" }}</div>
-          <q-btn
-            v-if="isEditing"
-            flat
-            color="red"
-            label="刪除"
-            @click="confirmDelete"
-          />
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input v-model="eventTitle" label="活動標題" dense />
-          <q-input v-model="eventStartDate" label="起始日期" dense>
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date v-model="eventStartDate">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-input
-            v-model="eventEndDate"
-            label="結束日期"
-            dense
-            :disable="!eventStartDate"
-            :error="!!endDateErrorMessage"
-            :error-message="endDateErrorMessage"
-          >
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date v-model="eventEndDate">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-select
-            v-model="eventCategory"
-            :options="categories"
-            option-label="name"
-            label="活動類別"
-          >
-            <template v-slot:selected>
-              <q-chip
-                v-if="Object.keys(eventCategory).length != 0"
-                square
-                :style="{ backgroundColor: eventCategory.color }"
-                class="q-mr-sm"
-              />
-              {{ eventCategory.name }}
-            </template>
-            <template v-slot:option="{ itemProps, opt }">
-              <q-item v-bind="itemProps">
-                <q-item-section side>
-                  <q-chip
-                    :style="{ backgroundColor: opt.color }"
-                    square
-                    dense
-                  />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ opt.name }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-          <q-btn
-            outline
-            label="管理類別"
-            @click="showCategoryDialog = true"
-            class="btn-move-down"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="取消"
-            color="primary"
-            v-close-popup
-            @click="resetEventForm"
-          />
-          <q-btn
-            flat
-            :label="isEditing ? '保存更改' : '新增活動'"
-            color="primary"
-            @click="addEvent"
-            :disable="!isFormValid"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="showDayEventsDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">{{ formatDate(selectedDate) }}</div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-list v-if="selectedDayEvents.length > 0">
-            <q-item
-              v-for="(event, index) in selectedDayEvents"
-              :key="index"
-              clickable
-              @click="editEvent(event)"
-              class="q-mb-sm"
-            >
-              <q-item-section avatar>
-                <div
-                  class="custom-badge"
-                  :style="{ backgroundColor: event.category.color }"
-                ></div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="item-title">{{
-                  event.title
-                }}</q-item-label>
-                <q-item-label>
-                  {{ new Date(event.startDate).toLocaleDateString() }} -
-                  {{ new Date(event.endDate).toLocaleDateString() }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-icon name="chevron_right" color="grey" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <div v-else>無。</div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="關閉" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="showDeleteConfirmation">
-      <q-card>
-        <q-card-section class="row items-center">
-          <span class="q-ml-sm">確定刪除此活動？</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="取消" color="primary" v-close-popup />
-          <q-btn
-            flat
-            label="確定"
-            color="negative"
-            @click="deleteEvent"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="showCategoryDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">管理類別</div>
-        </q-card-section>
-
-        <q-card-section>
-          <div class="text-h6 text-center">所有類別</div>
-          <q-list>
-            <q-item v-for="category in categories" :key="category.name">
-              <q-item-section>
-                <q-chip
-                  square
-                  :style="{ backgroundColor: category.color }"
-                  class="q-mr-sm"
-                />
-                {{ category.name }}
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  v-if="Object.keys(categories).length > 1"
-                  flat
-                  round
-                  icon="delete"
-                  @click="deleteCategory(category.name)"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-        <q-separator inset color="grey" />
-        <q-card-section>
-          <q-input v-model="newCategoryName" label="新類別名稱" dense />
-          <q-input v-model="newCategoryColor" label="新類別顏色" dense>
-            <q-chip
-              v-if="newCategoryColor"
-              square
-              :style="{ backgroundColor: newCategoryColor }"
-              class="q-mr-sm"
-            />
-            <template v-slot:append>
-              <q-icon name="colorize" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-color v-model="newCategoryColor" no-header-tabs />
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-btn
-            outline
-            label="新增類別"
-            @click="addCategory"
-            class="btn-move-down"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="關閉" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="showDeleteCategoryConfirmation">
-      <q-card>
-        <q-card-section class="row items-center">
-          <span class="q-ml-sm"
-            >確定刪除類別 "{{ categoryToDelete }}"
-            嗎？若確定則所有屬於這類別的活動會維持原本的樣式，但往後所有活動將無法選取為此類別。</span
-          >
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="取消" color="primary" v-close-popup />
-          <q-btn
-            flat
-            label="確定"
-            color="negative"
-            @click="confirmDeleteCategory"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="showTodoDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section class="row items-center justify-between">
-          <div class="text-h6">新增待辦事項</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input v-model="todoTitle" label="待辦事項標題" dense />
-          <q-input v-model="todoDate" label="日期 (選填)" dense>
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  cover
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date v-model="todoDate">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="取消"
-            color="primary"
-            v-close-popup
-            @click="resetTodoForm"
-          />
-          <q-btn
-            flat
-            label="新增待辦"
-            color="primary"
-            @click="addTodo"
-            :disable="!todoTitle.trim()"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
   <div v-if="currentView === 'todoList'" class="todo-list">
     <div class="todo-header">
-      <div class="text-h5">Todo List</div>
+      <div class="text-h5">待辦事項</div>
     </div>
     <q-list separator>
       <q-item
@@ -386,6 +81,324 @@
       </q-item>
     </q-list>
   </div>
+
+  <div class="add-button-container">
+    <button class="add-button" @click="toggleMenu">+</button>
+    <div v-if="showMenu" class="add-menu">
+      <button class="menu-item" @click="openTodoDialog">💼待辦</button>
+      <button class="menu-item" @click="openEventDialog">📅活動</button>
+    </div>
+  </div>
+  <q-dialog v-model="showEventDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section class="row items-center justify-between">
+        <div class="text-h6">{{ isEditing ? "編輯活動" : "新增活動" }}</div>
+        <q-btn
+          v-if="isEditing"
+          flat
+          color="red"
+          label="刪除"
+          @click="confirmDelete"
+        />
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-input v-model="eventTitle" label="活動標題" dense />
+        <q-input v-model="eventStartDate" label="起始日期" dense>
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="eventStartDate">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-input
+          v-model="eventEndDate"
+          label="結束日期"
+          dense
+          :disable="!eventStartDate"
+          :error="!!endDateErrorMessage"
+          :error-message="endDateErrorMessage"
+        >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="eventEndDate">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-select
+          v-model="eventCategory"
+          :options="categories"
+          option-label="name"
+          label="活動類別"
+        >
+          <template v-slot:selected>
+            <q-chip
+              v-if="Object.keys(eventCategory).length != 0"
+              square
+              :style="{ backgroundColor: eventCategory.color }"
+              class="q-mr-sm"
+            />
+            {{ eventCategory.name }}
+          </template>
+          <template v-slot:option="{ itemProps, opt }">
+            <q-item v-bind="itemProps">
+              <q-item-section side>
+                <q-chip :style="{ backgroundColor: opt.color }" square dense />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ opt.name }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+        <q-btn
+          outline
+          label="管理類別"
+          @click="showCategoryDialog = true"
+          class="btn-move-down"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          label="取消"
+          color="primary"
+          v-close-popup
+          @click="resetEventForm"
+        />
+        <q-btn
+          flat
+          :label="isEditing ? '保存更改' : '新增活動'"
+          color="primary"
+          @click="addEvent"
+          :disable="!isFormValid"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showDayEventsDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">{{ formatDate(selectedDate) }}</div>
+      </q-card-section>
+
+      <q-card-section>
+        <q-list v-if="selectedDayItems.length > 0">
+          <q-item
+            v-for="(item, index) in selectedDayItems"
+            :key="index"
+            clickable
+            @click="item.type === 'event' ? editEvent(item) : editTodo(item)"
+            class="q-mb-sm"
+          >
+            <q-item-section avatar>
+              <div
+                v-if="item.type === 'event'"
+                class="custom-badge"
+                :style="{ backgroundColor: item.category.color }"
+              ></div>
+              <q-icon v-else name="task_alt" color="green" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="item-title">{{ item.title }}</q-item-label>
+              <q-item-label v-if="item.type === 'event'">
+                {{ new Date(item.startDate).toLocaleDateString() }} -
+                {{ new Date(item.endDate).toLocaleDateString() }}
+              </q-item-label>
+              <q-item-label v-else>
+                {{
+                  item.date
+                    ? new Date(item.date).toLocaleDateString()
+                    : "No date"
+                }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-icon name="chevron_right" color="grey" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+        <div v-else>無。</div>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="關閉" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showDeleteConfirmation">
+    <q-card>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm">確定刪除此活動？</span>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="取消" color="primary" v-close-popup />
+        <q-btn
+          flat
+          label="確定"
+          color="negative"
+          @click="deleteEvent"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showCategoryDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">管理類別</div>
+      </q-card-section>
+
+      <q-card-section>
+        <div class="text-h6 text-center">所有類別</div>
+        <q-list>
+          <q-item v-for="category in categories" :key="category.name">
+            <q-item-section>
+              <q-chip
+                square
+                :style="{ backgroundColor: category.color }"
+                class="q-mr-sm"
+              />
+              {{ category.name }}
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                v-if="Object.keys(categories).length > 1"
+                flat
+                round
+                icon="delete"
+                @click="deleteCategory(category.name)"
+              />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card-section>
+      <q-separator inset color="grey" />
+      <q-card-section>
+        <q-input v-model="newCategoryName" label="新類別名稱" dense />
+        <q-input v-model="newCategoryColor" label="新類別顏色" dense>
+          <q-chip
+            v-if="newCategoryColor"
+            square
+            :style="{ backgroundColor: newCategoryColor }"
+            class="q-mr-sm"
+          />
+          <template v-slot:append>
+            <q-icon name="colorize" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-color v-model="newCategoryColor" no-header-tabs />
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-btn
+          outline
+          label="新增類別"
+          @click="addCategory"
+          class="btn-move-down"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="關閉" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+  <q-dialog v-model="showDeleteCategoryConfirmation">
+    <q-card>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm"
+          >確定刪除類別 "{{ categoryToDelete }}"
+          嗎？若確定則所有屬於這類別的活動會維持原本的樣式，但往後所有活動將無法選取為此類別。</span
+        >
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="取消" color="primary" v-close-popup />
+        <q-btn
+          flat
+          label="確定"
+          color="negative"
+          @click="confirmDeleteCategory"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="showTodoDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section class="row items-center justify-between">
+        <div class="text-h6">新增待辦事項</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-input v-model="todoTitle" label="待辦事項標題" dense />
+        <q-input v-model="todoDate" label="日期 (選填)" dense>
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="todoDate">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          label="取消"
+          color="primary"
+          v-close-popup
+          @click="resetTodoForm"
+        />
+        <q-btn
+          flat
+          label="新增待辦"
+          color="primary"
+          @click="addTodo"
+          :disable="!todoTitle.trim()"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -480,14 +493,33 @@ export default {
             const eventEnd = new Date(event.endDate);
             return day.date >= eventStart && day.date <= eventEnd;
           })
-          .slice(0, 4);
+          .map((event) => ({ ...event, type: "event" }));
+
+        const dayTodos = this.todos
+          .filter((todo) => {
+            if (!todo.date) return false;
+            const todoDate = new Date(todo.date);
+            return (
+              day.date.getDate() === todoDate.getDate() &&
+              day.date.getMonth() === todoDate.getMonth() &&
+              day.date.getFullYear() === todoDate.getFullYear()
+            );
+          })
+          .map((todo) => ({ ...todo, type: "todo" }));
+
+        const combinedItems = [...dayEvents, ...dayTodos]
+          .sort((a, b) => {
+            const dateA =
+              a.type === "event" ? new Date(a.startDate) : new Date(a.date);
+            const dateB =
+              b.type === "event" ? new Date(b.startDate) : new Date(b.date);
+            return dateA - dateB;
+          })
+          .slice(0, 6); // Limit to 4 items total
 
         return {
           ...day,
-          events: dayEvents.map((event) => ({
-            ...event,
-            color: event.category.color,
-          })),
+          items: combinedItems,
           isToday: this.isToday(day.date),
         };
       });
@@ -580,11 +612,31 @@ export default {
     },
     showDayEvents(day) {
       this.selectedDate = day.date;
+
+      // Filter events for the selected day
       this.selectedDayEvents = this.events.filter((event) => {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
         return day.date >= eventStart && day.date <= eventEnd;
       });
+
+      // Filter todos for the selected day
+      const selectedDayTodos = this.todos.filter((todo) => {
+        if (!todo.date) return false;
+        const todoDate = new Date(todo.date);
+        return (
+          day.date.getDate() === todoDate.getDate() &&
+          day.date.getMonth() === todoDate.getMonth() &&
+          day.date.getFullYear() === todoDate.getFullYear()
+        );
+      });
+
+      // Combine events and todos
+      this.selectedDayItems = [
+        ...this.selectedDayEvents.map((event) => ({ ...event, type: "event" })),
+        ...selectedDayTodos.map((todo) => ({ ...todo, type: "todo" })),
+      ];
+
       this.showDayEventsDialog = true;
     },
 
@@ -746,8 +798,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 25px;
-  margin-bottom: 25px;
+  margin-top: 10px;
+  margin-bottom: 15px;
 }
 
 .weekdays,
@@ -761,7 +813,7 @@ export default {
   position: relative;
   text-align: center;
   padding: 8px;
-  height: 78px; /*Here to change the height of the individual boxes*/
+  height: 85px; /*Here to change the height of the individual boxes*/
   border: 1px solid #ddd;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -804,9 +856,10 @@ export default {
 }
 
 .add-button-container {
-  position: absolute;
-  bottom: 0px;
+  position: fixed;
+  bottom: 85px;
   right: 20px;
+  z-index: 1000;
 }
 
 .add-button {
@@ -872,10 +925,7 @@ export default {
 }
 
 .event-circle {
-  width: 10px;
-  height: 10px;
   border-radius: 50%;
-  position: absolute;
 }
 
 .position-1 {
@@ -887,10 +937,18 @@ export default {
   right: 0;
 }
 .position-3 {
-  bottom: 0;
+  top: 39%;
   left: 0;
 }
 .position-4 {
+  top: 39%;
+  right: 0;
+}
+.position-5 {
+  bottom: 0;
+  left: 0;
+}
+.position-6 {
   bottom: 0;
   right: 0;
 }
@@ -959,7 +1017,42 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 25px;
+  margin-top: 10px;
   margin-bottom: 25px;
+}
+
+.todo-checkmarks {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 25px;
+  height: 25px;
+}
+
+.todo-checkmark {
+  color: #4caf50;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.item-indicators {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 25px;
+  height: 40px;
+}
+
+.item-indicator {
+  width: 10px;
+  height: 10px;
+  position: absolute;
 }
 </style>

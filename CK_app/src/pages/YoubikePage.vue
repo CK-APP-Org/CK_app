@@ -70,15 +70,10 @@
     </div>
 
     <!--按鈕(新增站點)-->
-    <q-page-sticky position="bottom-right" :offset="[16, 16]">
-      <q-btn
-        round
-        color="negative"
-        icon="add"
-        size="md"
-        @click="showAddStationDialog = true"
-      />
-    </q-page-sticky>
+    <div class="add-button-container">
+      <button class="add-button" @click="showAddStationDialog = true">+</button>
+    </div>
+
     <!--對話框(新增站點)-->
     <q-dialog v-model="showAddStationDialog">
       <q-card>
@@ -557,5 +552,25 @@ export default defineComponent({
 .circle {
   margin-bottom: 10px;
   margin-right: 12px;
+}
+.add-button-container {
+  position: fixed;
+  bottom: 85px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.add-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #c10015;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

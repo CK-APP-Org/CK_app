@@ -500,7 +500,7 @@ export default defineComponent({
     },
     getChipColor(value) {
       if (value === 0) return "red-9";
-      if (value >= 1 && value <= 10) return "orange-8";
+      if (value >= 1 && value <= 3) return "orange-8";
       return "green";
     },
   },
@@ -527,10 +527,10 @@ export default defineComponent({
   color: #c10015;
 }
 .q-page {
-  padding-top: 16px; /* Adjust top padding for small margin from the top */
+  padding-top: 16px;
 }
 .custom-card-margin {
-  margin: 10px 16px; /* Adjust top/bottom and left/right margins */
+  margin: 10px 16px;
   background-color: rgb(239, 246, 254);
 }
 .delete-btn {

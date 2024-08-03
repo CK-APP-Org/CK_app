@@ -67,37 +67,39 @@
     <div v-for="group in sortedTodos" :key="group.date" class="todo-group">
       <div class="todo-date">{{ group.date }}</div>
       <q-list separator>
-        <q-item
-          v-for="todo in group.todos"
-          :key="todo.id"
-          clickable
-          v-ripple
-          :class="{
-            'todo-item': !todo.completed,
-            'todo-item-completed': todo.completed,
-          }"
-        >
-          <q-item-section avatar>
-            <q-checkbox
-              v-model="todo.completed"
-              @update:model-value="onTodoCheck(todo)"
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="item-title"
-              >{{ todo.title }}
-              <q-chip
-                v-if="selectedCategory === null && todo.category"
-                color="primary"
-                text-color="white"
-                dense
-                outline
-              >
-                {{ todo.category.name }}
-              </q-chip>
-            </q-item-label>
-          </q-item-section>
-        </q-item>
+        <transition-group name="todo-list" tag="div">
+          <q-item
+            v-for="todo in group.todos"
+            :key="todo.id"
+            clickable
+            v-ripple
+            :class="{
+              'todo-item': !todo.completed,
+              'todo-item-completed': todo.completed,
+            }"
+          >
+            <q-item-section avatar>
+              <q-checkbox
+                v-model="todo.completed"
+                @update:model-value="onTodoCheck(todo)"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="item-title"
+                >{{ todo.title }}
+                <q-chip
+                  v-if="selectedCategory === null && todo.category"
+                  color="primary"
+                  text-color="white"
+                  dense
+                  outline
+                >
+                  {{ todo.category.name }}
+                </q-chip>
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </transition-group>
       </q-list>
     </div>
   </div>
@@ -963,7 +965,12 @@ export default {
       store.dispatch("updateCurrentView", newView);
     },
     onTodoCheck(todo) {
-      store.dispatch("deleteTodo", todo.id);
+      // First, just mark the todo as completed
+      todo.completed = true;
+      // Use a setTimeout to delay the actual deletion
+      setTimeout(() => {
+        store.dispatch("deleteTodo", todo.id);
+      }, 500);
     },
     addTodoCategory() {
       if (this.newTodoCategoryName) {
@@ -1099,14 +1106,15 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 80px;
+  width: 95px;
   z-index: 10;
 }
 
 .add-menu .menu-item {
   display: block;
   width: 100%;
-  padding: 10px 10px;
+  padding: 12px 10px;
+  font-size: 17px;
   border: none;
   background-color: transparent;
   cursor: pointer;
@@ -1296,8 +1304,19 @@ export default {
 .todo-item {
   margin: 4px 8px;
 }
+.todo-list-enter-active,
+.todo-list-leave-active {
+  transition: all 0.5s;
+}
+.todo-list-enter-from,
+.todo-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
 .todo-item-completed {
   margin: 4px 8px;
+  transition: all 0.5s;
   opacity: 0.6;
   text-decoration: line-through;
   transform: translateX(100%);

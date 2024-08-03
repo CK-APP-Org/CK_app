@@ -3,8 +3,8 @@
     <div class="justify-center">
       <q-card
         inline
-        class="secondary-light custom-card-margin"
-        style="height: 125px; width: 350px"
+        class="custom-card-margin"
+        style="height: 127px; width: 350px"
         v-for="(station, key) in stations"
         :key="key"
       >
@@ -19,21 +19,29 @@
           <!--資訊-->
           <div class="text" v-if="station.available_rent_bikes !== null">
             可借車輛:
-            <span :class="{ 'red-text': station.available_rent_bikes <= 3 }">{{
-              station.available_rent_bikes
-            }}</span>
-          </div>
-          <div v-else>Loading...</div>
-          <div class="text" v-if="station.available_return_bikes !== null">
-            可停車位:
-            <span
-              :class="{ 'red-text': station.available_return_bikes <= 3 }"
-              >{{ station.available_return_bikes }}</span
+            <q-chip
+              :color="getChipColor(station.available_rent_bikes)"
+              text-color="white"
+              >{{ station.available_rent_bikes }}</q-chip
             >
           </div>
           <div v-else>Loading...</div>
-          <div class="text" v-if="station.infoTime !== null">
-            更新時間: {{ timeAgo(station.infoTime) }}
+          <div
+            class="row justify-between items-center text"
+            v-if="station.available_return_bikes !== null"
+          >
+            <div>
+              可停車位:
+              <q-chip
+                :color="getChipColor(station.available_return_bikes)"
+                text-color="white"
+                >{{ station.available_return_bikes }}</q-chip
+              >
+            </div>
+            <div v-if="station.infoTime !== null" class="update-time">
+              <q-icon name="update" size="sm" />
+              {{ timeAgo(station.infoTime) }}
+            </div>
           </div>
           <div v-else>Loading...</div>
         </q-card-section>
@@ -58,14 +66,6 @@
             </q-list>
           </q-menu>
         </q-btn>
-        <!--狀態圓形-->
-        <q-btn
-          class="absolute-bottom-right circle"
-          size="10px"
-          round
-          unelevated
-          :color="getStatusColor(station)"
-        ></q-btn>
       </q-card>
     </div>
 
@@ -240,9 +240,6 @@ export default defineComponent({
       }
       return [];
     },
-    statusColor() {
-      return "green";
-    },
   },
   methods: {
     async fetchData() {
@@ -314,19 +311,6 @@ export default defineComponent({
           this.stations[key].infoTime = "Error fetching data";
         }
       }
-    },
-    getStatusColor(station) {
-      if (
-        station.available_rent_bikes > 0 &&
-        station.available_return_bikes > 0
-      ) {
-        return "light-green-14";
-      } else if (station.available_rent_bikes == 0) {
-        return "amber-8";
-      } else if (station.available_return_bikes == 0) {
-        return "red-10";
-      }
-      return "grey";
     },
     async addStation() {
       if (this.selectedStation) {
@@ -514,6 +498,11 @@ export default defineComponent({
       const parsedTime = this.parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
     },
+    getChipColor(value) {
+      if (value === 0) return "red-9";
+      if (value >= 1 && value <= 10) return "orange-8";
+      return "green";
+    },
   },
   mounted() {
     console.log(JSON.parse(localStorage.getItem("store")));
@@ -525,11 +514,13 @@ export default defineComponent({
 <style>
 .header {
   font-weight: Bold;
-  color: #a58d36;
-  font-size: 20px;
+  color: #03328d;
+  font-size: 21px;
+  margin-bottom: 2px;
 }
 .text {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: medium;
 }
 .red-text {
   font-weight: Bold;
@@ -540,6 +531,7 @@ export default defineComponent({
 }
 .custom-card-margin {
   margin: 10px 16px; /* Adjust top/bottom and left/right margins */
+  background-color: rgb(239, 246, 254);
 }
 .delete-btn {
   margin-bottom: 8px;
@@ -548,10 +540,6 @@ export default defineComponent({
 .menu-btn {
   margin-top: 10px;
   margin-right: 6px;
-}
-.circle {
-  margin-bottom: 10px;
-  margin-right: 12px;
 }
 .add-button-container {
   position: fixed;
@@ -572,5 +560,15 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.update-time {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+.update-time .q-icon {
+  margin-right: 4px;
 }
 </style>

@@ -5,12 +5,14 @@ const routes = [
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("src/pages/HomePage.vue") }],
-    name: 'home',
+    name: "home",
   },
   {
     path: "/schedule",
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("src/pages/SchedulePage.vue") }],
+    children: [
+      { path: "", component: () => import("src/pages/SchedulePage.vue") },
+    ],
   },
   {
     path: "/youbike",
@@ -21,6 +23,11 @@ const routes = [
     path: "/menu",
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/MenuPage.vue") }],
+  },
+  {
+    path: "/food",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/FoodPage.vue") }],
   },
   {
     path: "/settings",

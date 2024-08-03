@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.2.1",
     "date-fns": "^3.6.0",
     "firebase": "^10.12.5",
+    "leaflet": "^1.9.4",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
     "timeago.js": "^4.0.2",

@@ -61,13 +61,22 @@
     <div class="todo-header">
       <q-btn flat round icon="menu" @click="toggleSidebar" class="q-mr-sm" />
       <div class="text-h5">
-        待辦事項{{ selectedCategory ? `(${selectedCategory})` : "(全)" }}
+        待辦事項{{ selectedCategory ? ` (${selectedCategory})` : " (全)" }}
       </div>
     </div>
     <div v-for="group in sortedTodos" :key="group.date" class="todo-group">
       <div class="todo-date">{{ group.date }}</div>
       <q-list separator>
-        <q-item v-for="todo in group.todos" :key="todo.id" clickable v-ripple>
+        <q-item
+          v-for="todo in group.todos"
+          :key="todo.id"
+          clickable
+          v-ripple
+          :class="{
+            'todo-item': !todo.completed,
+            'todo-item-completed': todo.completed,
+          }"
+        >
           <q-item-section avatar>
             <q-checkbox
               v-model="todo.completed"
@@ -75,7 +84,18 @@
             />
           </q-item-section>
           <q-item-section>
-            <q-item-label class="item-title">{{ todo.title }}</q-item-label>
+            <q-item-label class="item-title"
+              >{{ todo.title }}
+              <q-chip
+                v-if="selectedCategory === null && todo.category"
+                color="primary"
+                text-color="white"
+                dense
+                outline
+              >
+                {{ todo.category.name }}
+              </q-chip>
+            </q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -428,24 +448,6 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showDeleteCompletedConfirmation">
-    <q-card>
-      <q-card-section class="row items-center">
-        <span class="q-ml-sm">確定要刪除所有已完成的待辦事項嗎？</span>
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="取消" color="primary" v-close-popup />
-        <q-btn
-          flat
-          label="確定"
-          color="negative"
-          @click="deleteCompletedTodos"
-          v-close-popup
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
   <q-dialog v-model="showTodoCategoryDialog">
     <q-card style="min-width: 350px">
       <q-card-section>
@@ -507,7 +509,7 @@
           <q-chip
             :color="selectedCategory === null ? 'white' : 'primary'"
             :text-color="selectedCategory === null ? 'black' : 'white'"
-            size="sm"
+            size="md"
           >
             {{ Object.keys(todos).length }}
           </q-chip>
@@ -534,7 +536,7 @@
           <q-chip
             :color="selectedCategory === category.name ? 'white' : 'primary'"
             :text-color="selectedCategory === category.name ? 'black' : 'white'"
-            size="sm"
+            size="md"
           >
             {{ getTodosCountForCategory(category.name) }}
           </q-chip>
@@ -585,7 +587,6 @@ export default {
       showTodoDialog: false,
       todoTitle: "",
       todoDate: "",
-      showDeleteCompletedConfirmation: false,
       todoCategorySelected: null,
       showTodoCategoryDialog: false,
       newTodoCategoryName: "",
@@ -727,6 +728,7 @@ export default {
   },
   methods: {
     previousMonth() {
+      console.log("P");
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
         this.currentDate.getMonth() - 1,
@@ -734,6 +736,7 @@ export default {
       );
     },
     nextMonth() {
+      console.log("N");
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
         this.currentDate.getMonth() + 1,
@@ -741,7 +744,6 @@ export default {
       );
     },
     toggleMenu() {
-      console.log(this.todos);
       this.showMenu = !this.showMenu;
     },
     openTodoDialog() {
@@ -792,8 +794,6 @@ export default {
       }
     },
     showDayEvents(day) {
-      console.log(this.todos);
-      console.log(this.events);
       this.selectedDate = day.date;
 
       // Filter events for the selected day
@@ -956,17 +956,6 @@ export default {
     onTodoCheck(todo) {
       store.dispatch("deleteTodo", todo.id);
     },
-    confirmDeleteCompleted() {
-      this.showDeleteCompletedConfirmation = true;
-    },
-    deleteCompletedTodos() {
-      if (this.selectedCategory) {
-        store.dispatch("deleteCompletedTodosInCategory", this.selectedCategory);
-      } else {
-        store.dispatch("deleteCompletedTodos");
-      }
-      this.showDeleteCompletedConfirmation = false;
-    },
     addTodoCategory() {
       if (this.newTodoCategoryName) {
         store.dispatch("addTodoCategory", {
@@ -1016,6 +1005,7 @@ export default {
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
+  padding: 0 10px;
 }
 
 .weekdays,
@@ -1185,10 +1175,6 @@ export default {
   transition: all 0.3s ease;
 }
 
-.q-list .q-item:not(.q-select__dropdown .q-item):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
 .item-title {
   font-weight: bold;
   font-size: 18px;
@@ -1216,6 +1202,7 @@ export default {
   border-radius: 8px;
   transition: all 0.3s ease;
   opacity: 0.7;
+  transition: all 0.3s ease;
 }
 
 .view-toggle-container {
@@ -1289,15 +1276,21 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.todo-sidebar .sidebar-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
 .todo-sidebar .q-separator.spaced {
   margin: 8px 0;
 }
 
 .todo-sidebar .q-chip {
   font-size: 0.8em;
+}
+
+.todo-item {
+  margin: 4px 8px;
+}
+.todo-item-completed {
+  margin: 4px 8px;
+  opacity: 0.6;
+  text-decoration: line-through;
+  transform: translateX(100%);
 }
 </style>

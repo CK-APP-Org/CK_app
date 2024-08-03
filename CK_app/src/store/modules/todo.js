@@ -62,6 +62,21 @@ export default {
     SET_CURRENT_VIEW(state, view) {
       state.currentView = view;
     },
+    COMPLETE_TODO(state, todoId) {
+      const todo = state.todos.find((t) => t.id === todoId);
+      if (todo) {
+        todo.completed = true;
+      }
+    },
+    UNCOMPLETE_TODO(state, todoId) {
+      const todo = state.todos.find((t) => t.id === todoId);
+      if (todo) {
+        todo.completed = false;
+      }
+    },
+    DELETE_COMPLETED_TODOS(state) {
+      state.todos = state.todos.filter((todo) => !todo.completed);
+    },
   },
   actions: {
     setEvents({ commit }, events) {
@@ -99,6 +114,15 @@ export default {
     },
     updateCurrentView({ commit }, view) {
       commit("SET_CURRENT_VIEW", view);
+    },
+    completeTodo({ commit }, todoId) {
+      commit("COMPLETE_TODO", todoId);
+    },
+    uncompleteTodo({ commit }, todoId) {
+      commit("UNCOMPLETE_TODO", todoId);
+    },
+    deleteCompletedTodos({ commit }) {
+      commit("DELETE_COMPLETED_TODOS");
     },
   },
   getters: {

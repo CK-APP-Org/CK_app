@@ -3,12 +3,14 @@
     <q-btn-toggle
       v-model="currentView"
       toggle-color="primary"
+      spread
       :options="[
-        { label: 'Calendar', value: 'calendar' },
-        { label: 'Todo List', value: 'todoList' },
+        { label: '月曆', value: 'calendar' },
+        { label: '待辦', value: 'todoList' },
       ]"
       class="q-mb-md"
       @update:model-value="updateView"
+      style="width: 270px"
     />
   </div>
   <div v-if="currentView === 'calendar'" class="calendar">
@@ -80,6 +82,42 @@
           </q-item-section>
         </q-item>
       </q-list>
+    </div>
+
+    <div v-if="completedTodos.length > 0" class="completed-todos">
+      <div class="text-h6 cursor-pointer" @click="toggleCompletedTodos">
+        已完成 ({{ completedTodos.length }})
+        <q-icon :name="showCompletedTodos ? 'expand_less' : 'expand_more'" />
+      </div>
+
+      <q-slide-transition>
+        <q-list v-show="showCompletedTodos" separator>
+          <q-item
+            v-for="todo in completedTodos"
+            :key="todo.id"
+            clickable
+            v-ripple
+            class="completed-todo"
+          >
+            <q-item-section avatar>
+              <q-checkbox
+                v-model="todo.completed"
+                @update:model-value="onTodoUncheck(todo)"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="item-title">{{ todo.title }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-btn
+            v-if="completedTodos.length > 0"
+            color="red-10"
+            label="刪除已完成事項"
+            @click="confirmDeleteCompleted"
+            class="q-mb-md"
+          />
+        </q-list>
+      </q-slide-transition>
     </div>
   </div>
 
@@ -232,7 +270,7 @@
                 {{
                   item.date
                     ? new Date(item.date).toLocaleDateString()
-                    : "No date"
+                    : "無日期"
                 }}
               </q-item-label>
             </q-item-section>
@@ -400,6 +438,24 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="showDeleteCompletedConfirmation">
+    <q-card>
+      <q-card-section class="row items-center">
+        <span class="q-ml-sm">確定要刪除所有已完成的待辦事項嗎？</span>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="取消" color="primary" v-close-popup />
+        <q-btn
+          flat
+          label="確定"
+          color="negative"
+          @click="deleteCompletedTodos"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -443,6 +499,8 @@ export default {
       showTodoDialog: false,
       todoTitle: "",
       todoDate: "",
+      showCompletedTodos: false,
+      showDeleteCompletedConfirmation: false,
     };
   },
   computed: {
@@ -541,10 +599,10 @@ export default {
       return new Date(this.eventEndDate) >= new Date(this.eventStartDate);
     },
     sortedTodos() {
-      const grouped = this.todos.reduce((acc, todo) => {
+      const grouped = this.activeTodos.reduce((acc, todo) => {
         const dateKey = todo.date
           ? this.formatDate(new Date(todo.date))
-          : "No date";
+          : "無日期";
         if (!acc[dateKey]) {
           acc[dateKey] = [];
         }
@@ -555,14 +613,21 @@ export default {
       // Sort the dates
       return Object.keys(grouped)
         .sort((a, b) => {
-          if (a === "No date") return 1;
-          if (b === "No date") return -1;
+          if (a === "無日期") return 1;
+          if (b === "無日期") return -1;
           return new Date(a) - new Date(b);
         })
         .map((date) => ({
           date,
           todos: grouped[date],
         }));
+    },
+    completedTodos() {
+      return this.todos.filter((todo) => todo.completed);
+    },
+
+    activeTodos() {
+      return this.todos.filter((todo) => !todo.completed);
     },
   },
   methods: {
@@ -787,17 +852,25 @@ export default {
       this.todoTitle = "";
       this.todoDate = "";
     },
-    onTodoCheck(todo) {
-      if (todo.completed) {
-        setTimeout(() => {
-          store.dispatch("deleteTodo", todo.id);
-        }, 500);
-      } else {
-        store.dispatch("updateTodo", { ...todo, completed: !todo.completed });
-      }
-    },
     updateView(newView) {
       store.dispatch("updateCurrentView", newView);
+    },
+    onTodoCheck(todo) {
+      store.dispatch("completeTodo", todo.id);
+    },
+    onTodoUncheck(todo) {
+      store.dispatch("uncompleteTodo", todo.id);
+    },
+    toggleCompletedTodos() {
+      this.showCompletedTodos = !this.showCompletedTodos;
+    },
+    confirmDeleteCompleted() {
+      this.showDeleteCompletedConfirmation = true;
+    },
+
+    deleteCompletedTodos() {
+      store.dispatch("deleteCompletedTodos");
+      this.showDeleteCompletedConfirmation = false;
     },
   },
   watch: {
@@ -1024,12 +1097,25 @@ export default {
   background-color: #f8f8f8;
   border-radius: 8px;
   transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.completed-todos {
+  margin-top: 30px;
+}
+.completed-todos .text-h6 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  opacity: 0.7;
 }
 
 .completed-todo {
-  opacity: 0.6;
   text-decoration: line-through;
-  transform: translateX(100%);
 }
 
 .view-toggle-container {

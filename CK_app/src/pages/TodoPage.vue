@@ -59,18 +59,15 @@
   </div>
   <div v-if="currentView === 'todoList'" class="todo-list">
     <div class="todo-header">
-      <div class="text-h5">待辦事項</div>
+      <q-btn flat round icon="menu" @click="toggleSidebar" class="q-mr-sm" />
+      <div class="text-h5">
+        待辦事項{{ selectedCategory ? `(${selectedCategory})` : "(全)" }}
+      </div>
     </div>
     <div v-for="group in sortedTodos" :key="group.date" class="todo-group">
       <div class="todo-date">{{ group.date }}</div>
       <q-list separator>
-        <q-item
-          v-for="todo in group.todos"
-          :key="todo.id"
-          clickable
-          v-ripple
-          :class="{ 'completed-todo': todo.completed }"
-        >
+        <q-item v-for="todo in group.todos" :key="todo.id" clickable v-ripple>
           <q-item-section avatar>
             <q-checkbox
               v-model="todo.completed"
@@ -82,42 +79,6 @@
           </q-item-section>
         </q-item>
       </q-list>
-    </div>
-
-    <div v-if="completedTodos.length > 0" class="completed-todos">
-      <div class="text-h6 cursor-pointer" @click="toggleCompletedTodos">
-        已完成 ({{ completedTodos.length }})
-        <q-icon :name="showCompletedTodos ? 'expand_less' : 'expand_more'" />
-      </div>
-
-      <q-slide-transition>
-        <q-list v-show="showCompletedTodos" separator>
-          <q-item
-            v-for="todo in completedTodos"
-            :key="todo.id"
-            clickable
-            v-ripple
-            class="completed-todo"
-          >
-            <q-item-section avatar>
-              <q-checkbox
-                v-model="todo.completed"
-                @update:model-value="onTodoUncheck(todo)"
-              />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label class="item-title">{{ todo.title }}</q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-btn
-            v-if="completedTodos.length > 0"
-            color="red-10"
-            label="刪除已完成事項"
-            @click="confirmDeleteCompleted"
-            class="q-mb-md"
-          />
-        </q-list>
-      </q-slide-transition>
     </div>
   </div>
 
@@ -185,19 +146,19 @@
           </template>
         </q-input>
         <q-select
-          v-model="eventCategory"
-          :options="categories"
+          v-model="eventCategorySelected"
+          :options="eventCategories"
           option-label="name"
           label="活動類別"
         >
           <template v-slot:selected>
             <q-chip
-              v-if="Object.keys(eventCategory).length != 0"
+              v-if="Object.keys(eventCategorySelected).length != 0"
               square
-              :style="{ backgroundColor: eventCategory.color }"
+              :style="{ backgroundColor: eventCategorySelected.color }"
               class="q-mr-sm"
             />
-            {{ eventCategory.name }}
+            {{ eventCategorySelected.name }}
           </template>
           <template v-slot:option="{ itemProps, opt }">
             <q-item v-bind="itemProps">
@@ -213,7 +174,7 @@
         <q-btn
           outline
           label="管理類別"
-          @click="showCategoryDialog = true"
+          @click="showEventCategoryDialog = true"
           class="btn-move-down"
         />
       </q-card-section>
@@ -305,7 +266,7 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showCategoryDialog">
+  <q-dialog v-model="showEventCategoryDialog">
     <q-card style="min-width: 350px">
       <q-card-section>
         <div class="text-h6">管理類別</div>
@@ -314,7 +275,7 @@
       <q-card-section>
         <div class="text-h6 text-center">所有類別</div>
         <q-list>
-          <q-item v-for="category in categories" :key="category.name">
+          <q-item v-for="category in eventCategories" :key="category.name">
             <q-item-section>
               <q-chip
                 square
@@ -325,11 +286,11 @@
             </q-item-section>
             <q-item-section side>
               <q-btn
-                v-if="Object.keys(categories).length > 1"
+                v-if="Object.keys(eventCategories).length > 1"
                 flat
                 round
                 icon="delete"
-                @click="deleteCategory(category.name)"
+                @click="deleteEventCategory(category.name)"
               />
             </q-item-section>
           </q-item>
@@ -337,12 +298,12 @@
       </q-card-section>
       <q-separator inset color="grey" />
       <q-card-section>
-        <q-input v-model="newCategoryName" label="新類別名稱" dense />
-        <q-input v-model="newCategoryColor" label="新類別顏色" dense>
+        <q-input v-model="newEventCategoryName" label="新類別名稱" dense />
+        <q-input v-model="newEventCategoryColor" label="新類別顏色" dense>
           <q-chip
-            v-if="newCategoryColor"
+            v-if="newEventCategoryColor"
             square
-            :style="{ backgroundColor: newCategoryColor }"
+            :style="{ backgroundColor: newEventCategoryColor }"
             class="q-mr-sm"
           />
           <template v-slot:append>
@@ -352,7 +313,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-color v-model="newCategoryColor" no-header-tabs />
+                <q-color v-model="newEventCategoryColor" no-header-tabs />
               </q-popup-proxy>
             </q-icon>
           </template>
@@ -360,7 +321,7 @@
         <q-btn
           outline
           label="新增類別"
-          @click="addCategory"
+          @click="addEventCategory"
           class="btn-move-down"
         />
       </q-card-section>
@@ -370,11 +331,11 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="showDeleteCategoryConfirmation">
+  <q-dialog v-model="showDeleteEventCategoryConfirmation">
     <q-card>
       <q-card-section class="row items-center">
         <span class="q-ml-sm"
-          >確定刪除類別 "{{ categoryToDelete }}"
+          >確定刪除類別 "{{ eventCategoryToDelete }}"
           嗎？若確定則所有屬於這類別的活動會維持原本的樣式，但往後所有活動將無法選取為此類別。</span
         >
       </q-card-section>
@@ -385,7 +346,7 @@
           flat
           label="確定"
           color="negative"
-          @click="confirmDeleteCategory"
+          @click="confirmDeleteEventCategory"
           v-close-popup
         />
       </q-card-actions>
@@ -417,6 +378,35 @@
             </q-icon>
           </template>
         </q-input>
+
+        <q-select
+          v-model="todoCategorySelected"
+          :options="todoCategories"
+          option-label="name"
+          label="待辦類別 (選填)"
+          emit-value
+          map-options
+          :disable="todoCategories.length === 0"
+        >
+          <template v-slot:no-option>
+            <q-item>
+              <q-item-section class="text-grey"> 尚未建立類別 </q-item-section>
+            </q-item>
+          </template>
+          <template v-slot:option="{ itemProps, opt }">
+            <q-item v-bind="itemProps">
+              <q-item-section>
+                <q-item-label>{{ opt.name }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+        <q-btn
+          outline
+          label="管理類別"
+          @click="showTodoCategoryDialog = true"
+          class="btn-move-down"
+        />
       </q-card-section>
 
       <q-card-actions align="right">
@@ -456,6 +446,102 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="showTodoCategoryDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">管理待辦類別</div>
+      </q-card-section>
+
+      <q-card-section>
+        <div class="text-h6 text-center">所有類別</div>
+        <q-list>
+          <q-item v-for="category in todoCategories" :key="category.name">
+            <q-item-section>
+              {{ category.name }}
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                flat
+                round
+                icon="delete"
+                @click="deleteTodoCategory(category.name)"
+              />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card-section>
+      <q-separator inset color="grey" />
+      <q-card-section>
+        <q-input v-model="newTodoCategoryName" label="新類別名稱" dense />
+        <q-btn
+          outline
+          label="新增類別"
+          @click="addTodoCategory"
+          class="btn-move-down"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="關閉" color="primary" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-drawer v-model="leftDrawerOpen" side="left" bordered class="todo-sidebar">
+    <q-list padding>
+      <q-item-label header class="text-h6 q-py-md">選擇顯示類別</q-item-label>
+
+      <q-item
+        clickable
+        v-ripple
+        :active="selectedCategory === null"
+        active-class="bg-primary text-white"
+        @click="selectCategory(null)"
+        class="sidebar-item"
+      >
+        <q-item-section avatar>
+          <q-icon name="list" />
+        </q-item-section>
+        <q-item-section>所有待辦</q-item-section>
+        <q-item-section side>
+          <q-chip
+            :color="selectedCategory === null ? 'white' : 'primary'"
+            :text-color="selectedCategory === null ? 'black' : 'white'"
+            size="sm"
+          >
+            {{ Object.keys(todos).length }}
+          </q-chip>
+        </q-item-section>
+      </q-item>
+
+      <q-separator spaced />
+
+      <q-item
+        v-for="category in todoCategories"
+        :key="category.name"
+        clickable
+        v-ripple
+        :active="selectedCategory === category.name"
+        active-class="bg-primary text-white"
+        @click="selectCategory(category.name)"
+        class="sidebar-item"
+      >
+        <q-item-section avatar>
+          <q-icon name="folder" />
+        </q-item-section>
+        <q-item-section>{{ category.name }}</q-item-section>
+        <q-item-section side>
+          <q-chip
+            :color="selectedCategory === category.name ? 'white' : 'primary'"
+            :text-color="selectedCategory === category.name ? 'black' : 'white'"
+            size="sm"
+          >
+            {{ getTodosCountForCategory(category.name) }}
+          </q-chip>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-drawer>
 </template>
 
 <script>
@@ -465,13 +551,13 @@ import store from "../store/index";
 export default {
   setup() {
     const events = computed(() => store.getters.getEvents);
-    const categories = computed(() => store.getters.getCategories);
+    const eventCategories = computed(() => store.getters.getEventCategories);
     const todos = computed(() => store.getters.getTodos);
     const currentView = computed({
       get: () => store.getters.getCurrentView,
       set: (value) => store.dispatch("updateCurrentView", value),
     });
-    return { events, categories, todos, currentView };
+    return { events, eventCategories, todos, currentView };
   },
   data() {
     return {
@@ -489,18 +575,23 @@ export default {
       editingEvent: null,
       isEditing: false,
       showDeleteConfirmation: false,
-      eventCategory: {},
-      showCategoryDialog: false,
-      newCategoryName: "",
-      newCategoryColor: "",
-      showDeleteCategoryConfirmation: false,
-      categoryToDelete: null,
+      eventCategorySelected: {},
+      showEventCategoryDialog: false,
+      newEventCategoryName: "",
+      newEventCategoryColor: "",
+      showDeleteEventCategoryConfirmation: false,
+      eventCategoryToDelete: null,
 
       showTodoDialog: false,
       todoTitle: "",
       todoDate: "",
-      showCompletedTodos: false,
       showDeleteCompletedConfirmation: false,
+      todoCategorySelected: null,
+      showTodoCategoryDialog: false,
+      newTodoCategoryName: "",
+      newTodoCategoryColor: "",
+      leftDrawerOpen: false,
+      selectedCategory: null,
     };
   },
   computed: {
@@ -591,15 +682,23 @@ export default {
         this.eventStartDate !== "" &&
         this.eventEndDate !== "" &&
         this.isEndDateValid &&
-        this.eventCategory !== ""
+        this.eventCategorySelected !== ""
       );
     },
     isEndDateValid() {
       if (!this.eventStartDate || !this.eventEndDate) return true;
       return new Date(this.eventEndDate) >= new Date(this.eventStartDate);
     },
+    filteredTodos() {
+      if (!this.selectedCategory) {
+        return this.todos;
+      }
+      return this.todos.filter(
+        (todo) => todo.category && todo.category.name === this.selectedCategory
+      );
+    },
     sortedTodos() {
-      const grouped = this.activeTodos.reduce((acc, todo) => {
+      const grouped = this.filteredTodos.reduce((acc, todo) => {
         const dateKey = todo.date
           ? this.formatDate(new Date(todo.date))
           : "無日期";
@@ -622,12 +721,8 @@ export default {
           todos: grouped[date],
         }));
     },
-    completedTodos() {
-      return this.todos.filter((todo) => todo.completed);
-    },
-
-    activeTodos() {
-      return this.todos.filter((todo) => !todo.completed);
+    todoCategories() {
+      return store.getters.getTodoCategories;
     },
   },
   methods: {
@@ -646,6 +741,7 @@ export default {
       );
     },
     toggleMenu() {
+      console.log(this.todos);
       this.showMenu = !this.showMenu;
     },
     openTodoDialog() {
@@ -665,14 +761,14 @@ export default {
           title: this.eventTitle,
           startDate: new Date(this.eventStartDate),
           endDate: new Date(this.eventEndDate),
-          category: this.eventCategory,
+          category: this.eventCategorySelected,
         };
         store.dispatch("addEvent", {
           id: Date.now(), // Generate a unique ID for the event
           title: this.eventTitle,
           startDate: new Date(this.eventStartDate),
           endDate: new Date(this.eventEndDate),
-          category: this.eventCategory,
+          category: this.eventCategorySelected,
         });
 
         this.resetEventForm();
@@ -686,7 +782,7 @@ export default {
       this.eventEndDate = "";
       this.isEditing = false;
       this.editingEvent = null;
-      this.eventCategory = {};
+      this.eventCategorySelected = {};
     },
     validateEndDate() {
       if (!this.isEndDateValid) {
@@ -737,7 +833,7 @@ export default {
       this.eventTitle = event.title;
       this.eventStartDate = this.formatDateForInput(event.startDate);
       this.eventEndDate = this.formatDateForInput(event.endDate);
-      this.eventCategory = event.category;
+      this.eventCategorySelected = event.category;
       this.isEditing = true;
       this.showEventDialog = true;
       this.showDayEventsDialog = false;
@@ -759,14 +855,14 @@ export default {
         title: this.eventTitle,
         startDate: new Date(this.eventStartDate),
         endDate: new Date(this.eventEndDate),
-        category: this.eventCategory,
+        category: this.eventCategorySelected,
       };
 
       store.dispatch("updateEvent", updatedEvent);
 
       this.resetEventForm();
       this.showEventDialog = false;
-      this.showDayEventsDialog = true;
+      this.showDayEventsDialog = false;
 
       // Refresh the selected day events
       this.updateSelectedDayEvents();
@@ -799,32 +895,32 @@ export default {
       // Refresh the selected day events
       this.updateSelectedDayEvents();
     },
-    addCategory() {
-      if (this.newCategoryName && this.newCategoryColor) {
-        store.dispatch("addCategory", {
-          name: this.newCategoryName,
-          color: this.newCategoryColor,
+    addEventCategory() {
+      if (this.newEventCategoryName && this.newEventCategoryColor) {
+        store.dispatch("addEventCategory", {
+          name: this.newEventCategoryName,
+          color: this.newEventCategoryColor,
         });
-        this.newCategoryName = "";
-        this.newCategoryColor = "#ADADAD";
+        this.newEventCategoryName = "";
+        this.newEventCategoryColor = "#ADADAD";
       }
     },
 
-    deleteCategory(categoryName) {
-      this.showDeleteCategoryConfirmationDialog(categoryName);
+    deleteEventCategory(categoryName) {
+      this.showDeleteEventCategoryConfirmationDialog(categoryName);
     },
 
-    showDeleteCategoryConfirmationDialog(categoryName) {
-      this.categoryToDelete = categoryName;
-      this.showDeleteCategoryConfirmation = true;
+    showDeleteEventCategoryConfirmationDialog(categoryName) {
+      this.eventCategoryToDelete = categoryName;
+      this.showDeleteEventCategoryConfirmation = true;
     },
 
-    confirmDeleteCategory() {
-      if (this.categoryToDelete) {
-        store.dispatch("deleteCategory", this.categoryToDelete);
+    confirmDeleteEventCategory() {
+      if (this.eventCategoryToDelete) {
+        store.dispatch("deleteEventCategory", this.eventCategoryToDelete);
       }
-      this.showDeleteCategoryConfirmation = false;
-      this.categoryToDelete = null;
+      this.showDeleteEventCategoryConfirmation = false;
+      this.eventCategoryToDelete = null;
     },
 
     isToday(date) {
@@ -842,6 +938,7 @@ export default {
         title: this.todoTitle,
         date: this.todoDate ? new Date(this.todoDate) : null,
         completed: false,
+        category: this.todoCategorySelected ? this.todoCategorySelected : null,
       };
       store.dispatch("addTodo", newTodo);
       this.resetTodoForm();
@@ -851,26 +948,47 @@ export default {
     resetTodoForm() {
       this.todoTitle = "";
       this.todoDate = "";
+      this.todoCategorySelected = null;
     },
     updateView(newView) {
       store.dispatch("updateCurrentView", newView);
     },
     onTodoCheck(todo) {
-      store.dispatch("completeTodo", todo.id);
-    },
-    onTodoUncheck(todo) {
-      store.dispatch("uncompleteTodo", todo.id);
-    },
-    toggleCompletedTodos() {
-      this.showCompletedTodos = !this.showCompletedTodos;
+      store.dispatch("deleteTodo", todo.id);
     },
     confirmDeleteCompleted() {
       this.showDeleteCompletedConfirmation = true;
     },
-
     deleteCompletedTodos() {
-      store.dispatch("deleteCompletedTodos");
+      if (this.selectedCategory) {
+        store.dispatch("deleteCompletedTodosInCategory", this.selectedCategory);
+      } else {
+        store.dispatch("deleteCompletedTodos");
+      }
       this.showDeleteCompletedConfirmation = false;
+    },
+    addTodoCategory() {
+      if (this.newTodoCategoryName) {
+        store.dispatch("addTodoCategory", {
+          name: this.newTodoCategoryName,
+        });
+        this.newTodoCategoryName = "";
+      }
+    },
+    deleteTodoCategory(categoryName) {
+      store.dispatch("deleteTodoCategory", categoryName);
+    },
+    toggleSidebar() {
+      this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+    selectCategory(categoryName) {
+      this.selectedCategory = categoryName;
+      this.leftDrawerOpen = false;
+    },
+    getTodosCountForCategory(categoryName) {
+      return this.todos.filter(
+        (todo) => todo.category && todo.category.name === categoryName
+      ).length;
     },
   },
   watch: {
@@ -1100,24 +1218,6 @@ export default {
   opacity: 0.7;
 }
 
-.completed-todos {
-  margin-top: 30px;
-}
-.completed-todos .text-h6 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  background-color: #ffffff;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  opacity: 0.7;
-}
-
-.completed-todo {
-  text-decoration: line-through;
-}
-
 .view-toggle-container {
   display: flex;
   justify-content: center;
@@ -1126,10 +1226,11 @@ export default {
 
 .todo-header {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   margin-top: 10px;
   margin-bottom: 25px;
+  padding-left: 16px;
 }
 
 .todo-checkmarks {
@@ -1154,10 +1255,10 @@ export default {
 .item-indicators {
   position: absolute;
   bottom: 10px;
-  right: 15px;
+  right: 10px;
   display: flex;
   flex-wrap: wrap;
-  width: 25px;
+  width: 30px;
   height: 40px;
 }
 
@@ -1175,5 +1276,28 @@ export default {
   font-weight: bold;
   margin-bottom: 10px;
   padding-left: 16px;
+}
+
+.todo-sidebar {
+  background-color: #f8f8f8;
+  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.todo-sidebar .sidebar-item {
+  border-radius: 8px;
+  margin: 4px 8px;
+  transition: background-color 0.3s ease;
+}
+
+.todo-sidebar .sidebar-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.todo-sidebar .q-separator.spaced {
+  margin: 8px 0;
+}
+
+.todo-sidebar .q-chip {
+  font-size: 0.8em;
 }
 </style>

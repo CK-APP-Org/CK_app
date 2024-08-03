@@ -1,5 +1,8 @@
 <template>
-  <meta name="google-site-verification" content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg" />
+  <meta
+    name="google-site-verification"
+    content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
+  />
   <q-layout view="hHh lpR fFf">
     <q-header elevated>
       <q-toolbar>
@@ -65,7 +68,7 @@
     </q-page-container>
 
     <q-footer class="" v-if="!isHomePage">
-      <q-tabs >
+      <q-tabs>
         <q-route-tab
           v-for="item in menuItems"
           :key="item.link"
@@ -111,6 +114,11 @@ export default {
           link: "/menu",
         },
         {
+          label: "美食地圖",
+          icon: "fastfood",
+          link: "/food",
+        },
+        {
           label: "校網公告",
           icon: "newspaper",
           link: "/news",
@@ -125,8 +133,8 @@ export default {
   },
   computed: {
     isHomePage() {
-      return this.$route.path === '/';
-    }
+      return this.$route.path === "/";
+    },
   },
   methods: {
     toggleDrawer() {

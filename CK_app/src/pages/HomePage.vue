@@ -41,7 +41,7 @@
     <!-- Todo Tasks Section -->
     <div class="todo-tasks-section q-mb-md" v-if="showTodo">
       <q-card>
-        <q-card-section class="bg-orange-2">
+        <q-card-section class="bg-blue-1">
           <div class="row items-center q-mb-sm">
             <div class="text-h6 q-mr-sm">今日待辦事項</div>
             <q-btn
@@ -79,7 +79,7 @@
     <!-- Pinned School News Section -->
     <div class="school-news-section q-mb-md" v-if="showSchoolNews">
       <q-card>
-        <q-card-section class="bg-blue-2">
+        <q-card-section class="bg-blue-1">
           <div class="row items-center q-mb-sm">
             <div class="text-h6 q-mr-sm">釘選校網內容</div>
             <q-btn

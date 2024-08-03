@@ -543,6 +543,17 @@
         </q-item-section>
       </q-item>
     </q-list>
+    <q-separator spaced />
+
+    <q-item>
+      <q-btn
+        label="管理類別"
+        color="primary"
+        outline
+        @click="showTodoCategoryDialog = true"
+        class="full-width"
+      />
+    </q-item>
   </q-drawer>
 </template>
 
@@ -728,7 +739,6 @@ export default {
   },
   methods: {
     previousMonth() {
-      console.log("P");
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
         this.currentDate.getMonth() - 1,
@@ -736,7 +746,6 @@ export default {
       );
     },
     nextMonth() {
-      console.log("N");
       this.currentDate = new Date(
         this.currentDate.getFullYear(),
         this.currentDate.getMonth() + 1,

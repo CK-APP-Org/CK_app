@@ -1,10 +1,11 @@
 export default {
   state: () => ({
     events: [],
-    categories: [{ name: "Default", color: "#ADADAD" }],
+    eventCategories: [{ name: "Default", color: "#ADADAD" }],
     displayTodoWidget: true,
     todos: [],
     currentView: "calendar",
+    todoCategories: [],
   }),
   mutations: {
     SET_EVENTS(state, events) {
@@ -22,19 +23,19 @@ export default {
     DELETE_EVENT(state, eventId) {
       state.events = state.events.filter((e) => e.id !== eventId);
     },
-    ADD_CATEGORY(state, category) {
-      state.categories.push(category);
+    ADD_EVENT_CATEGORY(state, category) {
+      state.eventCategories.push(category);
     },
-    UPDATE_CATEGORY(state, updatedCategory) {
-      const index = state.categories.findIndex(
+    UPDATE_EVENT_CATEGORY(state, updatedCategory) {
+      const index = state.eventCategories.findIndex(
         (c) => c.name === updatedCategory.name
       );
       if (index !== -1) {
-        state.categories.splice(index, 1, updatedCategory);
+        state.eventCategories.splice(index, 1, updatedCategory);
       }
     },
-    DELETE_CATEGORY(state, categoryName) {
-      state.categories = state.categories.filter(
+    DELETE_EVENT_CATEGORY(state, categoryName) {
+      state.eventCategories = state.eventCategories.filter(
         (c) => c.name !== categoryName
       );
     },
@@ -62,20 +63,21 @@ export default {
     SET_CURRENT_VIEW(state, view) {
       state.currentView = view;
     },
-    COMPLETE_TODO(state, todoId) {
-      const todo = state.todos.find((t) => t.id === todoId);
-      if (todo) {
-        todo.completed = true;
+    ADD_TODO_CATEGORY(state, category) {
+      state.todoCategories.push({ name: category.name });
+    },
+    UPDATE_TODO_CATEGORY(state, updatedCategory) {
+      const index = state.todoCategories.findIndex(
+        (c) => c.name === updatedCategory.name
+      );
+      if (index !== -1) {
+        state.todoCategories.splice(index, 1, { name: updatedCategory.name });
       }
     },
-    UNCOMPLETE_TODO(state, todoId) {
-      const todo = state.todos.find((t) => t.id === todoId);
-      if (todo) {
-        todo.completed = false;
-      }
-    },
-    DELETE_COMPLETED_TODOS(state) {
-      state.todos = state.todos.filter((todo) => !todo.completed);
+    DELETE_TODO_CATEGORY(state, categoryName) {
+      state.todoCategories = state.todoCategories.filter(
+        (c) => c.name !== categoryName
+      );
     },
   },
   actions: {
@@ -91,14 +93,14 @@ export default {
     deleteEvent({ commit }, eventId) {
       commit("DELETE_EVENT", eventId);
     },
-    addCategory({ commit }, category) {
-      commit("ADD_CATEGORY", category);
+    addEventCategory({ commit }, category) {
+      commit("ADD_EVENT_CATEGORY", category);
     },
-    updateCategory({ commit }, category) {
-      commit("UPDATE_CATEGORY", category);
+    updateEventCategory({ commit }, category) {
+      commit("UPDATE_EVENT_CATEGORY", category);
     },
-    deleteCategory({ commit }, categoryName) {
-      commit("DELETE_CATEGORY", categoryName);
+    deleteEventCategory({ commit }, categoryName) {
+      commit("DELETE_EVENT_CATEGORY", categoryName);
     },
     setTodos({ commit }, todos) {
       commit("SET_TODOS", todos);
@@ -115,21 +117,23 @@ export default {
     updateCurrentView({ commit }, view) {
       commit("SET_CURRENT_VIEW", view);
     },
-    completeTodo({ commit }, todoId) {
-      commit("COMPLETE_TODO", todoId);
+
+    addTodoCategory({ commit }, category) {
+      commit("ADD_TODO_CATEGORY", { name: category.name });
     },
-    uncompleteTodo({ commit }, todoId) {
-      commit("UNCOMPLETE_TODO", todoId);
+    updateTodoCategory({ commit }, category) {
+      commit("UPDATE_TODO_CATEGORY", { name: category.name });
     },
-    deleteCompletedTodos({ commit }) {
-      commit("DELETE_COMPLETED_TODOS");
+    deleteTodoCategory({ commit }, categoryName) {
+      commit("DELETE_TODO_CATEGORY", categoryName);
     },
   },
   getters: {
     getEvents: (state) => state.events,
-    getCategories: (state) => state.categories,
+    getEventCategories: (state) => state.eventCategories,
     getShowTodo: (state) => state.displayTodoWidget,
     getTodos: (state) => state.todos,
     getCurrentView: (state) => state.currentView,
+    getTodoCategories: (state) => state.todoCategories,
   },
 };

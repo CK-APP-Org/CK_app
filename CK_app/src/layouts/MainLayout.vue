@@ -114,12 +114,12 @@ export default {
           link: "/menu",
         },
         {
-          label: "美食地圖",
+          label: "美食",
           icon: "fastfood",
           link: "/food",
         },
         {
-          label: "校網公告",
+          label: "校網",
           icon: "newspaper",
           link: "/news",
         },

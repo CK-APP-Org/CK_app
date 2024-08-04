@@ -3,9 +3,9 @@
     <!-- New Banner Component -->
     <q-banner class="bg-primary text-white q-mb-md" rounded>
       <template v-slot:avatar>
-        <q-icon name="announcement" color="white" size="md"/>
+        <q-icon name="announcement" color="white" size="md" />
       </template>
-      最新公告：今天下午在禮堂有全校集會
+      最新公告：今天下午在禮堂有全校集
     </q-banner>
 
     <!-- <div class="header">
@@ -14,46 +14,92 @@
     </div> -->
 
     <!-- Current Class Section -->
-    <div class="current-class-section q-mb-md">
-      <q-card>
+    <div class="current-class-section q-mb-md" v-if="showSchedule">
+      <q-card class="cursor-pointer">
         <q-card-section :style="{ backgroundColor: currentClass.color }">
-          <div class="text-h6">目前課程</div>
-
-          <div class="text-subtitle1">{{ currentClass.subject }}</div>
+          <div class="row items-center q-mb-sm">
+            <div class="text-h6 q-mr-sm">目前課程</div>
+            <q-btn
+              flat
+              dense
+              round
+              icon="edit"
+              color="primary"
+              size="0.8em"
+              href="/#/schedule"
+            />
+          </div>
+          <div style="font-weight: bold; font-size: x-large">
+            {{ currentClass.subject }}
+          </div>
           <q-separator class="q-my-sm" />
           <div class="text-caption">課程備註：</div>
           <div>{{ currentClass.note }}</div>
         </q-card-section>
       </q-card>
     </div>
-
     <!-- Todo Tasks Section -->
-    <!-- <div class="todo-tasks-section q-mb-md">
+    <div class="todo-tasks-section q-mb-md" v-if="showTodo">
       <q-card>
-        <q-card-section class="bg-orange-2">
-          <div class="text-h6">待辦事項</div>
+        <q-card-section class="bg-blue-1">
+          <div class="row items-center q-mb-sm">
+            <div class="text-h6 q-mr-sm">今日待辦事項</div>
+            <q-btn
+              flat
+              dense
+              round
+              icon="edit"
+              color="primary"
+              size="0.8em"
+              href="/#/todo"
+            />
+          </div>
           <q-list dense>
-            <q-item v-for="(task, index) in todoTasks" :key="index">
+            <q-item v-for="task in todayTodos" :key="task.id">
               <q-item-section avatar>
-                <q-checkbox v-model="task.completed" />
+                <q-checkbox
+                  v-model="task.completed"
+                  @update:model-value="onTodoCheck(task)"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label>{{ task.title }}</q-item-label>
-                <q-item-label caption>{{ task.dueDate }}</q-item-label>
+                <q-item-label caption v-if="task.category">{{
+                  task.category.name
+                }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
+          <div v-if="todayTodos.length === 0" class="text-center q-pa-md">
+            今天沒有待辦事項
+          </div>
         </q-card-section>
       </q-card>
-    </div> -->
-
+    </div>
     <!-- Pinned School News Section -->
-    <div class="school-news-section q-mb-md">
+    <div class="school-news-section q-mb-md" v-if="showSchoolNews">
       <q-card>
-        <q-card-section class="bg-blue-2">
-          <div class="text-h6">置頂校園新聞</div>
-          <q-list dense>
-            <q-item v-for="(news, index) in pinnedNews" :key="index" clickable v-ripple>
+        <q-card-section class="bg-blue-1">
+          <div class="row items-center q-mb-sm">
+            <div class="text-h6 q-mr-sm">釘選校網內容</div>
+            <q-btn
+              flat
+              dense
+              round
+              icon="edit"
+              color="primary"
+              size="0.8em"
+              href="/#/news"
+            />
+          </div>
+          <q-list dense v-if="pinnedNews.length > 0">
+            <q-item
+              v-for="(news, index) in pinnedNews"
+              :key="index"
+              clickable
+              v-ripple
+              :href="news.link"
+            >
               <q-item-section side>
                 <q-icon name="fiber_manual_record" size="xs" color="primary" />
               </q-item-section>
@@ -62,10 +108,16 @@
               </q-item-section>
             </q-item>
           </q-list>
+          <div
+            v-else
+            style="font-size: large; color: firebrick; font-weight: bold"
+            class="q-pa-sm"
+          >
+            無釘選內容
+          </div>
         </q-card-section>
       </q-card>
     </div>
-
 
     <!-- <q-input filled v-model="search" label="搜尋功能" dense class="q-mb-md">
       <template v-slot:append>
@@ -89,21 +141,20 @@
 </template>
 
 <script>
-
 import { onMounted, ref, computed } from "vue";
 import store from "../store/index";
 
 export default {
   data() {
     return {
-      search: '',
+      search: "",
       items: [
         { name: "課表", icon: "book", link: "/schedule" },
         { name: "行事曆", icon: "calendar_month", link: "/todo" },
         { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
-        { name: "校網", icon: "language", link: "/news" },
+        { name: "校網", icon: "newspaper", link: "/news" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
       ],
@@ -111,17 +162,20 @@ export default {
   },
   computed: {
     filteredItems() {
-      return this.items.filter(item =>
+      return this.items.filter((item) =>
         item.name.toLowerCase().includes(this.search.toLowerCase())
       );
-    }
+    },
   },
   methods: {
     navigateTo(link) {
       this.$router.push(link);
     },
+    onTodoCheck(todo) {
+      store.dispatch("deleteTodo", todo.id);
+    },
   },
-    setup() {
+  setup() {
     const colorOptions = [
       { label: "Default", value: "#f4f4f1" },
       { label: "Red", value: "#FFCCCB" },
@@ -133,10 +187,17 @@ export default {
       { label: "Pink", value: "#ffa1e4" },
     ];
 
-    const todoTasks = ref([
-      { title: "完成數學作業", dueDate: "2023-07-26", completed: false },
-      { title: "準備英文報告", dueDate: "2023-07-28", completed: false },
-    ]);
+    const todos = computed(() => store.getters.getTodos);
+
+    const todayTodos = computed(() => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return todos.value.filter((todo) => {
+        const todoDate = new Date(todo.date);
+        todoDate.setHours(0, 0, 0, 0);
+        return todoDate.getTime() === today.getTime() && !todo.completed;
+      });
+    });
 
     // Pinned School News data
     // const pinnedNews = ref([
@@ -144,30 +205,50 @@ export default {
     //   { title: "暑期輔導課程開放報名", date: "2023-07-24" },
     // ]);
 
-
     const scheduleData = computed(() => store.getters.getScheduleData);
     const pinnedNews = computed(() => store.getters.getPinnedNews);
 
+    const showSchedule = computed(() => store.getters.getShowSchedule);
+    const showTodo = computed(() => store.getters.getShowTodo);
+    const showSchoolNews = computed(() => store.getters.getShowSchoolNews);
 
     const currentClass = computed(() => {
       const now = new Date();
-      const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+      const currentDay = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ][now.getDay()];
       const currentHour = now.getHours();
-      console.log(currentDay)
-      console.log(currentHour)
+      console.log(currentDay);
+      console.log(currentHour);
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
-      console.log(currentPeriod)
-      if (currentPeriod < 1 || currentPeriod > 7 || currentDay === "Saturday" || currentDay === "Sunday") {
+      const currentPeriod =
+        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+      console.log(currentPeriod);
+      if (
+        currentPeriod < 1 ||
+        currentPeriod > 7 ||
+        currentDay === "Saturday" ||
+        currentDay === "Sunday"
+      ) {
         return {
           subject: "目前無課",
-          note: "現在是下課時間或假日"
+          note: "現在是下課時間或假日",
         };
       }
-      console.log(scheduleData.value)
-      console.log(scheduleData.value.find(row => row.name === '一')[currentDay])
-      const currentClassData = scheduleData.value.find(row => row.name === currentPeriod)?.[currentDay.toString()];
-      console.log(currentClassData)
+      console.log(scheduleData.value);
+      console.log(
+        scheduleData.value.find((row) => row.name === "一")[currentDay]
+      );
+      const currentClassData = scheduleData.value.find(
+        (row) => row.name === currentPeriod
+      )?.[currentDay.toString()];
+      console.log(currentClassData);
       const getFormattedColor = (color) => {
         if (color && typeof color === "object" && color.label) {
           return color.label;
@@ -178,22 +259,28 @@ export default {
         const option = colorOptions.find((opt) => opt.label === label);
         return option ? option.value : "#f4f4f1"; // Default color if not found
       };
-      console.log(getLabelValue(getFormattedColor(currentClassData.color)))
-      return currentClassData ? {
-        subject: currentPeriod + ' ---- ' + currentClassData.subject,
-        note: currentClassData.note,
-        color: getLabelValue(getFormattedColor(currentClassData.color))
-      } : {
-        subject: "目前無課",
-        note: "這個時段沒有安排課程"
-      };
+      console.log(getLabelValue(getFormattedColor(currentClassData.color)));
+      return currentClassData
+        ? {
+            subject: currentPeriod + ": " + currentClassData.subject,
+            note: currentClassData.note,
+            color: getLabelValue(getFormattedColor(currentClassData.color)),
+          }
+        : {
+            subject: "目前無課",
+            note: "這個時段沒有安排課程",
+          };
     });
     return {
       currentClass,
-      todoTasks,
-      pinnedNews
+      todos,
+      pinnedNews,
+      showSchedule,
+      showSchoolNews,
+      showTodo,
+      todayTodos,
     };
-  }
+  },
 };
 </script>
 

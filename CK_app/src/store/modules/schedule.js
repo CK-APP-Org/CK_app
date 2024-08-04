@@ -2,9 +2,9 @@ import scheduleData from "../../data/ClassesSchedule.json";
 
 export default {
   state: () => ({
-    scheduleData: scheduleData['217']['schedule'],
-    userClass: "217",
-    displayScheduleWidget: true
+    scheduleData: scheduleData["317"]["schedule"],
+    userClass: "317",
+    displayScheduleWidget: true,
   }),
   mutations: {
     UPDATE_SCHEDULE(state, { rowIndex, colName, newValue }) {
@@ -16,6 +16,9 @@ export default {
     SET_USER_CLASS(state, newClass) {
       state.userClass = newClass;
     },
+    SET_SHOW_SCHEDULE(state, value) {
+      state.displayScheduleWidget = value;
+    },
   },
   actions: {
     updateSchedule({ commit }, payload) {
@@ -26,14 +29,14 @@ export default {
       localStorage.setItem("userClass", newClass);
     },
     loadSchedule({ commit, state }) {
-      const classSchedule = scheduleData[state.userClass]['schedule']
-      console.log(classSchedule)
+      const classSchedule = scheduleData[state.userClass]["schedule"];
+      console.log(classSchedule);
       commit("SET_SCHEDULE_DATA", classSchedule);
     },
   },
   getters: {
     getScheduleData: (state) => state.scheduleData,
     getUserClass: (state) => state.userClass,
-    getScheduleWidget: (state) => state.displayScheduleWidget,
+    getShowSchedule: (state) => state.displayScheduleWidget,
   },
 };

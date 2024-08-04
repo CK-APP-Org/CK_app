@@ -1,10 +1,15 @@
 <template>
+  <div class="title">註：開學後才會上架實際熱食部當月菜單，敬請期待！</div>
   <q-page class="flex justify-center">
     <q-card :style="cardStyle">
       <q-card-section style="height: 45px; width: 350px">
-        <div class="title">熱食部</div>
+        <div class="title">熱食部當月菜單</div>
       </q-card-section>
-      <img src="https://i.imgur.com/ncM6IAg.jpeg" style="height: 265px; max-width: 800px" />
+      <img
+        src="https://i.imgur.com/ncM6IAg.jpeg"
+        style="height: 265px; max-width: 800px"
+      />
+
       <q-btn
         class="absolute-top-right status-btn"
         :label="statusLabel"
@@ -22,7 +27,7 @@
           <div class="text-h6">熱食部營業時間</div>
           <p>
             熱食部營業時間為每日 {{ openHour }}:00 到 {{ closeHour }}:00<br />
-            (註：實際營業資訊依熱食部公告為準，<br />本軟體不負任何法律責任)
+            (註：實際營業資訊依熱食部公告為準，<br />本軟體不負任何責任)
           </p>
         </q-card-section>
         <q-card-actions align="right">
@@ -37,7 +42,7 @@
 export default {
   data() {
     return {
-      openHour: 8, //在這邊改營業時間
+      openHour: 11, //在這邊改營業時間
       closeHour: 16,
       showDialog: false,
     };

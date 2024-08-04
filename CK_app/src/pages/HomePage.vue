@@ -153,7 +153,7 @@ export default {
         { name: "行事曆", icon: "calendar_month", link: "/todo" },
         { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
-        { name: "美食地圖", icon: "fastfood", link: "/food" },
+        { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },

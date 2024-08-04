@@ -3,6 +3,7 @@ import youbikeModule from "./modules/youbike";
 import newsModule from "./modules/news";
 import scheduleModule from "./modules/schedule";
 import todoModule from "./modules/todo";
+import foodModule from "./modules/food";
 import { localStoragePlugin } from "./localStoragePlugin";
 
 const storeWatcherPlugin = (store) => {
@@ -25,6 +26,7 @@ export default createStore({
     news: newsModule,
     schedule: scheduleModule,
     todo: todoModule,
+    food: foodModule,
   },
   state: () => ({
     userClass: "217",

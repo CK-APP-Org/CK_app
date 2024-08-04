@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex">
+  <q-page class="flex relative-position">
     <l-map
       style="height: 600px; width: 100%"
       :zoom="16"
@@ -13,36 +13,84 @@
         :key="marker.content"
         :lat-lng="marker.position"
         :icon="getMarkerIcon(marker)"
+        @click="showSidebar(marker)"
       >
-        <l-popup>
-          <div class="text-h5">
-            {{ marker.content }}
+        <l-popup :options="{ offset: new Point(0, -10) }">
+          <div class="text-h6">{{ marker.content }}</div>
+          <div class="today-hours">
+            今日營業&nbsp;
+            <template
+              v-for="(section, index) in marker.openingHours[
+                getCurrentDay()
+              ].split(',')"
+              :key="index"
+            >
+              <span v-if="index === 0">{{ section.trim() }}</span>
+              <div v-else class="additional-hours-popup">
+                {{ section.trim() }}
+              </div>
+            </template>
           </div>
-          <div v-if="marker.openingHours">
+        </l-popup>
+      </l-marker>
+    </l-map>
+    <div>
+      <q-checkbox
+        v-model="hideClosedRestaurants"
+        label="Hide closed restaurants"
+      />
+      <br />
+      <q-checkbox v-model="showOnlyFavorites" label="Show only favorites" />
+    </div>
+
+    <!-- Custom Sidebar -->
+    <div
+      v-if="sidebarOpen"
+      class="custom-sidebar"
+      :class="{ 'sidebar-open': sidebarOpen }"
+    >
+      <div class="sidebar-content">
+        <div v-if="selectedMarker">
+          <div class="text-h5">{{ selectedMarker.content }}</div>
+          <div v-if="selectedMarker.openingHours">
             <div class="text-h6">營業時間:</div>
             <div
-              v-for="(hours, day) in translateDays(marker.openingHours)"
+              v-for="(hours, day) in translateDays(selectedMarker.openingHours)"
               :key="day"
               :class="{ 'today-hours': isToday(day) }"
+              class="day-info"
             >
-              {{ day }}: {{ hours.split(",")[0].trim() }}
+              <div class="day-hours-line">
+                <span class="day-label">{{ day }}</span>
+                <span class="hours-info">{{ hours.split(",")[0].trim() }}</span>
+              </div>
               <template
                 v-for="(section, index) in hours.split(',')"
                 :key="index"
               >
-                <div v-if="index > 0" class="ml-4">
+                <div v-if="index > 0" class="additional-hours">
                   {{ section.trim() }}
                 </div>
               </template>
             </div>
           </div>
-        </l-popup>
-      </l-marker>
-    </l-map>
-    <div class="q-mt-md q-ml-md">
-      <q-checkbox
-        v-model="hideClosedRestaurants"
-        label="Hide closed restaurants"
+        </div>
+      </div>
+      <q-btn
+        :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
+        flat
+        round
+        color="yellow"
+        class="favorite-btn"
+        @click="toggleFavorite(selectedMarker)"
+      />
+      <q-btn
+        icon="close"
+        flat
+        round
+        color="grey-8"
+        class="close-btn"
+        @click="closeSidebar"
       />
     </div>
   </q-page>
@@ -52,9 +100,16 @@
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import { onMounted, computed, ref } from "vue";
-import { Icon } from "leaflet";
+import { Icon, Point } from "leaflet";
+import store from "../store/index";
 
 const hideClosedRestaurants = ref(false);
+
+const favoriteRestaurants = computed(
+  () => store.getters.getFavoriteRestaurants
+);
+
+const showOnlyFavorites = ref(false);
 
 const openIcon = new Icon({
   iconUrl: "https://imgur.com/jZN5Ph6.png",
@@ -164,6 +219,36 @@ const translateDays = (openingHours) => {
     acc[dayTranslations[day] || day] = hours;
     return acc;
   }, {});
+};
+
+const getCurrentDay = () => {
+  const days = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  return days[new Date().getDay()];
+};
+
+const toggleFavorite = (restaurant) => {
+  const index = favoriteRestaurants.value.findIndex(
+    (r) => r.content === restaurant.content
+  );
+  if (index === -1) {
+    store.dispatch("addFavoriteRestaurant", restaurant);
+  } else {
+    store.dispatch("removeFavoriteRestaurant", restaurant.content);
+  }
+};
+
+const isFavorite = (restaurant) => {
+  return favoriteRestaurants.value.some(
+    (r) => r.content === restaurant.content
+  );
 };
 
 const markersData = ref([
@@ -830,8 +915,24 @@ const markers = computed(() =>
       ...marker,
       isOpen: isOpen(marker.openingHours),
     }))
-    .filter((marker) => !hideClosedRestaurants.value || marker.isOpen)
+    .filter(
+      (marker) =>
+        (!hideClosedRestaurants.value || marker.isOpen) &&
+        (!showOnlyFavorites.value || isFavorite(marker))
+    )
 );
+
+const sidebarOpen = ref(false);
+const selectedMarker = ref(null);
+
+const showSidebar = (marker) => {
+  selectedMarker.value = marker;
+  sidebarOpen.value = true;
+};
+
+const closeSidebar = () => {
+  sidebarOpen.value = false;
+};
 
 onMounted(() => {
   console.log(markersData.value.length);
@@ -846,13 +947,75 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.day-info {
+  margin-bottom: 10px;
+  margin-left: 20px;
+}
+
+.day-hours-line {
+  display: flex;
+  align-items: baseline;
+}
+
+.day-label {
+  width: 4em; /* Adjust this value to align all hours properly */
+  flex-shrink: 0;
+}
+
+.hours-info {
+  margin-left: 1em;
+}
+
+.additional-hours {
+  margin-left: 5em; /* This should match the width of .day-label + .hours-info margin-left */
+}
+
+.additional-hours-popup {
+  margin-left: 4.5em;
+}
+
 .today-hours {
   font-weight: bold;
   color: #2196f3;
 }
 
 .ml-4 {
-  margin-left: 3em; /*indentation*/
+  margin-left: 3.5em;
   padding-left: 0.5em;
+}
+
+.custom-sidebar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+  height: 37vh; /* Increased height to 70% of viewport height */
+}
+
+.sidebar-open {
+  transform: translateY(0);
+}
+
+.sidebar-content {
+  padding: 20px;
+  height: calc(100% - 60px); /* Adjust for padding */
+  overflow-y: auto;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 50px; /* Adjust this value to position it next to the close button */
 }
 </style>

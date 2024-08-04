@@ -57,37 +57,25 @@ import { Icon } from "leaflet";
 const hideClosedRestaurants = ref(false);
 
 const openIcon = new Icon({
-  iconUrl: new URL(
-    "../../node_modules/leaflet/dist/images/marker-icon-open.png",
-    import.meta.url
-  ).href,
+  iconUrl: "https://imgur.com/jZN5Ph6.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedIcon = new Icon({
-  iconUrl: new URL(
-    "../../node_modules/leaflet/dist/images/marker-icon-closed.png",
-    import.meta.url
-  ).href,
+  iconUrl: "https://imgur.com/de9dxzv.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const openVarIcon = new Icon({
-  iconUrl: new URL(
-    "../../node_modules/leaflet/dist/images/marker-icon-open-var.png",
-    import.meta.url
-  ).href,
+  iconUrl: "https://imgur.com/hizjEaj.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedVarIcon = new Icon({
-  iconUrl: new URL(
-    "../../node_modules/leaflet/dist/images/marker-icon-closed-var.png",
-    import.meta.url
-  ).href,
+  iconUrl: "https://imgur.com/upabpUD.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
@@ -849,14 +837,10 @@ onMounted(() => {
   console.log(markersData.value.length);
   delete Icon.Default.prototype._getIconUrl;
   Icon.Default.mergeOptions({
-    iconRetinaUrl: new URL(
-      "leaflet/dist/images/marker-icon-2x.png",
-      import.meta.url
-    ).href,
-    iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url)
+    iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
       .href,
-    shadowUrl: new URL("leaflet/dist/images/marker-shadow.png", import.meta.url)
-      .href,
+    iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
+    shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
   });
 });
 </script>

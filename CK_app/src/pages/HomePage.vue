@@ -129,7 +129,7 @@
           @click="navigateTo(item.link)"
         >
           <q-icon :name="item.icon" size="2.5em" />
-          <div class="text-content">{{ item.name }}</div>
+          <div class="text-content text-capitalize">{{ item.name }}</div>
         </q-btn>
       </div>
     </div>
@@ -147,7 +147,7 @@ export default {
       items: [
         { name: "課表", icon: "book", link: "/schedule" },
         { name: "行事曆", icon: "calendar_month", link: "/todo" },
-        { name: "Youbike", icon: "directions_bike", link: "/Youbike" },
+        { name: "YouBike", icon: "directions_bike", link: "/Youbike" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
@@ -220,12 +220,9 @@ export default {
         "Saturday",
       ][now.getDay()];
       const currentHour = now.getHours();
-      console.log(currentDay);
-      console.log(currentHour);
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
         ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
-      console.log(currentPeriod);
       if (
         currentPeriod < 1 ||
         currentPeriod > 7 ||
@@ -237,14 +234,9 @@ export default {
           note: "現在是下課時間或假日",
         };
       }
-      console.log(scheduleData.value);
-      console.log(
-        scheduleData.value.find((row) => row.name === "一")[currentDay]
-      );
       const currentClassData = scheduleData.value.find(
         (row) => row.name === currentPeriod
       )?.[currentDay.toString()];
-      console.log(currentClassData);
       const getFormattedColor = (color) => {
         if (color && typeof color === "object" && color.label) {
           return color.label;
@@ -255,7 +247,6 @@ export default {
         const option = colorOptions.find((opt) => opt.label === label);
         return option ? option.value : "#f4f4f1"; // Default color if not found
       };
-      console.log(getLabelValue(getFormattedColor(currentClassData.color)));
       return currentClassData
         ? {
             subject: currentPeriod + ": " + currentClassData.subject,
@@ -369,5 +360,8 @@ export default {
   font-size: 0.9em;
   line-height: 1.2;
   color: #4a4a4a;
+}
+.text-capitalize {
+  text-transform: capitalize;
 }
 </style>

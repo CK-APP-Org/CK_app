@@ -1,12 +1,14 @@
 <template>
   <div class="app-container">
     <!-- New Banner Component -->
+    <!--
     <q-banner class="bg-primary text-white q-mb-md" rounded>
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md" />
       </template>
       最新公告：今天下午在禮堂有全校集
     </q-banner>
+    -->
 
     <!-- <div class="header">
       <h5 class="font-weight-bold">歡迎使用 CK APP</h5>
@@ -108,13 +110,7 @@
               </q-item-section>
             </q-item>
           </q-list>
-          <div
-            v-else
-            style="font-size: large; color: firebrick; font-weight: bold"
-            class="q-pa-sm"
-          >
-            無釘選內容
-          </div>
+          <div v-else class="text-center q-pa-md">無釘選內容</div>
         </q-card-section>
       </q-card>
     </div>

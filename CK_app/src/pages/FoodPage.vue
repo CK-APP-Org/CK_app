@@ -268,7 +268,7 @@ const markersData = ref([
   },
   {
     name: "廣炒",
-    position: [25.030349528143947, 121.514101],
+    position: [25.030349, 121.514101],
     openingHours: {
       monday: "休息",
       tuesday: "11:00–13:30,17:00–18:30",
@@ -338,7 +338,7 @@ const markersData = ref([
   },
   {
     name: "雲南小廚",
-    position: [25.02924, 121.514397],
+    position: [25.029241, 121.514397],
     openingHours: {
       monday: "11:00–14:00,17:00–19:30",
       tuesday: "11:00–14:00,17:00–19:30",
@@ -366,7 +366,7 @@ const markersData = ref([
   },
   {
     name: "建豆",
-    position: [25.0291, 121.512884],
+    position: [25.029101, 121.512884],
     openingHours: {
       monday: "05:30-13:00",
       tuesday: "05:30-13:00",
@@ -380,7 +380,7 @@ const markersData = ref([
   },
   {
     name: "Q Burger",
-    position: [25.029501, 121.51452],
+    position: [25.029501, 121.514521],
     openingHours: {
       monday: "06:00-13:30",
       tuesday: "06:00-13:30",
@@ -394,8 +394,36 @@ const markersData = ref([
   },
   //重慶南路東側，牯嶺街西側
   {
+    name: "萬香烤鴨莊",
+    position: [25.029721, 121.515461],
+    openingHours: {
+      monday: "10:00–20:00",
+      tuesday: "10:00–20:00",
+      wednesday: "10:00–20:00",
+      thursday: "10:00–20:00",
+      friday: "10:00–20:00",
+      saturday: "10:00–20:00",
+      sunday: "休息",
+    },
+    discount: "無",
+  },
+  {
+    name: "胖老爹美式炸雞",
+    position: [25.029633, 121.515474],
+    openingHours: {
+      monday: "00:00-02:30,11:30–24:00",
+      tuesday: "00:00-02:30,11:30–24:00",
+      wednesday: "00:00-02:30,11:30–24:00",
+      thursday: "00:00-02:30,11:30–24:00",
+      friday: "00:00-02:30,11:30–24:00",
+      saturday: "00:00-02:30,11:30–24:00",
+      sunday: "00:00-02:30,11:30–24:00",
+    },
+    discount: "無",
+  },
+  {
     name: "福井麵疙瘩",
-    position: [25.029983198664322, 121.51575229827415],
+    position: [25.0299545, 121.515655],
     openingHours: {
       monday: "11:00–14:00,17:00–20:00",
       tuesday: "11:00–14:00,17:00–20:00",
@@ -406,6 +434,20 @@ const markersData = ref([
       sunday: "休息",
     },
     discount: "無",
+  },
+  {
+    name: "江浙四海包子店",
+    position: [25.029987, 121.515811],
+    openingHours: {
+      monday: "09:00–15:00,17:00–20:00",
+      tuesday: "09:00–15:00,17:00–20:00",
+      wednesday: "09:00–15:00,17:00–20:00",
+      thursday: "09:00–15:00,17:00–20:00",
+      friday: "09:00–15:00,17:00–20:00",
+      saturday: "09:00–15:00,17:00–20:00",
+      sunday: "休息",
+    },
+    discount: "",
   },
   {
     name: "原馨牛排",
@@ -423,7 +465,7 @@ const markersData = ref([
   },
   {
     name: "吉坤便當",
-    position: [25.0300408767271, 121.51608257525113],
+    position: [25.030041, 121.516082],
     openingHours: {
       monday: "09:00–13:30,16:30–19:30",
       tuesday: "09:00–13:30,16:30–19:30",
@@ -437,7 +479,7 @@ const markersData = ref([
   },
   {
     name: "春天涼麵",
-    position: [25.030074900948268, 121.51622137977701],
+    position: [25.030074, 121.516221],
     openingHours: {
       monday: "10:00–14:00,16:30–20:00",
       tuesday: "10:00–14:00,16:30–20:00",
@@ -451,7 +493,7 @@ const markersData = ref([
   },
   {
     name: "麥味登",
-    position: [25.029738608507763, 121.5155428647885],
+    position: [25.029753, 121.515572],
     openingHours: {
       monday: "07:00–19:00",
       tuesday: "07:00–19:00",
@@ -479,7 +521,7 @@ const markersData = ref([
   },
   {
     name: "昇客雞肉",
-    position: [25.029822454357795, 121.51584461333881],
+    position: [25.029822, 121.515844],
     openingHours: {
       monday: "09:00-20:00",
       tuesday: "09:00-20:00",
@@ -507,7 +549,7 @@ const markersData = ref([
   },
   {
     name: "豪季水餃",
-    position: [25.0298393536911, 121.516452],
+    position: [25.029839, 121.516452],
     openingHours: {
       monday: "11:00-15:00,16:30-20:00",
       tuesday: "11:00-15:00,16:30-20:00",
@@ -519,10 +561,24 @@ const markersData = ref([
     },
     discount: "",
   },
+  {
+    name: "劉媽媽麵館",
+    position: [25.029544, 121.516719],
+    openingHours: {
+      monday: "11:30–14:30,17:00–20:00",
+      tuesday: "11:30–14:30,17:00–20:00",
+      wednesday: "11:30–14:30,17:00–20:00",
+      thursday: "11:30–14:30,17:00–20:00",
+      friday: "11:30–14:30,17:00–20:00",
+      saturday: "休息",
+      sunday: "11:30–14:30,17:00–20:00",
+    },
+    discount: "",
+  },
   //牯嶺街東側，南昌路西側
   {
     name: "早安美芝城",
-    position: [25.030067172137052, 121.516562],
+    position: [25.030067, 121.516562],
     openingHours: {
       monday: "06:00–13:30",
       tuesday: "06:00–13:30",
@@ -536,7 +592,7 @@ const markersData = ref([
   },
   {
     name: "由紀(日本料理)",
-    position: [25.03010362673569, 121.51665011786834],
+    position: [25.030103, 121.516651],
     openingHours: {
       monday: "休息",
       tuesday: "12:00–19:30",
@@ -550,7 +606,7 @@ const markersData = ref([
   },
   {
     name: "金牛王",
-    position: [25.03015648602184, 121.51677349946341],
+    position: [25.030156, 121.516773],
     openingHours: {
       monday: "10:45–14:00,16:00–19:30",
       tuesday: "10:45–14:00,16:00–19:30",
@@ -564,7 +620,7 @@ const markersData = ref([
   },
   {
     name: "郝家食堂",
-    position: [25.030266290530147, 121.51694835822461],
+    position: [25.030266, 121.516948],
     openingHours: {
       monday: "11:00–14:00,17:00–20:00",
       tuesday: "11:00–14:00,17:00–20:00",
@@ -578,7 +634,7 @@ const markersData = ref([
   },
   {
     name: "虹品鍋貼水餃",
-    position: [25.030155, 121.516418],
+    position: [25.030165, 121.516368],
     openingHours: {
       monday: "07:00–18:30",
       tuesday: "07:00–18:30",
@@ -592,7 +648,21 @@ const markersData = ref([
   },
   {
     name: "福記港式燒臘",
-    position: [25.03020371249294, 121.51652987356393],
+    position: [25.030203, 121.516529],
+    openingHours: {
+      monday: "11:00–20:00",
+      tuesday: "11:00–20:00",
+      wednesday: "11:00–20:00",
+      thursday: "11:00–20:00",
+      friday: "11:00–20:00",
+      saturday: "休息",
+      sunday: "11:00–20:00",
+    },
+    discount: "",
+  },
+  {
+    name: "鐘圓環肉羹",
+    position: [25.030182, 121.516449],
     openingHours: {
       monday: "11:00–20:00",
       tuesday: "11:00–20:00",
@@ -606,7 +676,7 @@ const markersData = ref([
   },
   {
     name: "CoCo",
-    position: [25.03020371249294, 121.51652987356393],
+    position: [25.030253, 121.516639],
     openingHours: {
       monday: "10:00–20:15",
       tuesday: "10:00–20:15",
@@ -620,7 +690,7 @@ const markersData = ref([
   },
   {
     name: "養鍋",
-    position: [25.030315200074597, 121.51673711834518],
+    position: [25.0303152, 121.516737],
     openingHours: {
       monday: "11:30–13:30,17:00–21:00",
       tuesday: "11:30–13:30,17:00–21:00",
@@ -648,7 +718,7 @@ const markersData = ref([
   },
   {
     name: "便當王",
-    position: [25.030602474377098, 121.51657448689377],
+    position: [25.030602, 121.516574],
     openingHours: {
       monday: "11:00–13:50,16:40–19:15",
       tuesday: "11:00–13:50,16:40–19:15",
@@ -704,7 +774,7 @@ const markersData = ref([
   },
   {
     name: "四兩刈包",
-    position: [25.030654227479125, 121.51728495953597],
+    position: [25.030624, 121.517234],
     openingHours: {
       monday: "11:40–20:30",
       tuesday: "11:40–20:30",
@@ -713,6 +783,20 @@ const markersData = ref([
       friday: "11:40–20:30",
       saturday: "11:40–20:30",
       sunday: "休息",
+    },
+    discount: "",
+  },
+  {
+    name: "建弘雞肉飯",
+    position: [25.03069250447738, 121.517323],
+    openingHours: {
+      monday: "11:00–20:30",
+      tuesday: "11:00–20:30",
+      wednesday: "11:00–20:30",
+      thursday: "11:00–20:30",
+      friday: "11:00–20:30",
+      saturday: "休息",
+      sunday: "11:00–20:30",
     },
     discount: "",
   },
@@ -802,6 +886,34 @@ const markersData = ref([
     discount: "",
   },
   {
+    name: "50嵐",
+    position: [25.030929731588213, 121.51775984466323],
+    openingHours: {
+      monday: "10:00–22:00",
+      tuesday: "10:00–22:00",
+      wednesday: "10:00–22:00",
+      thursday: "10:00–22:00",
+      friday: "10:00–22:00",
+      saturday: "10:00–22:00",
+      sunday: "10:00–22:00",
+    },
+    discount: "無",
+  },
+  {
+    name: "起家雞",
+    position: [25.031169159344792, 121.5181020129375],
+    openingHours: {
+      monday: "10:30–20:00",
+      tuesday: "10:30–20:00",
+      wednesday: "10:30–20:00",
+      thursday: "10:30–20:00",
+      friday: "10:30–20:00",
+      saturday: "10:30–20:00",
+      sunday: "10:30–20:00",
+    },
+    discount: "無",
+  },
+  {
     name: "奇福扁食",
     position: [25.031318431436787, 121.51843582645411],
     openingHours: {
@@ -825,6 +937,20 @@ const markersData = ref([
       thursday: "11:40–13:40,16:30–20:30",
       friday: "11:40–13:40,16:30–20:30",
       saturday: "11:40–13:40,16:30–20:30",
+      sunday: "休息",
+    },
+    discount: "無",
+  },
+  {
+    name: "100+義式廚房",
+    position: [25.031379673762277, 121.51784569269692],
+    openingHours: {
+      monday: "11:00–15:30,16:30–20:00",
+      tuesday: "11:00–15:30,16:30–20:00",
+      wednesday: "11:00–15:30,16:30–20:00",
+      thursday: "11:00–15:30,16:30–20:00",
+      friday: "11:00–15:30,16:30–20:00",
+      saturday: "11:00–15:30",
       sunday: "休息",
     },
     discount: "無",

@@ -16,34 +16,41 @@
             </span>
             <span v-else> {{ station.name.substr(11) }}&nbsp; </span>
           </div>
-          <!--資訊-->
-          <div class="text" v-if="station.available_rent_bikes !== null">
-            可借車輛:
-            <q-chip
-              :color="getChipColor(station.available_rent_bikes)"
-              text-color="white"
-              >{{ station.available_rent_bikes }}</q-chip
-            >
+
+          <!-- Loading indicator -->
+          <div v-if="isLoading" class="flex flex-center" style="height: 80px">
+            <q-spinner color="primary" size="3em" />
           </div>
-          <div v-else>Loading...</div>
-          <div
-            class="row justify-between items-center text"
-            v-if="station.available_return_bikes !== null"
-          >
-            <div>
-              可停車位:
+
+          <!-- Station information (only show when not loading) -->
+          <template v-else>
+            <!--資訊-->
+            <div class="text" v-if="station.available_rent_bikes !== null">
+              可借車輛:
               <q-chip
-                :color="getChipColor(station.available_return_bikes)"
+                :color="getChipColor(station.available_rent_bikes)"
                 text-color="white"
-                >{{ station.available_return_bikes }}</q-chip
+                >{{ station.available_rent_bikes }}</q-chip
               >
             </div>
-            <div v-if="station.infoTime !== null" class="update-time">
-              <q-icon name="update" size="sm" />
-              {{ timeAgo(station.infoTime) }}
+            <div
+              class="row justify-between items-center text"
+              v-if="station.available_return_bikes !== null"
+            >
+              <div>
+                可停車位:
+                <q-chip
+                  :color="getChipColor(station.available_return_bikes)"
+                  text-color="white"
+                  >{{ station.available_return_bikes }}</q-chip
+                >
+              </div>
+              <div v-if="station.infoTime !== null" class="update-time">
+                <q-icon name="update" size="sm" />
+                {{ timeAgo(station.infoTime) }}
+              </div>
             </div>
-          </div>
-          <div v-else>Loading...</div>
+          </template>
         </q-card-section>
         <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
           <q-icon name="more_vert" />
@@ -227,6 +234,7 @@ export default defineComponent({
         { label: "鶯歌區", value: "鶯歌區" },
       ],
       stationOptions: [],
+      isLoading: true,
     };
   },
   //根據選擇的城市設定行政區的選項
@@ -244,6 +252,7 @@ export default defineComponent({
   },
   methods: {
     async fetchData() {
+      this.isLoading = true;
       const stationList = this.StationList;
       this.stations = Object.fromEntries(
         Object.keys(stationList).map((name) => [name, new Station(name)])
@@ -311,6 +320,8 @@ export default defineComponent({
           this.stations[key].available_return_bikes = "Error fetching data";
           this.stations[key].infoTime = "Error fetching data";
         }
+      } finally {
+        this.isLoading = false;
       }
     },
     async addStation() {

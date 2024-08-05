@@ -26,7 +26,7 @@
         <div class="q-mt-md text-center text-h5 text-weight-bold">
           {{ slideContent.title }}
         </div>
-        <div class="q-mt-md text-center q-px-lg">
+        <div class="text-subtitle1 q-mt-md text-center q-px-lg">
           {{ slideContent.description }}
         </div>
       </q-carousel-slide>
@@ -58,6 +58,51 @@
         />
       </q-card-section>
     </q-card>
+
+    <q-card class="q-ma-md">
+      <q-card-section class="row items-center">
+        <div class="text-h5 text-primary">版本資訊＆未來版本</div>
+        <q-space />
+        <q-btn
+          color="primary"
+          icon="info"
+          label="2.0"
+          @click="openVersionInfo = true"
+        />
+      </q-card-section>
+    </q-card>
+
+    <q-dialog v-model="openVersionInfo">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h5">版本資訊</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-h6">CK APP 當前版本： 2.0</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="item-info-title q-mb-sm">未來版本預計新增功能：</div>
+          <q-list dense>
+            <q-item
+              v-for="(item, index) in futureFeatures"
+              :key="index"
+              class="item-info"
+            >
+              <q-item-section avatar>
+                <q-icon name="add_circle_outline" color="primary" />
+              </q-item-section>
+              <q-item-section>{{ item }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -67,6 +112,12 @@ import { ref } from "vue";
 export default {
   setup() {
     const slide = ref("Intro");
+    const openVersionInfo = ref(false);
+    const futureFeatures = ref([
+      "熱食部/早餐部擁擠程度",
+      "北捷/公車即時資訊",
+      "圖書館剩餘座位資訊",
+    ]);
     const carouselSlides = [
       {
         name: "Intro",
@@ -90,14 +141,20 @@ export default {
       {
         name: "YouBike",
         icon: "directions_bike",
-        title: "Youbike : 便捷查詢，車輛隨時掌握",
+        title: "YouBike : 便捷查詢，車輛隨時掌握",
         description: "獲得各站點的即時資訊，客製化優先顯示的站點資料並更改暱稱",
       },
       {
         name: "Menu",
         icon: "restaurant_menu",
         title: "熱騰騰的菜單 : 輕鬆查詢，找到美味",
-        description: "即時更新熱食部每週菜單與早餐部的菜單，並顯示營業時間",
+        description: "即時更新熱食部每月菜單與早餐部的菜單，並顯示營業時間",
+      },
+      {
+        name: "Food",
+        icon: "fastfood",
+        title: "即時資訊，不再白跑一趟",
+        description: "即時顯示建中附近餐廳之營業狀態及建中生之特殊優惠",
       },
       {
         name: "News",
@@ -121,6 +178,8 @@ export default {
       slide,
       carouselSlides,
       openGmailCompose,
+      openVersionInfo,
+      futureFeatures,
     };
   },
 };
@@ -131,5 +190,11 @@ export default {
   .q-carousel__slide {
     padding: 1rem;
   }
+}
+.item-info-title {
+  font-size: 18px;
+}
+.item-info {
+  font-size: 17px;
 }
 </style>

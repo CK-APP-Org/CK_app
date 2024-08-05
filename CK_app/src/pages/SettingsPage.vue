@@ -10,7 +10,7 @@
           label="選擇班級(用於課表資料匯入)"
           class="q-mb-md"
         />
-
+        <!--
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">主題顏色設定</div>
@@ -36,7 +36,7 @@
             </q-select>
           </q-card-section>
         </q-card>
-
+        -->
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
@@ -100,6 +100,7 @@
 <script>
 import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
+import { useQuasar } from "quasar";
 
 const classOptions = [
   301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315,
@@ -116,6 +117,7 @@ const themeColors = [
 
 export default {
   setup() {
+    const $q = useQuasar();
     const store = useStore();
     const confirmDialog = ref(false);
     const confirmClassChangeDialog = ref(false);
@@ -159,6 +161,12 @@ export default {
 
     const clearAllData = () => {
       store.dispatch("clearALL");
+      $q.notify({
+        message: `已刪除所有資料`,
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
     };
 
     const confirmClassChange = (newClass) => {
@@ -170,6 +178,13 @@ export default {
       store.dispatch("setUserClass", selectedClass.value);
       store.dispatch("loadSchedule");
       confirmClassChangeDialog.value = false;
+
+      $q.notify({
+        message: `已成功更改班級為 ${selectedClass.value}`,
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
     };
 
     const cancelClassChange = () => {

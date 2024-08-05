@@ -3,9 +3,18 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
+import { onMounted } from "vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
-  name: 'App'
-})
+  setup() {
+    const store = useStore();
+
+    onMounted(() => {
+      console.log("Loaded");
+      store.dispatch("loadSchedule");
+    });
+  },
+});
 </script>

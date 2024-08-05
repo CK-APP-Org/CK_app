@@ -24,7 +24,7 @@
               icon="edit"
               color="primary"
               class="q-mr-sm"
-              @click="classHelp=true"
+              @click="classHelp = true"
             />
             <q-dialog v-model="classHelp">
               <q-card>
@@ -35,7 +35,9 @@
                 </q-card-section>
 
                 <q-card-section>
-                  目前的班級為{{userClass}}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
+                  目前的班級為{{
+                    userClass
+                  }}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
                 </q-card-section>
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">編輯課表</div>
@@ -69,7 +71,7 @@
           :class="[
             { 'split-cell': props.col.name !== 'name' },
             { 'thick-border-bottom': props.row.name === '五' },
-            { 'current-class': isCurrentClass(props.row, props.col.name) }
+            { 'current-class': isCurrentClass(props.row, props.col.name) },
           ]"
         >
           <template v-if="props.col.name !== 'name'">
@@ -208,11 +210,20 @@ const options = [
   "其他",
 ];
 
-const classOptions = [217, 227];
-
 export default {
   setup() {
-    const visibleColumns = ref(["name", ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()]]);
+    const visibleColumns = ref([
+      "name",
+      [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ][new Date().getDay()],
+    ]);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
     const changeVisibleColumn = (columnName) => {
@@ -269,11 +280,20 @@ export default {
 
     const isCurrentClass = (row, colName) => {
       const now = new Date();
-      const currentDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+      const currentDay = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ][now.getDay()];
       const currentHour = now.getHours();
 
       // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod = ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+      const currentPeriod =
+        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -293,10 +313,9 @@ export default {
       getDayLabel,
       getLabelValue,
       getFormattedColor,
-      classOptions,
       days,
       isCurrentClass,
-      classHelp: ref(false)
+      classHelp: ref(false),
     };
   },
 };

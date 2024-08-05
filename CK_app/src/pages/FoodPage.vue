@@ -1,106 +1,115 @@
 <template>
-  <q-page class="flex relative-position">
-    <l-map
-      style="height: 600px; width: 100%"
-      :zoom="16"
-      :center="[25.031204, 121.515966]"
-    >
-      <l-tile-layer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      ></l-tile-layer>
-      <l-marker
-        v-for="marker in markers"
-        :key="marker.name"
-        :lat-lng="marker.position"
-        :icon="getMarkerIcon(marker)"
-        @click="showSidebar(marker)"
+  <div v-if="isLoading">Loading...</div>
+  <div v-else-if="error">{{ error }}</div>
+  <div v-else>
+    <q-page class="flex relative-position">
+      <l-map
+        style="height: 600px; width: 100%"
+        :zoom="16"
+        :center="[25.031204, 121.515966]"
       >
-        <l-popup :options="{ offset: new Point(0, -10) }">
-          <div class="text-h6">{{ marker.name }}</div>
-          <div class="today-hours">
-            今日營業&nbsp;
-            <template
-              v-for="(section, index) in marker.openingHours[
-                getCurrentDay()
-              ].split(',')"
-              :key="index"
-            >
-              <span v-if="index === 0">{{ section.trim() }}</span>
-              <div v-else class="additional-hours-popup">
-                {{ section.trim() }}
-              </div>
-            </template>
-          </div>
-        </l-popup>
-      </l-marker>
-    </l-map>
-    <div>
-      <q-checkbox
-        v-model="hideClosedRestaurants"
-        label="僅顯示正在營業之店家"
-      />
-      <br />
-      <q-checkbox v-model="showOnlyFavorites" label="僅顯示我的最愛" />
-    </div>
-
-    <!-- Custom Sidebar -->
-    <div
-      v-if="sidebarOpen"
-      class="custom-sidebar"
-      :class="{ 'sidebar-open': sidebarOpen }"
-    >
-      <div class="sidebar-name">
-        <div v-if="selectedMarker">
-          <div class="text-h5">{{ selectedMarker.name }}</div>
-          <div v-if="selectedMarker.openingHours">
-            <div class="text-h6">營業時間:</div>
-            <div
-              v-for="(hours, day) in translateDays(selectedMarker.openingHours)"
-              :key="day"
-              :class="{ 'today-hours': isToday(day) }"
-              class="day-info"
-            >
-              <div class="day-hours-line">
-                <span class="day-label">{{ day }}</span>
-                <span class="hours-info">{{ hours.split(",")[0].trim() }}</span>
-              </div>
+        <l-tile-layer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ></l-tile-layer>
+        <l-marker
+          v-for="marker in markers"
+          :key="marker.name"
+          :lat-lng="marker.position"
+          :icon="getMarkerIcon(marker)"
+          @click="showSidebar(marker)"
+        >
+          <l-popup :options="{ offset: new Point(0, -10) }">
+            <div class="text-h6">{{ marker.name }}</div>
+            <div class="today-hours">
+              今日營業&nbsp;
               <template
-                v-for="(section, index) in hours.split(',')"
+                v-for="(section, index) in marker.openingHours[
+                  getCurrentDay()
+                ].split(',')"
                 :key="index"
               >
-                <div v-if="index > 0" class="additional-hours">
+                <span v-if="index === 0">{{ section.trim() }}</span>
+                <div v-else class="additional-hours-popup">
                   {{ section.trim() }}
                 </div>
               </template>
             </div>
-            <div class="text-h6">建中優惠: {{ selectedMarker.discount }}</div>
+          </l-popup>
+        </l-marker>
+      </l-map>
+      <div>
+        <q-checkbox
+          v-model="hideClosedRestaurants"
+          label="僅顯示正在營業之店家"
+        />
+        <br />
+        <q-checkbox v-model="showOnlyFavorites" label="僅顯示我的最愛" />
+      </div>
+
+      <!-- Custom Sidebar -->
+      <div
+        v-if="sidebarOpen"
+        class="custom-sidebar"
+        :class="{ 'sidebar-open': sidebarOpen }"
+      >
+        <div class="sidebar-name">
+          <div v-if="selectedMarker">
+            <div class="text-h5">{{ selectedMarker.name }}</div>
+            <div v-if="selectedMarker.openingHours">
+              <div class="text-h6">營業時間:</div>
+              <div
+                v-for="(hours, day) in translateDays(
+                  selectedMarker.openingHours
+                )"
+                :key="day"
+                :class="{ 'today-hours': isToday(day) }"
+                class="day-info"
+              >
+                <div class="day-hours-line">
+                  <span class="day-label">{{ day }}</span>
+                  <span class="hours-info">{{
+                    hours.split(",")[0].trim()
+                  }}</span>
+                </div>
+                <template
+                  v-for="(section, index) in hours.split(',')"
+                  :key="index"
+                >
+                  <div v-if="index > 0" class="additional-hours">
+                    {{ section.trim() }}
+                  </div>
+                </template>
+              </div>
+              <div class="text-h6">建中優惠: {{ selectedMarker.discount }}</div>
+            </div>
           </div>
         </div>
+        <q-btn
+          :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
+          flat
+          round
+          color="yellow"
+          class="favorite-btn"
+          @click="toggleFavorite(selectedMarker)"
+        />
+        <q-btn
+          icon="close"
+          flat
+          round
+          color="grey-8"
+          class="close-btn"
+          @click="closeSidebar"
+        />
       </div>
-      <q-btn
-        :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
-        flat
-        round
-        color="yellow"
-        class="favorite-btn"
-        @click="toggleFavorite(selectedMarker)"
-      />
-      <q-btn
-        icon="close"
-        flat
-        round
-        color="grey-8"
-        class="close-btn"
-        @click="closeSidebar"
-      />
-    </div>
-  </q-page>
+    </q-page>
+  </div>
 </template>
 
 <script setup>
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import { onMounted, computed, ref } from "vue";
+import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
 
@@ -250,842 +259,27 @@ const isFavorite = (restaurant) => {
   return favoriteRestaurants.value.some((r) => r.name === restaurant.name);
 };
 
-const markersData = ref([
-  //重慶南路西側
-  {
-    name: "林乾",
-    position: [25.030181, 121.51412],
-    openingHours: {
-      monday: "休息",
-      tuesday: "06:00-14:00,16:30-19:30",
-      wednesday: "06:00-14:00,16:30-19:30",
-      thursday: "06:00-14:00,16:30-19:30",
-      friday: "06:00-14:00,16:30-19:30",
-      saturday: "06:00-14:00",
-      sunday: "06:00-14:00",
-    },
-    discount: "",
-  },
-  {
-    name: "廣炒",
-    position: [25.030349, 121.514101],
-    openingHours: {
-      monday: "休息",
-      tuesday: "11:00–13:30,17:00–18:30",
-      wednesday: "11:00–13:30,17:00–18:30",
-      thursday: "11:00–13:30,17:00–18:30",
-      friday: "11:00–13:30",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "呷尚寶",
-    position: [25.02948, 121.514145],
-    openingHours: {
-      monday: "06:00–13:30",
-      tuesday: "06:00–13:30",
-      wednesday: "06:00–13:30",
-      thursday: "06:00–13:30",
-      friday: "06:00–13:30",
-      saturday: "休息",
-      sunday: "06:00–13:30",
-    },
-    discount: "",
-  },
-  {
-    name: "烤上台大",
-    position: [25.029351, 121.514166],
-    openingHours: {
-      monday: "11:00–14:00",
-      tuesday: "11:00–14:00",
-      wednesday: "11:00–14:00",
-      thursday: "11:00–14:00",
-      friday: "11:00–14:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "搭伙",
-    position: [25.0292, 121.514201],
-    openingHours: {
-      monday: "11:00–21:00",
-      tuesday: "11:00–21:00",
-      wednesday: "11:00–21:00",
-      thursday: "11:00–21:00",
-      friday: "11:00–21:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "建中黑砂糖刨冰",
-    position: [25.029342, 121.514371],
-    openingHours: {
-      monday: "11:00–18:00",
-      tuesday: "11:00–18:00",
-      wednesday: "11:00–18:00",
-      thursday: "11:00–18:00",
-      friday: "11:00–18:00",
-      saturday: "11:00–18:00",
-      sunday: "11:00–18:00",
-    },
-    discount: "",
-  },
-  {
-    name: "雲南小廚",
-    position: [25.029241, 121.514397],
-    openingHours: {
-      monday: "11:00–14:00,17:00–19:30",
-      tuesday: "11:00–14:00,17:00–19:30",
-      wednesday: "11:00–14:00,17:00–19:30",
-      thursday: "11:00–14:00,17:00–19:30",
-      friday: "11:00–14:00,17:00–19:30",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "老建中麵店",
-    position: [25.029075, 121.514415],
-    openingHours: {
-      monday: "11:30–14:30,16:30–19:30",
-      tuesday: "11:30–14:30,16:30–19:30",
-      wednesday: "11:30–14:30,16:30–19:30",
-      thursday: "11:30–14:30,16:30–19:30",
-      friday: "11:30–14:30,16:30–19:30",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "建豆",
-    position: [25.029101, 121.512884],
-    openingHours: {
-      monday: "05:30-13:00",
-      tuesday: "05:30-13:00",
-      wednesday: "05:30-13:00",
-      thursday: "05:30-13:00",
-      friday: "05:30-13:00",
-      saturday: "05:30-11:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "Q Burger",
-    position: [25.029501, 121.514521],
-    openingHours: {
-      monday: "06:00-13:30",
-      tuesday: "06:00-13:30",
-      wednesday: "06:00-13:30",
-      thursday: "06:00-13:30",
-      friday: "06:00-13:30",
-      saturday: "06:00-14:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  //重慶南路東側，牯嶺街西側
-  {
-    name: "萬香烤鴨莊",
-    position: [25.029721, 121.515461],
-    openingHours: {
-      monday: "10:00–20:00",
-      tuesday: "10:00–20:00",
-      wednesday: "10:00–20:00",
-      thursday: "10:00–20:00",
-      friday: "10:00–20:00",
-      saturday: "10:00–20:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "胖老爹美式炸雞",
-    position: [25.029633, 121.515474],
-    openingHours: {
-      monday: "00:00-02:30,11:30–24:00",
-      tuesday: "00:00-02:30,11:30–24:00",
-      wednesday: "00:00-02:30,11:30–24:00",
-      thursday: "00:00-02:30,11:30–24:00",
-      friday: "00:00-02:30,11:30–24:00",
-      saturday: "00:00-02:30,11:30–24:00",
-      sunday: "00:00-02:30,11:30–24:00",
-    },
-    discount: "",
-  },
-  {
-    name: "福井麵疙瘩",
-    position: [25.0299545, 121.515655],
-    openingHours: {
-      monday: "11:00–14:00,17:00–20:00",
-      tuesday: "11:00–14:00,17:00–20:00",
-      wednesday: "11:00–14:00,17:00–20:00",
-      thursday: "11:00–14:00,17:00–20:00",
-      friday: "11:00–14:00,17:00–20:00",
-      saturday: "11:00–14:30,17:00–20:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "江浙四海包子店",
-    position: [25.029987, 121.515811],
-    openingHours: {
-      monday: "09:00–15:00,17:00–20:00",
-      tuesday: "09:00–15:00,17:00–20:00",
-      wednesday: "09:00–15:00,17:00–20:00",
-      thursday: "09:00–15:00,17:00–20:00",
-      friday: "09:00–15:00,17:00–20:00",
-      saturday: "09:00–15:00,17:00–20:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "原馨牛排",
-    position: [25.030025, 121.515951],
-    openingHours: {
-      monday: "11:00–15:00,17:00–21:30",
-      tuesday: "11:00–15:00,17:00–21:30",
-      wednesday: "11:00–15:00,17:00–21:30",
-      thursday: "11:00–15:00,17:00–21:30",
-      friday: "11:00–15:00,17:00–21:30",
-      saturday: "11:00–15:00,17:00–21:30",
-      sunday: "11:00–15:00,17:00–21:30",
-    },
-    discount: "",
-  },
-  {
-    name: "吉坤便當",
-    position: [25.030041, 121.516082],
-    openingHours: {
-      monday: "09:00–13:30,16:30–19:30",
-      tuesday: "09:00–13:30,16:30–19:30",
-      wednesday: "09:00–13:30,16:30–19:30",
-      thursday: "09:00–13:30,16:30–19:30",
-      friday: "09:00–13:30,16:30–19:30",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "春天涼麵",
-    position: [25.030074, 121.516221],
-    openingHours: {
-      monday: "10:00–14:00,16:30–20:00",
-      tuesday: "10:00–14:00,16:30–20:00",
-      wednesday: "10:00–14:00,16:30–20:00",
-      thursday: "10:00–14:00,16:30–20:00",
-      friday: "10:00–14:00,16:30–20:00",
-      saturday: "休息",
-      sunday: "10:00–14:00,16:30–20:00",
-    },
-    discount: "",
-  },
-  {
-    name: "麥味登",
-    position: [25.029753, 121.515572],
-    openingHours: {
-      monday: "07:00–19:00",
-      tuesday: "07:00–19:00",
-      wednesday: "07:00–19:00",
-      thursday: "07:00–19:00",
-      friday: "07:00–19:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "懿品小珍",
-    position: [25.029804, 121.515746],
-    openingHours: {
-      monday: "11:00–15:00,16:30–20:40",
-      tuesday: "11:00–15:00,16:30–20:40",
-      wednesday: "11:00–15:00,16:30–20:40",
-      thursday: "11:00–15:00,16:30–20:40",
-      friday: "11:00–15:00,16:30–20:40",
-      saturday: "11:00–15:00,16:30–20:40",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "昇客雞肉",
-    position: [25.029822, 121.515844],
-    openingHours: {
-      monday: "09:00-20:00",
-      tuesday: "09:00-20:00",
-      wednesday: "09:00-20:00",
-      thursday: "09:00-20:00",
-      friday: "09:00-20:00",
-      saturday: "10:00-19:30",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "Ebisu curry&coffee",
-    position: [25.029952, 121.516382],
-    openingHours: {
-      monday: "11:00-14:30,17:00-19:30",
-      tuesday: "11:00-14:30,17:00-19:30",
-      wednesday: "11:00-14:30,17:00-19:30",
-      thursday: "11:00-14:30,17:00-19:30",
-      friday: "11:00-14:30,17:00-19:30",
-      saturday: "11:00-14:30,17:00-19:30",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "豪季水餃",
-    position: [25.029839, 121.516452],
-    openingHours: {
-      monday: "11:00-15:00,16:30-20:00",
-      tuesday: "11:00-15:00,16:30-20:00",
-      wednesday: "11:00-15:00,16:30-20:00",
-      thursday: "11:00-15:00,16:30-20:00",
-      friday: "11:00-15:00,16:30-20:00",
-      saturday: "11:00-15:00,16:30-20:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "劉媽媽麵館",
-    position: [25.029544, 121.516719],
-    openingHours: {
-      monday: "11:30–14:30,17:00–20:00",
-      tuesday: "11:30–14:30,17:00–20:00",
-      wednesday: "11:30–14:30,17:00–20:00",
-      thursday: "11:30–14:30,17:00–20:00",
-      friday: "11:30–14:30,17:00–20:00",
-      saturday: "休息",
-      sunday: "11:30–14:30,17:00–20:00",
-    },
-    discount: "",
-  },
-  //牯嶺街東側，南昌路西側
-  {
-    name: "早安美芝城",
-    position: [25.030067, 121.516562],
-    openingHours: {
-      monday: "06:00–13:30",
-      tuesday: "06:00–13:30",
-      wednesday: "06:00–13:30",
-      thursday: "06:00–13:30",
-      friday: "06:00–13:30",
-      saturday: "休息",
-      sunday: "06:00–13:30",
-    },
-    discount: "",
-  },
-  {
-    name: "由紀(日本料理)",
-    position: [25.030103, 121.516651],
-    openingHours: {
-      monday: "休息",
-      tuesday: "12:00–19:30",
-      wednesday: "12:00–19:30",
-      thursday: "12:00–19:30",
-      friday: "12:00–19:30",
-      saturday: "11:30–19:00",
-      sunday: "11:30–19:00",
-    },
-    discount: "",
-  },
-  {
-    name: "金牛王",
-    position: [25.030156, 121.516773],
-    openingHours: {
-      monday: "10:45–14:00,16:00–19:30",
-      tuesday: "10:45–14:00,16:00–19:30",
-      wednesday: "10:45–14:00,16:00–19:30",
-      thursday: "10:45–14:00,16:00–19:30",
-      friday: "10:45–14:00,16:00–19:30",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "郝家食堂",
-    position: [25.030266, 121.516948],
-    openingHours: {
-      monday: "11:00–14:00,17:00–20:00",
-      tuesday: "11:00–14:00,17:00–20:00",
-      wednesday: "11:00–14:00,17:00–20:00",
-      thursday: "11:00–14:00,17:00–20:00",
-      friday: "11:00–14:00,17:00–20:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "虹品鍋貼水餃",
-    position: [25.030165, 121.516368],
-    openingHours: {
-      monday: "07:00–18:30",
-      tuesday: "07:00–18:30",
-      wednesday: "07:00–18:30",
-      thursday: "07:00–18:30",
-      friday: "07:00–18:30",
-      saturday: "09:00–18:30",
-      sunday: "09:00–18:30",
-    },
-    discount: "",
-  },
-  {
-    name: "福記港式燒臘",
-    position: [25.030203, 121.516529],
-    openingHours: {
-      monday: "11:00–20:00",
-      tuesday: "11:00–20:00",
-      wednesday: "11:00–20:00",
-      thursday: "11:00–20:00",
-      friday: "11:00–20:00",
-      saturday: "休息",
-      sunday: "11:00–20:00",
-    },
-    discount: "",
-  },
-  {
-    name: "鐘圓環肉羹",
-    position: [25.030182, 121.516449],
-    openingHours: {
-      monday: "11:00–20:00",
-      tuesday: "11:00–20:00",
-      wednesday: "11:00–20:00",
-      thursday: "11:00–20:00",
-      friday: "11:00–20:00",
-      saturday: "休息",
-      sunday: "11:00–20:00",
-    },
-    discount: "",
-  },
-  {
-    name: "CoCo",
-    position: [25.030253, 121.516639],
-    openingHours: {
-      monday: "10:00–20:15",
-      tuesday: "10:00–20:15",
-      wednesday: "10:00–20:15",
-      thursday: "10:00–20:15",
-      friday: "10:00–20:15",
-      saturday: "10:30–19:45",
-      sunday: "10:30–19:45",
-    },
-    discount: "",
-  },
-  {
-    name: "養鍋",
-    position: [25.0303152, 121.516737],
-    openingHours: {
-      monday: "11:30–13:30,17:00–21:00",
-      tuesday: "11:30–13:30,17:00–21:00",
-      wednesday: "11:30–13:30,17:00–21:00",
-      thursday: "11:30–13:30,17:00–21:00",
-      friday: "11:30–13:30,17:00–21:00",
-      saturday: "11:00–21:00",
-      sunday: "11:00–21:00",
-    },
-    discount: "",
-  },
-  {
-    name: "城市盒子",
-    position: [25.030368, 121.516846],
-    openingHours: {
-      monday: "10:00–14:00,16:00–19:30",
-      tuesday: "10:00–14:00,16:00–19:30",
-      wednesday: "10:00–14:00,16:00–19:30",
-      thursday: "10:00–14:00,16:00–19:30",
-      friday: "10:00–14:00,16:00–19:30",
-      saturday: "10:00–14:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "便當王",
-    position: [25.030602, 121.516574],
-    openingHours: {
-      monday: "11:00–13:50,16:40–19:15",
-      tuesday: "11:00–13:50,16:40–19:15",
-      wednesday: "11:00–13:50,16:40–19:15",
-      thursday: "11:00–13:50,16:40–19:15",
-      friday: "11:00–13:50,16:40–19:15",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "必勝客",
-    position: [25.030733819724723, 121.51603505015856],
-    openingHours: {
-      monday: "11:00–22:00",
-      tuesday: "11:00–22:00",
-      wednesday: "11:00–22:00",
-      thursday: "11:00–22:00",
-      friday: "11:00–22:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "桃屋日本料理",
-    position: [25.03038343881961, 121.51714130644875],
-    openingHours: {
-      monday: "09:00–17:30",
-      tuesday: "09:00–17:30",
-      wednesday: "09:00–17:30",
-      thursday: "09:00–17:30",
-      friday: "09:00–17:30",
-      saturday: "09:00–14:00",
-      sunday: "09:00–14:00",
-    },
-    discount: "",
-  },
-  {
-    name: "飴盛禾",
-    position: [25.03050646572006, 121.51705156758634],
-    openingHours: {
-      monday: "11:00–13:30,16:30–20:00",
-      tuesday: "11:00–13:30,16:30–20:00",
-      wednesday: "11:00–13:30,16:30–20:00",
-      thursday: "11:00–13:30,16:30–20:00",
-      friday: "11:00–13:30,16:30–20:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "四兩刈包",
-    position: [25.030624, 121.517234],
-    openingHours: {
-      monday: "11:40–20:30",
-      tuesday: "11:40–20:30",
-      wednesday: "11:40–20:30",
-      thursday: "11:40–20:30",
-      friday: "11:40–20:30",
-      saturday: "11:40–20:30",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "建弘雞肉飯",
-    position: [25.03069250447738, 121.517323],
-    openingHours: {
-      monday: "11:00–20:30",
-      tuesday: "11:00–20:30",
-      wednesday: "11:00–20:30",
-      thursday: "11:00–20:30",
-      friday: "11:00–20:30",
-      saturday: "休息",
-      sunday: "11:00–20:30",
-    },
-    discount: "",
-  },
-  {
-    name: "曼鯊鯊",
-    position: [25.030870470759332, 121.51699783134352],
-    openingHours: {
-      monday: "11:00–14:00,17:00–20:00",
-      tuesday: "11:00–14:00,17:00–20:00",
-      wednesday: "11:00–14:00,17:00–20:00",
-      thursday: "11:00–14:00,17:00–20:00",
-      friday: "11:00–14:00,17:00–20:00",
-      saturday: "11:00–14:00,17:00–20:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "本味拉麵",
-    position: [25.031020290826692, 121.51724170894916],
-    openingHours: {
-      monday: "休息",
-      tuesday: "11:00–14:00,17:00–20:30",
-      wednesday: "11:00–14:00,17:00–20:30",
-      thursday: "11:00–14:00,17:00–20:30",
-      friday: "11:00–14:00,17:00–20:30",
-      saturday: "11:00–14:00,17:00–20:30",
-      sunday: "11:00–14:00,17:00–20:30",
-    },
-    discount: "",
-  },
-  {
-    name: "嘉義第一名火雞肉飯",
-    position: [25.031106, 121.51715],
-    openingHours: {
-      monday: "11:00–22:00",
-      tuesday: "11:00–22:00",
-      wednesday: "11:00–22:00",
-      thursday: "11:00–22:00",
-      friday: "11:00–22:00",
-      saturday: "11:00–22:00",
-      sunday: "11:00–22:00",
-    },
-    discount: "",
-  },
-  {
-    name: "鬍鬚張魯肉飯",
-    position: [25.031176437044987, 121.51717130095058],
-    openingHours: {
-      monday: "10:00–21:30",
-      tuesday: "10:00–21:30",
-      wednesday: "10:00–21:30",
-      thursday: "10:00–21:30",
-      friday: "10:00–21:30",
-      saturday: "10:00–21:30",
-      sunday: "10:00–21:30",
-    },
-    discount: "",
-  },
-  //南昌路東側
-  {
-    name: "麥當勞",
-    position: [25.0294, 121.51865],
-    openingHours: {
-      monday: "06:00-23:00",
-      tuesday: "06:00-23:00",
-      wednesday: "06:00-23:00",
-      thursday: "06:00-23:00",
-      friday: "06:00-23:00",
-      saturday: "06:00-23:00",
-      sunday: "06:00-23:00",
-    },
-    discount: "",
-  },
-  {
-    name: "夯堡",
-    position: [25.03107844024507, 121.51832451478535],
-    openingHours: {
-      monday: "08:00–21:00",
-      tuesday: "08:00–21:00",
-      wednesday: "08:00–21:00",
-      thursday: "08:00–21:00",
-      friday: "08:00–21:00",
-      saturday: "08:00–21:00",
-      sunday: "08:00–21:00",
-    },
-    discount: "",
-  },
-  {
-    name: "50嵐",
-    position: [25.030929731588213, 121.51775984466323],
-    openingHours: {
-      monday: "10:00–22:00",
-      tuesday: "10:00–22:00",
-      wednesday: "10:00–22:00",
-      thursday: "10:00–22:00",
-      friday: "10:00–22:00",
-      saturday: "10:00–22:00",
-      sunday: "10:00–22:00",
-    },
-    discount: "",
-  },
-  {
-    name: "起家雞",
-    position: [25.031169159344792, 121.5181020129375],
-    openingHours: {
-      monday: "10:30–20:00",
-      tuesday: "10:30–20:00",
-      wednesday: "10:30–20:00",
-      thursday: "10:30–20:00",
-      friday: "10:30–20:00",
-      saturday: "10:30–20:00",
-      sunday: "10:30–20:00",
-    },
-    discount: "",
-  },
-  {
-    name: "奇福扁食",
-    position: [25.031318431436787, 121.51843582645411],
-    openingHours: {
-      monday: "10:30–14:30,16:30–20:00",
-      tuesday: "10:30–14:30,16:30–20:00",
-      wednesday: "10:30–14:30,16:30–20:00",
-      thursday: "10:30–14:30,16:30–20:00",
-      friday: "10:30–14:30,16:30–20:00",
-      saturday: "10:30–14:30,16:30–20:00",
-      sunday: "10:30–14:30,16:30–20:00",
-    },
-    discount: "",
-  },
-  {
-    name: "三元堂拉麵",
-    position: [25.031308887643682, 121.51771957931884],
-    openingHours: {
-      monday: "11:40–13:40,16:30–20:30",
-      tuesday: "11:40–13:40,16:30–20:30",
-      wednesday: "11:40–13:40,16:30–20:30",
-      thursday: "11:40–13:40,16:30–20:30",
-      friday: "11:40–13:40,16:30–20:30",
-      saturday: "11:40–13:40,16:30–20:30",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "100+義式廚房",
-    position: [25.031379673762277, 121.51784569269692],
-    openingHours: {
-      monday: "11:00–15:30,16:30–20:00",
-      tuesday: "11:00–15:30,16:30–20:00",
-      wednesday: "11:00–15:30,16:30–20:00",
-      thursday: "11:00–15:30,16:30–20:00",
-      friday: "11:00–15:30,16:30–20:00",
-      saturday: "11:00–15:30",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "小松鍋燒麵",
-    position: [25.031672025211932, 121.51811902562679],
-    openingHours: {
-      monday: "10:00–15:00,17:00–20:00",
-      tuesday: "10:00–15:00,17:00–20:00",
-      wednesday: "10:00–15:00,17:00–20:00",
-      thursday: "10:00–15:00,17:00–20:00",
-      friday: "10:00–15:00,17:00–20:00",
-      saturday: "休息",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "金峰魯肉飯",
-    position: [25.032044958751985, 121.51849530640874],
-    openingHours: {
-      monday: "00:00-01:00",
-      tuesday: "11:00–24:00",
-      wednesday: "00:00-01:00,11:00–24:00",
-      thursday: "00:00-01:00,11:00–24:00",
-      friday: "00:00-01:00,11:00–24:00",
-      saturday: "00:00-01:00,11:00–24:00",
-      sunday: "00:00-01:00,11:00–24:00",
-    },
-    discount: "",
-  },
-  //南海路
-  {
-    name: "八方雲集",
-    position: [25.03202841061271, 121.51519603862796],
-    openingHours: {
-      monday: "10:00–22:00",
-      tuesday: "10:00–22:00",
-      wednesday: "10:00–22:00",
-      thursday: "10:00–22:00",
-      friday: "10:00–22:00",
-      saturday: "10:00–22:00",
-      sunday: "10:00-22:00",
-    },
-    discount: "",
-  },
-  {
-    name: "好味涼亭",
-    position: [25.032062323492937, 121.51573119446294],
-    openingHours: {
-      monday: "11:00–14:30,16:00–19:30",
-      tuesday: "11:00–14:30,16:00–19:30",
-      wednesday: "11:00–14:30,16:00–19:30",
-      thursday: "11:00–14:30,16:00–19:30",
-      friday: "11:00–14:30,16:00–19:30",
-      saturday: "11:00–19:00",
-      sunday: "休息",
-    },
-    discount: "",
-  },
-  {
-    name: "老熊牛肉麵",
-    position: [25.032157104036347, 121.5157948969418],
-    openingHours: {
-      monday: "11:00–19:30",
-      tuesday: "11:00–19:30",
-      wednesday: "11:00–19:30",
-      thursday: "11:00–19:30",
-      friday: "11:00–19:30",
-      saturday: "11:00–19:30",
-      sunday: "11:00–19:00",
-    },
-    discount: "",
-  },
-  {
-    name: "肯德基",
-    position: [25.03224667128567, 121.51632808148645],
-    openingHours: {
-      monday: "10:00–23:00",
-      tuesday: "10:00–23:00",
-      wednesday: "10:00–23:00",
-      thursday: "10:00–23:00",
-      friday: "10:00–23:00",
-      saturday: "10:00–23:00",
-      sunday: "10:00–23:00",
-    },
-    discount: "",
-  },
-  {
-    name: "麵匡匡拉麵",
-    position: [25.032113966750952, 121.51554880425996],
-    openingHours: {
-      monday: "11:00-15:00,17:00-21:00",
-      tuesday: "11:00-15:00,17:00-21:00",
-      wednesday: "11:00-15:00,17:00-21:00",
-      thursday: "11:00-15:00,17:00-21:00",
-      friday: "11:00-15:00,17:00-21:00",
-      saturday: "11:00-15:00,17:00-21:00",
-      sunday: "11:00-15:00,17:00-21:00",
-    },
-    discount: "",
-  },
-  {
-    name: "摩斯漢堡",
-    position: [25.03173653449798, 121.51673133961954],
-    openingHours: {
-      monday: "06:00–22:00",
-      tuesday: "06:00–22:00",
-      wednesday: "06:00–22:00",
-      thursday: "06:00–22:00",
-      friday: "06:00–22:00",
-      saturday: "06:00–22:00",
-      sunday: "06:00–22:00",
-    },
-    discount: "",
-  },
-  {
-    name: "三商巧福",
-    position: [25.031625, 121.516786],
-    openingHours: {
-      monday: "11:00–21:00",
-      tuesday: "11:00–21:00",
-      wednesday: "11:00–21:00",
-      thursday: "11:00–21:00",
-      friday: "11:00–21:00",
-      saturday: "11:00–21:00",
-      sunday: "11:00–21:00",
-    },
-    discount: "",
-  },
-]);
+const restaurantData = ref([]);
+const isLoading = ref(true);
+const error = ref(null);
 
+const fetchRestaurantData = async () => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+    const response = await axios.get(
+      "https://raw.githubusercontent.com/CK-APP-Org/Data/main/restaurantData.json"
+    );
+    restaurantData.value = response.data;
+  } catch (err) {
+    console.error("Error fetching restaurant data:", err);
+    error.value = "Failed to load restaurant data. Please try again later.";
+  } finally {
+    isLoading.value = false;
+  }
+};
 const markers = computed(() =>
-  markersData.value
+  restaurantData.value
     .map((marker) => ({
       ...marker,
       isOpen: isOpen(marker.openingHours),
@@ -1110,15 +304,16 @@ const closeSidebar = () => {
 };
 
 onMounted(() => {
-  console.log(markersData.value.length);
+  console.log(restaurantData.value.length);
   /*
   console.log("Restaurants with empty discount value:");
-  markersData.value.forEach((restaurant) => {
+  restaurantData.value.forEach((restaurant) => {
     if (restaurant.discount === "") {
       console.log(restaurant.name);
     }
   });
   */
+  fetchRestaurantData();
   delete Icon.Default.prototype._getIconUrl;
   Icon.Default.mergeOptions({
     iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)

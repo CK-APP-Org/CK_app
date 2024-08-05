@@ -85,6 +85,7 @@
             v-model="selectedCity"
             :options="cityOptions"
             label="選擇縣市"
+            @update:model-value="onCityChange"
           />
           <q-select
             v-model="selectedDistrict"
@@ -397,8 +398,15 @@ export default defineComponent({
         this.selectedStation = null;
       }
     },
+    onCityChange() {
+      this.selectedDistrict = null;
+      this.selectedStation = null;
+      this.stationOptions = [];
+    },
     //選完行政區後抓站點選項
     async onDistrictChange() {
+      this.selectedStation = null;
+      this.stationOptions = [];
       if (this.selectedDistrict) {
         let apiUrl;
         if (this.selectedCity["value"] === "臺北市") {

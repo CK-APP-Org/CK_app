@@ -75,6 +75,7 @@
           :to="item.link"
           :icon="item.icon"
           :label="item.label"
+          no-caps
         />
       </q-tabs>
     </q-footer>
@@ -104,7 +105,7 @@ export default {
           link: "/todo",
         },
         {
-          label: "Youbike",
+          label: "YouBike",
           icon: "directions_bike",
           link: "/Youbike",
         },
@@ -123,11 +124,6 @@ export default {
           icon: "newspaper",
           link: "/news",
         },
-        // {
-        //   label: "美食",
-        //   icon: "info",
-        //   link: "/about",
-        // },
       ],
     };
   },

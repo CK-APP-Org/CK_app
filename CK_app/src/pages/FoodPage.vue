@@ -292,7 +292,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "06:00–13:30",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "烤上台大",
@@ -390,7 +390,7 @@ const markersData = ref([
       saturday: "06:00-14:00",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   //重慶南路東側，牯嶺街西側
   {
@@ -405,7 +405,7 @@ const markersData = ref([
       saturday: "10:00–20:00",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "胖老爹美式炸雞",
@@ -419,7 +419,7 @@ const markersData = ref([
       saturday: "00:00-02:30,11:30–24:00",
       sunday: "00:00-02:30,11:30–24:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "福井麵疙瘩",
@@ -433,7 +433,7 @@ const markersData = ref([
       saturday: "11:00–14:30,17:00–20:00",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "江浙四海包子店",
@@ -489,7 +489,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "10:00–14:00,16:30–20:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "麥味登",
@@ -503,7 +503,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "懿品小珍",
@@ -517,7 +517,7 @@ const markersData = ref([
       saturday: "11:00–15:00,16:30–20:40",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "昇客雞肉",
@@ -531,7 +531,7 @@ const markersData = ref([
       saturday: "10:00-19:30",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "Ebisu curry&coffee",
@@ -588,7 +588,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "06:00–13:30",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "由紀(日本料理)",
@@ -686,7 +686,7 @@ const markersData = ref([
       saturday: "10:30–19:45",
       sunday: "10:30–19:45",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "養鍋",
@@ -700,7 +700,7 @@ const markersData = ref([
       saturday: "11:00–21:00",
       sunday: "11:00–21:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "城市盒子",
@@ -742,7 +742,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "桃屋日本料理",
@@ -840,7 +840,7 @@ const markersData = ref([
       saturday: "11:00–22:00",
       sunday: "11:00–22:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "鬍鬚張魯肉飯",
@@ -854,7 +854,7 @@ const markersData = ref([
       saturday: "10:00–21:30",
       sunday: "10:00–21:30",
     },
-    discount: "無",
+    discount: "",
   },
   //南昌路東側
   {
@@ -869,7 +869,7 @@ const markersData = ref([
       saturday: "06:00-23:00",
       sunday: "06:00-23:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "夯堡",
@@ -897,7 +897,7 @@ const markersData = ref([
       saturday: "10:00–22:00",
       sunday: "10:00–22:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "起家雞",
@@ -911,7 +911,7 @@ const markersData = ref([
       saturday: "10:30–20:00",
       sunday: "10:30–20:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "奇福扁食",
@@ -925,7 +925,7 @@ const markersData = ref([
       saturday: "10:30–14:30,16:30–20:00",
       sunday: "10:30–14:30,16:30–20:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "三元堂拉麵",
@@ -939,7 +939,7 @@ const markersData = ref([
       saturday: "11:40–13:40,16:30–20:30",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "100+義式廚房",
@@ -953,7 +953,7 @@ const markersData = ref([
       saturday: "11:00–15:30",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "小松鍋燒麵",
@@ -967,7 +967,7 @@ const markersData = ref([
       saturday: "休息",
       sunday: "休息",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "金峰魯肉飯",
@@ -981,7 +981,7 @@ const markersData = ref([
       saturday: "00:00-01:00,11:00–24:00",
       sunday: "00:00-01:00,11:00–24:00",
     },
-    discount: "無",
+    discount: "",
   },
   //南海路
   {
@@ -1038,7 +1038,7 @@ const markersData = ref([
       saturday: "10:00–23:00",
       sunday: "10:00–23:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "麵匡匡拉麵",
@@ -1052,7 +1052,7 @@ const markersData = ref([
       saturday: "11:00-15:00,17:00-21:00",
       sunday: "11:00-15:00,17:00-21:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "摩斯漢堡",
@@ -1066,7 +1066,7 @@ const markersData = ref([
       saturday: "06:00–22:00",
       sunday: "06:00–22:00",
     },
-    discount: "無",
+    discount: "",
   },
   {
     name: "三商巧福",
@@ -1080,7 +1080,7 @@ const markersData = ref([
       saturday: "11:00–21:00",
       sunday: "11:00–21:00",
     },
-    discount: "無",
+    discount: "",
   },
 ]);
 

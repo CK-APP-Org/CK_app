@@ -31,10 +31,14 @@ export default {
       commit("SET_USER_CLASS", newClass);
       localStorage.setItem("userClass", newClass);
     },
-    loadSchedule({ commit, state }) {
-      const classSchedule = scheduleData[state.userClass]["schedule"];
-      console.log(classSchedule);
-      commit("SET_SCHEDULE_DATA", classSchedule);
+    async loadSchedule({ commit, state }) {
+      try {
+        const response = await axios.get(SCHEDULE_URL);
+        const classSchedule = response.data[state.userClass]["schedule"];
+        commit("SET_SCHEDULE_DATA", classSchedule);
+      } catch (error) {
+        console.error("Failed to load schedule:", error);
+      }
     },
     async loadSchedule({ commit, state }) {
       try {

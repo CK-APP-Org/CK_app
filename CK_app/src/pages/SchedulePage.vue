@@ -26,6 +26,15 @@
               class="q-mr-sm"
               @click="classHelp = true"
             />
+            <div class="text-h5 text-bold">{{ userClass }} 課表 &thinsp;</div>
+            <q-btn
+              round
+              size="sm"
+              color="primary"
+              outline
+              icon="refresh"
+              @click="confirmRegenerate"
+            />
             <q-dialog v-model="classHelp">
               <q-card>
                 <q-card-section class="row items-center q-pb-none">
@@ -49,7 +58,6 @@
                 </q-card-section>
               </q-card>
             </q-dialog>
-            <div class="text-h5 text-bold">{{ userClass }} 課表</div>
           </div>
           <div class="row q-gutter-sm">
             <q-btn
@@ -96,12 +104,23 @@
               v-slot="scope"
             >
               <div class="text-h6 q-mb-md">自訂課表</div>
-              <q-select
-                :options="options"
+              <q-input
                 v-model="scope.value.subject"
                 label="科目"
                 dense
-                options-dense
+                class="q-mb-sm"
+                @update:model-value="
+                  updateCell(props.row, props.col.name, {
+                    ...scope.value,
+                    subject: $event,
+                  })
+                "
+              />
+              <q-input
+                v-if="scope.value.subject === '自訂'"
+                v-model="scope.value.customSubject"
+                label="自訂科目名稱"
+                dense
                 class="q-mb-sm"
                 @update:model-value="
                   updateCell(props.row, props.col.name, {
@@ -158,6 +177,26 @@
         </q-td>
       </template>
     </q-table>
+    <q-dialog v-model="regenerateConfirm" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm"
+            >重新載入將會清除所有您對課表的修改。確定要繼續嗎？</span
+          >
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="確定"
+            color="primary"
+            @click="regenerateSchedule"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -192,26 +231,17 @@ const colorOptions = [
   { label: "Pink", value: "#ffa1e4" },
 ];
 
-const options = [
-  "國文",
-  "數學",
-  "英文",
-  "地理",
-  "歷史",
-  "公民",
-  "生物",
-  "物理",
-  "化學",
-  "地科",
-  "音樂",
-  "美術",
-  "體育",
-  "社團",
-  "其他",
-];
-
 export default {
   setup() {
+    const regenerateConfirm = ref(false);
+    const confirmRegenerate = () => {
+      regenerateConfirm.value = true;
+    };
+
+    const regenerateSchedule = () => {
+      store.dispatch("loadSchedule");
+    };
+
     const visibleColumns = ref([
       "name",
       [
@@ -303,7 +333,6 @@ export default {
       columns,
       scheduleData,
       userClass,
-      options,
       colorOptions,
       getCellColor,
       getCellSubject,
@@ -316,6 +345,9 @@ export default {
       days,
       isCurrentClass,
       classHelp: ref(false),
+      regenerateConfirm,
+      confirmRegenerate,
+      regenerateSchedule,
     };
   },
 };
@@ -440,5 +472,10 @@ export default {
   border: 2px solid #423f40;
   pointer-events: none;
   z-index: 2;
+}
+
+.q-item__label.text-italic {
+  font-style: italic;
+  color: #666;
 }
 </style>

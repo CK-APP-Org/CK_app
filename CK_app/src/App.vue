@@ -12,8 +12,10 @@ export default defineComponent({
     const store = useStore();
 
     onMounted(() => {
-      console.log("Loaded");
-      store.dispatch("loadSchedule");
+      if (store.getters.getScheduleData.length === 0) {
+        store.dispatch("loadSchedule");
+        console.log("Loaded");
+      }
     });
   },
 });

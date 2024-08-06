@@ -190,7 +190,7 @@ export default {
         align: "left",
         field: (row) => row.title,
         format: (val) => `${val}`,
-        sortable: true,
+        sortable: false,
         classes: "title-cell",
       },
       {

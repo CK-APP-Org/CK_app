@@ -1,105 +1,170 @@
 <template>
-  <div v-if="isLoading">Loading...</div>
-  <div v-else-if="error">{{ error }}</div>
-  <div v-else>
-    <q-page class="flex relative-position">
-      <l-map
-        style="height: 600px; width: 100%"
-        :zoom="16"
-        :center="[25.031204, 121.515966]"
-      >
-        <l-tile-layer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        ></l-tile-layer>
-        <l-marker
-          v-for="marker in markers"
-          :key="marker.name"
-          :lat-lng="marker.position"
-          :icon="getMarkerIcon(marker)"
-          @click="showSidebar(marker)"
-        >
-          <l-popup :options="{ offset: new Point(0, -10) }">
-            <div class="text-h6">{{ marker.name }}</div>
-            <div class="today-hours">
-              今日營業&nbsp;
-              <template
-                v-for="(section, index) in marker.openingHours[
-                  getCurrentDay()
-                ].split(',')"
-                :key="index"
-              >
-                <span v-if="index === 0">{{ section.trim() }}</span>
-                <div v-else class="additional-hours-popup">
-                  {{ section.trim() }}
-                </div>
-              </template>
-            </div>
-          </l-popup>
-        </l-marker>
-      </l-map>
-      <div>
-        <q-checkbox
-          v-model="hideClosedRestaurants"
-          label="僅顯示正在營業之店家"
-        />
-        <br />
-        <q-checkbox v-model="showOnlyFavorites" label="僅顯示我的最愛" />
+  <div>
+    <q-page class="flex column relative-position">
+      <!-- Loading overlay -->
+      <div v-if="isLoading" class="loading-overlay flex flex-center">
+        <q-spinner-gears size="50px" color="primary" />
+        <div class="q-mt-sm text-primary">Loading map data...</div>
       </div>
 
-      <!-- Custom Sidebar -->
-      <div
-        v-if="sidebarOpen"
-        class="custom-sidebar"
-        :class="{ 'sidebar-open': sidebarOpen }"
-      >
-        <div class="sidebar-name">
-          <div v-if="selectedMarker">
-            <div class="text-h5">{{ selectedMarker.name }}</div>
-            <div v-if="selectedMarker.openingHours">
-              <div class="text-h6">營業時間:</div>
-              <div
-                v-for="(hours, day) in translateDays(
-                  selectedMarker.openingHours
-                )"
-                :key="day"
-                :class="{ 'today-hours': isToday(day) }"
-                class="day-info"
-              >
-                <div class="day-hours-line">
-                  <span class="day-label">{{ day }}</span>
-                  <span class="hours-info">{{
-                    hours.split(",")[0].trim()
-                  }}</span>
-                </div>
+      <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
+
+      <div v-else>
+        <div class="map-controls q-pa-md">
+          <q-btn
+            color="primary"
+            icon="info"
+            label="圖例"
+            @click="showLegend = true"
+            class="q-mr-sm"
+          />
+          <q-checkbox
+            v-model="hideClosedRestaurants"
+            label="正在營業"
+            class="q-mr-md"
+          />
+          <q-checkbox v-model="showOnlyFavorites" label="我的最愛" />
+        </div>
+
+        <l-map
+          style="height: 90vh; width: 100%"
+          :zoom="16"
+          :center="[25.031204, 121.515966]"
+          :options="mapOptions"
+        >
+          <l-tile-layer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          ></l-tile-layer>
+          <l-marker
+            v-for="marker in markers"
+            :key="marker.name"
+            :lat-lng="marker.position"
+            :icon="getMarkerIcon(marker)"
+            @click="showSidebar(marker)"
+          >
+            <l-popup :options="{ offset: new Point(0, -10) }">
+              <div class="text-h6">{{ marker.name }}</div>
+              <div class="today-hours">
+                今日營業&nbsp;
                 <template
-                  v-for="(section, index) in hours.split(',')"
+                  v-for="(section, index) in marker.openingHours[
+                    getCurrentDay()
+                  ].split(',')"
                   :key="index"
                 >
-                  <div v-if="index > 0" class="additional-hours">
+                  <span v-if="index === 0">{{ section.trim() }}</span>
+                  <div v-else class="additional-hours-popup">
                     {{ section.trim() }}
                   </div>
                 </template>
               </div>
-              <div class="text-h6">建中優惠: {{ selectedMarker.discount }}</div>
+            </l-popup>
+          </l-marker>
+        </l-map>
+
+        <!-- Custom Sidebar -->
+        <div
+          v-if="sidebarOpen"
+          class="custom-sidebar"
+          :class="{ 'sidebar-open': sidebarOpen }"
+        >
+          <div class="sidebar-name">
+            <div v-if="selectedMarker">
+              <div class="text-h5">{{ selectedMarker.name }}</div>
+              <div v-if="selectedMarker.openingHours">
+                <div class="text-h6">營業時間:</div>
+                <div
+                  v-for="(hours, day) in translateDays(
+                    selectedMarker.openingHours
+                  )"
+                  :key="day"
+                  :class="{ 'today-hours': isToday(day) }"
+                  class="day-info"
+                >
+                  <div class="day-hours-line">
+                    <span class="day-label">{{ day }}</span>
+                    <span class="hours-info">{{
+                      hours.split(",")[0].trim()
+                    }}</span>
+                  </div>
+                  <template
+                    v-for="(section, index) in hours.split(',')"
+                    :key="index"
+                  >
+                    <div v-if="index > 0" class="additional-hours">
+                      {{ section.trim() }}
+                    </div>
+                  </template>
+                </div>
+                <div class="text-h6">
+                  建中優惠: {{ selectedMarker.discount }}
+                </div>
+              </div>
             </div>
           </div>
+          <q-btn
+            :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
+            flat
+            round
+            color="yellow"
+            class="favorite-btn"
+            @click="toggleFavorite(selectedMarker)"
+          />
+          <q-btn
+            icon="close"
+            flat
+            round
+            color="grey-8"
+            class="close-btn"
+            @click="closeSidebar"
+          />
         </div>
-        <q-btn
-          :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
-          flat
-          round
-          color="yellow"
-          class="favorite-btn"
-          @click="toggleFavorite(selectedMarker)"
-        />
-        <q-btn
-          icon="close"
-          flat
-          round
-          color="grey-8"
-          class="close-btn"
-          @click="closeSidebar"
-        />
+        <q-dialog v-model="showLegend">
+          <q-card style="min-width: 350px">
+            <q-card-section>
+              <div class="text-h6">地圖標記說明</div>
+            </q-card-section>
+
+            <q-card-section class="q-pt-none">
+              <div class="legend-item">
+                <img
+                  src="https://imgur.com/jZN5Ph6.png"
+                  alt="Open"
+                  style="width: 25px; height: 41px"
+                />
+                <span>正在營業</span>
+              </div>
+              <div class="legend-item">
+                <img
+                  src="https://imgur.com/de9dxzv.png"
+                  alt="Closed"
+                  style="width: 25px; height: 41px"
+                />
+                <span>已打烊</span>
+              </div>
+              <div class="legend-item">
+                <img
+                  src="https://imgur.com/hizjEaj.png"
+                  alt="Closing Soon"
+                  style="width: 25px; height: 41px"
+                />
+                <span>即將打烊 (30分鐘內)</span>
+              </div>
+              <div class="legend-item">
+                <img
+                  src="https://imgur.com/upabpUD.png"
+                  alt="Opening Soon"
+                  style="width: 25px; height: 41px"
+                />
+                <span>即將開業 (30分鐘內)</span>
+              </div>
+            </q-card-section>
+
+            <q-card-actions align="right">
+              <q-btn flat label="關閉" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
     </q-page>
   </div>
@@ -114,6 +179,12 @@ import { Icon, Point } from "leaflet";
 import store from "../store/index";
 
 const hideClosedRestaurants = ref(false);
+
+const showLegend = ref(false);
+
+const mapOptions = {
+  zoomControl: false,
+};
 
 const favoriteRestaurants = computed(
   () => store.getters.getFavoriteRestaurants
@@ -395,5 +466,41 @@ onMounted(() => {
   position: absolute;
   top: 10px;
   right: 50px; /* Adjust this value to position it next to the close button */
+}
+
+.map-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.legend-item img {
+  margin-right: 10px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.error-message {
+  color: #ff5252;
+  font-weight: bold;
 }
 </style>

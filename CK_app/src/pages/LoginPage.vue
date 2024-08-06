@@ -2,7 +2,7 @@
   <q-page class="flex flex-center">
     <q-card style="width: 300px">
       <q-card-section>
-        <div class="text-h6">{{ isLogin ? "CKAPP登入" : "CKAPP註冊" }}</div>
+        <div class="text-h6">{{ isLogin ? "CK APP登入" : "CK APP註冊" }}</div>
       </q-card-section>
 
       <q-card-section>
@@ -58,9 +58,19 @@
           <q-input
             v-if="!isLogin"
             v-model="email"
-            label="Email (optional)"
+            label="Email"
             type="email"
-          />
+            :rules="[
+              (val) => !!val || 'Email為必填',
+              (val) =>
+                /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(val) ||
+                'Email格式不正確',
+            ]"
+          >
+            <template v-slot:hint>
+              請輸入有效的Email，以便忘記帳密時可驗證身分
+            </template>
+          </q-input>
 
           <div class="q-mt-md">
             <q-btn
@@ -85,10 +95,10 @@
 
 <script>
 import { ref, computed, onMounted } from "vue";
-import { useStore } from 'vuex';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
-import { useQuasar } from 'quasar';
+import { useStore } from "vuex";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { useQuasar } from "quasar";
 import axios from "axios";
 
 export default {
@@ -112,16 +122,17 @@ export default {
       storageBucket: "ck-app-database.appspot.com",
       messagingSenderId: "253500838094",
       appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-      measurementId: "G-T79H6D7WRT"
+      measurementId: "G-T79H6D7WRT",
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const userRef = doc(db, 'User Data', 'Userdata');
+    const userRef = doc(db, "User Data", "Userdata");
 
     onMounted(async () => {
-      console.log(userRef)
-      const SCHEDULE_URL = "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
+      console.log(userRef);
+      const SCHEDULE_URL =
+        "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
       try {
         const response = await axios.get(SCHEDULE_URL);
         classSchedule.value = response.data[301]["schedule"];
@@ -138,7 +149,7 @@ export default {
         message: isLogin.value ? "登入中..." : "註冊中...",
         color: "info",
         position: "bottom",
-        timeout: 0
+        timeout: 0,
       });
 
       try {
@@ -190,7 +201,7 @@ export default {
               Password: password.value,
               Schedule: {
                 ScheduleData: classSchedule.value,
-                userClass: 101
+                userClass: 101,
               },
               Youbike: {
                 stationList: {
@@ -198,21 +209,27 @@ export default {
                     nickname: "泉州寧波西街口(建中側門)",
                     city: "臺北市",
                   },
-                  "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
-                  "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
+                  "YouBike2.0_郵政博物館": {
+                    nickname: "郵政博物館",
+                    city: "臺北市",
+                  },
+                  "YouBike2.0_植物園": {
+                    nickname: "台北植物園",
+                    city: "臺北市",
+                  },
                   "YouBike2.0_捷運中正紀念堂站(2號出口)": {
                     nickname: "中正紀念堂站(2號出口)",
                     city: "臺北市",
                   },
-                }
+                },
               },
               News: {
                 pinnedNews: [],
                 lastClearedTime: null,
-                displayNewsWidget: true
+                displayNewsWidget: true,
               },
               Food: {
-                favoriteRestaurants: []
+                favoriteRestaurants: [],
               },
               Todo: {
                 events: [],
@@ -221,7 +238,7 @@ export default {
                 todos: [],
                 currentView: "calendar",
                 todoCategories: [],
-              }
+              },
             };
             await setDoc(userRef, { [username]: newUserData }, { merge: true });
             processingNotif(); // Dismiss the processing notification
@@ -254,7 +271,7 @@ export default {
       email,
       showPassword,
       onSubmit,
-      userAccount
+      userAccount,
     };
   },
 };

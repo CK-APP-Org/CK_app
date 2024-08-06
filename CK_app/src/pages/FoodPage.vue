@@ -304,7 +304,7 @@ const closeSidebar = () => {
 };
 
 onMounted(() => {
-  console.log(restaurantData.value.length);
+  console.log(restaurantData);
   /*
   console.log("Restaurants with empty discount value:");
   restaurantData.value.forEach((restaurant) => {

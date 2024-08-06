@@ -4,29 +4,18 @@ import newsModule from "./modules/news";
 import scheduleModule from "./modules/schedule";
 import todoModule from "./modules/todo";
 import foodModule from "./modules/food";
+import accountModule from "./modules/account";
 import { localStoragePlugin } from "./localStoragePlugin";
 
-const storeWatcherPlugin = (store) => {
-  store.watch(
-    (state) => state.schedule.scheduleData,
-    (newValue) => {
-      console.log(
-        "Store scheduleData changed:",
-        JSON.parse(JSON.stringify(newValue))
-      );
-    },
-    { deep: true }
-  );
-};
-
 export default createStore({
-  plugins: [storeWatcherPlugin, localStoragePlugin],
+  plugins: [localStoragePlugin],
   modules: {
     youbike: youbikeModule,
     news: newsModule,
     schedule: scheduleModule,
     todo: todoModule,
     food: foodModule,
+    account: accountModule
   },
   state: () => ({
     userClass: "217",

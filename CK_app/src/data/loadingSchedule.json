@@ -1,0 +1,228 @@
+{
+  "schedule": [
+    {
+      "name": "一",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "二",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "三",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "四",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "五",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "六",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "七",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    },
+    {
+      "name": "課後",
+      "Monday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Tuesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Wednesday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Thursday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      },
+      "Friday": {
+        "subject": "載入中",
+        "note": "請稍後:)",
+        "color": "Default"
+      }
+    }
+  ]
+}

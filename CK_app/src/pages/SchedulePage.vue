@@ -202,7 +202,12 @@
 
 <script>
 import { onMounted, ref, computed } from "vue";
-import store from "../store/index";
+import { getAuth } from 'firebase/auth';
+import { useQuasar } from 'quasar';
+import { useStore } from 'vuex';
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import loadingSchedule from '../data/loadingSchedule.json'
 
 const columns = [
   {
@@ -233,13 +238,23 @@ const colorOptions = [
 
 export default {
   setup() {
+    const store = useStore();
+    const $q = useQuasar();
+
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const scheduleData = ref(loadingSchedule.schedule)
+
+    const userClass = ref('');
+    const userData = ref(null);
+    const userRef = ref(null);  // Declare userRef here
+
     const regenerateConfirm = ref(false);
     const confirmRegenerate = () => {
       regenerateConfirm.value = true;
     };
 
     const regenerateSchedule = () => {
-      store.dispatch("loadSchedule");
+      // Implementation for regenerateSchedule
     };
 
     const visibleColumns = ref([
@@ -260,13 +275,27 @@ export default {
       visibleColumns.value = ["name", columnName];
     };
 
-    const scheduleData = computed(() => store.getters.getScheduleData);
-    const userClass = computed(() => store.getters.getUserClass);
+    onMounted(async () => {
+      console.log(userAccount.value)
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+        authDomain: "ck-app-database.firebaseapp.com",
+        projectId: "ck-app-database",
+        storageBucket: "ck-app-database.appspot.com",
+        messagingSenderId: "253500838094",
+        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+        measurementId: "G-T79H6D7WRT"
+      };
 
-    onMounted(() => {
-      if (scheduleData.value.length === 0) {
-        store.dispatch("loadSchedule");
-      }
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      userClass.value = userData.value["Schedule"]["userClass"];
+      scheduleData.value = userData.value["Schedule"]["ScheduleData"];
+      console.log(userData.value["Schedule"]["ScheduleData"])
     });
 
     const getCellSubject = (row, colName) => {
@@ -292,9 +321,25 @@ export default {
       return option ? option.value : "#f4f4f1"; // Default color if not found
     };
 
-    const updateCell = (row, colName, newValue) => {
+    const updateCell = async (row, colName, newValue) => {
+      $q.notify({
+          message: "儲存中",
+          color: "yellow-7",
+          position: "bottom",
+          timeout: 2000,
+        });
       const rowIndex = scheduleData.value.indexOf(row);
       store.dispatch("updateSchedule", { rowIndex, colName, newValue });
+      const currentData = scheduleData.value
+      currentData[rowIndex][colName] = newValue;
+      const updatePath = `${userAccount.value}.Schedule.ScheduleData`;
+      await updateDoc(userRef.value, {[updatePath]: currentData});
+      $q.notify({
+          message: "已儲存更改",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
     };
 
     const getDayLabel = (day) => {
@@ -323,7 +368,7 @@ export default {
 
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
-        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+        ["一", "二", "三", "四","五","五", "六", "七"][currentHour - 8] || "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -348,6 +393,8 @@ export default {
       regenerateConfirm,
       confirmRegenerate,
       regenerateSchedule,
+      userData,
+      userAccount
     };
   },
 };

@@ -74,7 +74,7 @@
           </q-menu>
         </q-btn>
       </q-card>
-      <div class="flex justify-center q-mt-md">
+      <div v-if="!isLoading" class="flex justify-center q-mt-md">
         <q-btn
           icon="search"
           color="primary"
@@ -90,7 +90,7 @@
     </div>
 
     <!--對話框(新增站點)-->
-    <q-dialog v-model="showAddStationDialog">
+    <q-dialog v-model="showAddStationDialog" full-width>
       <q-card>
         <q-card-section>
           <div class="text-h6">選擇新增之站點</div>
@@ -115,8 +115,18 @@
             label="選擇站點"
             :disable="!selectedDistrict"
           />
+          <div class="separator-or">或</div>
+          <div class="row justify-center q-mt-md">
+            <q-btn
+              icon="search"
+              color="primary"
+              label="尋找最近的五個站點"
+              @click="findNearestStationsFromDialog"
+            />
+          </div>
         </q-card-section>
         <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showAddStationDialog = false" />
           <q-btn flat label="確認" @click="addStation" />
         </q-card-actions>
       </q-card>
@@ -158,7 +168,7 @@
       </q-card>
     </q-dialog>
     <!--對話框(最近站點)-->
-    <q-dialog v-model="showNearestStationsDialog">
+    <q-dialog v-model="showNearestStationsDialog" full-width>
       <q-card style="width: 300px">
         <q-card-section>
           <div class="text-h6">最近的站點</div>
@@ -195,6 +205,16 @@
             <l-tile-layer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             ></l-tile-layer>
+            <l-circle
+              :lat-lng="userPosition"
+              :radius="circleRadius"
+              color="red"
+              dashArray="10, 10"
+              :opacity="0.45"
+              :fill="true"
+              fillColor="red"
+              :fillOpacity="0.05"
+            ></l-circle>
             <l-marker :lat-lng="userPosition" :icon="userIcon">
               <l-popup>Your Location</l-popup>
             </l-marker>
@@ -244,7 +264,13 @@ import {
   deleteField,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  LPopup,
+  LCircle,
+} from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icon } from "leaflet";
 
@@ -263,6 +289,7 @@ export default defineComponent({
     LTileLayer,
     LMarker,
     LPopup,
+    LCircle,
   },
   setup() {
     const $q = useQuasar();
@@ -372,31 +399,31 @@ export default defineComponent({
     ];
 
     const districtOptionsNTC = [
+      { label: "板橋區", value: "板橋區" },
+      { label: "三重區", value: "三重區" },
+      { label: "中和區", value: "中和區" },
+      { label: "永和區", value: "永和區" },
+      { label: "蘆洲區", value: "蘆洲區" },
+      { label: "新莊區", value: "新莊區" },
+      { label: "新店區", value: "新店區" },
+      { label: "土城區", value: "土城區" },
+      { label: "樹林區", value: "樹林區" },
+      { label: "五股區", value: "五股區" },
+      { label: "泰山區", value: "泰山區" },
+      { label: "汐止區", value: "汐止區" },
+      { label: "深坑區", value: "深坑區" },
+      { label: "石碇區", value: "石碇區" },
+      { label: "三峽區", value: "三峽區" },
+      { label: "淡水區", value: "淡水區" },
       { label: "八里區", value: "八里區" },
       { label: "三芝區", value: "三芝區" },
-      { label: "三重區", value: "三重區" },
-      { label: "三峽區", value: "三峽區" },
-      { label: "土城區", value: "土城區" },
-      { label: "中和區", value: "中和區" },
-      { label: "五股區", value: "五股區" },
-      { label: "永和區", value: "永和區" },
       { label: "石門區", value: "石門區" },
-      { label: "石碇區", value: "石碇區" },
-      { label: "汐止區", value: "汐止區" },
       { label: "金山區", value: "金山區" },
       { label: "林口區", value: "林口區" },
       { label: "坪林區", value: "坪林區" },
-      { label: "板橋區", value: "板橋區" },
-      { label: "泰山區", value: "泰山區" },
-      { label: "淡水區", value: "淡水區" },
-      { label: "深坑區", value: "深坑區" },
       { label: "萬里區", value: "萬里區" },
       { label: "瑞芳區", value: "瑞芳區" },
-      { label: "新店區", value: "新店區" },
-      { label: "新莊區", value: "新莊區" },
-      { label: "樹林區", value: "樹林區" },
       { label: "雙溪區", value: "雙溪區" },
-      { label: "蘆洲區", value: "蘆洲區" },
       { label: "鶯歌區", value: "鶯歌區" },
     ];
 
@@ -750,8 +777,11 @@ export default defineComponent({
 
         stationsWithDistances.sort((a, b) => a.distance - b.distance);
 
-        // Get the three nearest stations
+        // Get the five nearest stations
         nearestStations.value = stationsWithDistances.slice(0, 5);
+
+        // Calculate the radius to the furthest station
+        circleRadius.value = nearestStations.value[4].distance * 1100;
 
         // Show the result
         showNearestStationsDialog.value = true;
@@ -890,6 +920,8 @@ export default defineComponent({
         stations.value = {};
         stations.value = temp;
       });
+
+      showNearestStationsDialog.value = false;
     };
 
     const isStationInList = (stationName) => {
@@ -900,6 +932,13 @@ export default defineComponent({
       return Object.keys(StationList.value).some(
         (key) => key === normalizedStationName || key === stationName
       );
+    };
+
+    const circleRadius = ref(0);
+
+    const findNearestStationsFromDialog = async () => {
+      showAddStationDialog.value = false; // Close the current dialog
+      await findNearestStations(); // Call the existing findNearestStations method
     };
 
     return {
@@ -928,6 +967,8 @@ export default defineComponent({
       mapOptions,
       youbikeIcon,
       userIcon,
+      circleRadius,
+      findNearestStationsFromDialog,
       addNearestStation,
       isStationInList,
       findNearestStations,
@@ -1005,5 +1046,23 @@ export default defineComponent({
 }
 .update-time .q-icon {
   margin-right: 4px;
+}
+.separator-or {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-top: 32px;
+}
+.separator-or::before,
+.separator-or::after {
+  content: "";
+  flex: 1;
+  border-bottom: 3px double #e0e0e0;
+}
+.separator-or::before {
+  margin-right: 0.5em;
+}
+.separator-or::after {
+  margin-left: 0.5em;
 }
 </style>

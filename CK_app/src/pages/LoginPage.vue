@@ -100,11 +100,13 @@ import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { useQuasar } from "quasar";
 import axios from "axios";
+import { useRouter } from 'vue-router';
 
 export default {
   setup() {
     const store = useStore();
     const $q = useQuasar();
+    const router = useRouter();
 
     const isLogin = ref(true);
     const accountName = ref("");
@@ -168,6 +170,8 @@ export default {
                 position: "bottom",
                 timeout: 2000,
               });
+              console.log(userAccount.value)
+              router.push('/');
             } else {
               processingNotif(); // Dismiss the processing notification
               $q.notify({
@@ -258,6 +262,7 @@ export default {
               position: "bottom",
               timeout: 2000,
             });
+            router.push('/');
           }
         }
       } catch (error) {

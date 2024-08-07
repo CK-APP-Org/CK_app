@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <!-- New Banner Component -->
-    <!--
+    
     <q-banner class="bg-primary text-white q-mb-md" rounded>
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md" />
       </template>
-      最新公告：今天下午在禮堂有全校集
+      CKAPP第二版隆重推出
     </q-banner>
-    -->
+   
 
     <!-- <div class="header">
       <h5 class="font-weight-bold">歡迎使用 CK APP</h5>
@@ -137,42 +137,49 @@
 </template>
 
 <script>
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { onMounted, ref, computed } from "vue";
-import store from "../store/index";
+import { useQuasar } from "quasar";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import loadingSchedule from "../data/loadingSchedule.json";
 
 export default {
-  data() {
-    return {
-      search: "",
-      items: [
-        { name: "課表", icon: "book", link: "/schedule" },
-        { name: "行事曆", icon: "calendar_month", link: "/todo" },
-        { name: "YouBike", icon: "directions_bike", link: "/Youbike" },
-        { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
-        { name: "美食", icon: "fastfood", link: "/food" },
-        { name: "校網", icon: "newspaper", link: "/news" },
-        { name: "登入", icon: "login", link: "/login" },
-        // { name: "設定", icon: "settings", link: "/settings" },
-        // { name: "關於", icon: "info", link: "/about" },
-      ],
-    };
-  },
-  computed: {
-    filteredItems() {
-      return this.items.filter((item) =>
-        item.name.toLowerCase().includes(this.search.toLowerCase())
-      );
-    },
-  },
-  methods: {
-    navigateTo(link) {
-      this.$router.push(link);
-    },
-    onTodoCheck(todo) {
-      store.dispatch("deleteTodo", todo.id);
-    },
-  },
   setup() {
+    const store = useStore();
+    const router = useRouter();
+    const $q = useQuasar();
+
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const scheduleData = ref(loadingSchedule.schedule);
+    const todos = ref([]);
+    const pinnedNews = ref([])
+
+    const showSchedule = ref(true)
+    const showTodo = ref(true)
+    const showSchoolNews = ref(true)
+
+    const userData = ref(null);
+    const userRef = ref(null); // Declare userRef here
+
+    const search = ref("");
+    const items = ref([
+      { name: "課表", icon: "book", link: "/schedule" },
+      { name: "行事曆", icon: "calendar_month", link: "/todo" },
+      { name: "YouBike", icon: "directions_bike", link: "/Youbike" },
+      { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
+      { name: "美食", icon: "fastfood", link: "/food" },
+      { name: "校網", icon: "newspaper", link: "/news" },
+      // { name: "登入", icon: "login", link: "/login" },
+    ]);
+
     const colorOptions = [
       { label: "Default", value: "#f4f4f1" },
       { label: "Red", value: "#FFCCCB" },
@@ -184,7 +191,36 @@ export default {
       { label: "Pink", value: "#ffa1e4" },
     ];
 
-    const todos = computed(() => store.getters.getTodos);
+    onMounted(async () => {
+      console.log(userAccount.value);
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+        authDomain: "ck-app-database.firebaseapp.com",
+        projectId: "ck-app-database",
+        storageBucket: "ck-app-database.appspot.com",
+        messagingSenderId: "253500838094",
+        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+        measurementId: "G-T79H6D7WRT",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      userClass.value = userData.value["Schedule"]["userClass"];
+      scheduleData.value = userData.value["Schedule"]["ScheduleData"];
+      console.log(userData.value["Schedule"]["ScheduleData"]);
+      selectedClass.value = userClass.value;
+    });
+
+    const filteredItems = computed(() => {
+      return items.value.filter((item) =>
+        item.name.toLowerCase().includes(search.value.toLowerCase())
+      );
+    });
+
 
     const todayTodos = computed(() => {
       const today = new Date();
@@ -195,19 +231,6 @@ export default {
         return todoDate.getTime() === today.getTime() && !todo.completed;
       });
     });
-
-    // Pinned School News data
-    // const pinnedNews = ref([
-    //   { title: "下週一校慶活動安排", date: "2023-07-25" },
-    //   { title: "暑期輔導課程開放報名", date: "2023-07-24" },
-    // ]);
-
-    const scheduleData = computed(() => store.getters.getScheduleData);
-    const pinnedNews = computed(() => store.getters.getPinnedNews);
-
-    const showSchedule = computed(() => store.getters.getShowSchedule);
-    const showTodo = computed(() => store.getters.getShowTodo);
-    const showSchoolNews = computed(() => store.getters.getShowSchoolNews);
 
     const currentClass = computed(() => {
       const now = new Date();
@@ -221,9 +244,9 @@ export default {
         "Saturday",
       ][now.getDay()];
       const currentHour = now.getHours();
-      // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
         ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+      
       if (
         currentPeriod < 1 ||
         currentPeriod > 7 ||
@@ -233,21 +256,26 @@ export default {
         return {
           subject: "目前無課",
           note: "現在是下課時間或假日",
+          color: "#f4f4f1",
         };
       }
+      
       const currentClassData = scheduleData.value.find(
         (row) => row.name === currentPeriod
       )?.[currentDay.toString()];
+      
       const getFormattedColor = (color) => {
         if (color && typeof color === "object" && color.label) {
           return color.label;
         }
         return color || "Default";
       };
+      
       const getLabelValue = (label) => {
         const option = colorOptions.find((opt) => opt.label === label);
-        return option ? option.value : "#f4f4f1"; // Default color if not found
+        return option ? option.value : "#f4f4f1";
       };
+      
       return currentClassData
         ? {
             subject: currentPeriod + ": " + currentClassData.subject,
@@ -257,9 +285,22 @@ export default {
         : {
             subject: "目前無課",
             note: "這個時段沒有安排課程",
+            color: "#f4f4f1",
           };
     });
+
+    const navigateTo = (link) => {
+      router.push(link);
+    };
+
+    const onTodoCheck = (todo) => {
+      store.dispatch("deleteTodo", todo.id);
+    };
+
     return {
+      search,
+      items,
+      filteredItems,
       currentClass,
       todos,
       pinnedNews,
@@ -267,6 +308,8 @@ export default {
       showSchoolNews,
       showTodo,
       todayTodos,
+      navigateTo,
+      onTodoCheck,
     };
   },
 };

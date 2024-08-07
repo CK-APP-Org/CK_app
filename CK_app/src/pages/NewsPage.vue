@@ -162,16 +162,34 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
-import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
-import store from "../store/index";
+import { onMounted, ref, computed } from "vue";
+import { useQuasar } from "quasar";
+import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import axios from "axios";
 
 export default {
   name: "NewsPage",
   setup() {
-    const pinnedNews = computed(() => store.getters.getPinnedNews);
+    const store = useStore();
+    const $q = useQuasar();
+
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const pinnedNews = ref([]);
+    const lastClearedTime = ref(null);
+
+    const userData = ref(null);
+    const userRef = ref(null); // Declare userRef here
+
     const isLoading = ref(true);
     const news = ref([]);
     const showDeleteDialog = ref(false);
@@ -204,6 +222,8 @@ export default {
       },
     ];
 
+
+      
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
@@ -231,7 +251,6 @@ export default {
       ];
 
       try {
-        const lastClearedTime = store.getters.getLastClearedTime;
         const promises = urls.map((url) =>
           axios.get("https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy", {
             params: { url },
@@ -253,7 +272,7 @@ export default {
             }))
             .filter(
               (item) =>
-                !lastClearedTime || item.pubDate > new Date(lastClearedTime)
+                !lastClearedTime.value || item.pubDate > new Date(lastClearedTime.value)
             );
           allNews = allNews.concat(newsData);
         });
@@ -282,8 +301,26 @@ export default {
       showDeleteDialog.value = false;
     };
 
-    onMounted(() => {
-      console.log(JSON.parse(localStorage.getItem("store")));
+    onMounted(async() => {
+      console.log(userAccount.value);
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+        authDomain: "ck-app-database.firebaseapp.com",
+        projectId: "ck-app-database",
+        storageBucket: "ck-app-database.appspot.com",
+        messagingSenderId: "253500838094",
+        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+        measurementId: "G-T79H6D7WRT",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      pinnedNews.value = userData.value["News"]["pinnedNews"];
+      lastClearedTime.value = userData.value["News"]["lastClearedTime"];
       register("zh_TW", zh_TW);
       fetchNews();
     });

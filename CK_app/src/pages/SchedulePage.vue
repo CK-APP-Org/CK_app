@@ -43,11 +43,14 @@
                   <q-btn icon="close" flat round dense v-close-popup />
                 </q-card-section>
 
-                <q-card-section>
-                  目前的班級為{{
-                    userClass
-                  }}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
-                </q-card-section>
+                <q-select
+                  class="col-8 col-sm-6 col-md-4 q-mb-md"
+                  filled
+                  @update:model-value="confirmClassChange"
+                  :options="classOptions"
+                  v-model="selectedClass"
+                  label="選擇班級(用於課表資料匯入)"
+                />
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">編輯課表</div>
                   <q-space />
@@ -197,16 +200,51 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="confirmClassChangeDialog">
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ml-sm" style="font-size: 1.5rem"
+            >確定更改班級為 <strong>{{ selectedClass }}</strong
+            >?</span
+          >
+          <span class="q-ml-sm"
+            >(請注意，本動作會導致所有過去自訂的顏色和標籤全部消失並無法復原)</span
+          >
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" @click="cancelClassChange" />
+          <q-btn flat label="確定" color="primary" @click="updateUserClass" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import { onMounted, ref, computed } from "vue";
-import { useQuasar } from 'quasar';
-import { useStore } from 'vuex';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
-import loadingSchedule from '../data/loadingSchedule.json'
+import { useQuasar } from "quasar";
+import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import loadingSchedule from "../data/loadingSchedule.json";
+import axios from "axios";
+import { Browser } from "@capacitor/browser";
+
+const classOptions = [
+  101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+  116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
+  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
+  219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
+  307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+  322, 323, 325, 326, 327, 328,
+];
 
 const columns = [
   {
@@ -240,20 +278,31 @@ export default {
     const store = useStore();
     const $q = useQuasar();
 
-    const userAccount = computed(() => store.getters.getUserAccount);
-    const scheduleData = ref(loadingSchedule.schedule)
+    const confirmClassChangeDialog = ref(false);
 
-    const userClass = ref('');
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const scheduleData = ref(loadingSchedule.schedule);
+
+    const userClass = ref("");
+    const selectedClass = ref("載入中");
+
     const userData = ref(null);
-    const userRef = ref(null);  // Declare userRef here
+    const userRef = ref(null); // Declare userRef here
+
+    const SCHEDULE_URL =
+      "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
 
     const regenerateConfirm = ref(false);
     const confirmRegenerate = () => {
       regenerateConfirm.value = true;
     };
 
-    const regenerateSchedule = () => {
-      // Implementation for regenerateSchedule
+    const regenerateSchedule = async () => {
+      const response = await axios.get(SCHEDULE_URL);
+      const scheduleData = response.data[userClass.value]["schedule"];
+      const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
+      await updateDoc(userRef.value, { [updatePath2]: scheduleData });
+      refreshPage();
     };
 
     const visibleColumns = ref([
@@ -275,7 +324,7 @@ export default {
     };
 
     onMounted(async () => {
-      console.log(userAccount.value)
+      console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
         authDomain: "ck-app-database.firebaseapp.com",
@@ -283,18 +332,19 @@ export default {
         storageBucket: "ck-app-database.appspot.com",
         messagingSenderId: "253500838094",
         appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-        measurementId: "G-T79H6D7WRT"
+        measurementId: "G-T79H6D7WRT",
       };
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       userClass.value = userData.value["Schedule"]["userClass"];
       scheduleData.value = userData.value["Schedule"]["ScheduleData"];
-      console.log(userData.value["Schedule"]["ScheduleData"])
+      console.log(userData.value["Schedule"]["ScheduleData"]);
+      selectedClass.value = userClass.value;
     });
 
     const getCellSubject = (row, colName) => {
@@ -322,23 +372,62 @@ export default {
 
     const updateCell = async (row, colName, newValue) => {
       $q.notify({
-          message: "儲存中",
-          color: "yellow-7",
-          position: "bottom",
-          timeout: 2000,
-        });
+        message: "儲存中",
+        color: "yellow-7",
+        position: "bottom",
+        timeout: 2000,
+      });
       const rowIndex = scheduleData.value.indexOf(row);
       store.dispatch("updateSchedule", { rowIndex, colName, newValue });
-      const currentData = scheduleData.value
+      const currentData = scheduleData.value;
       currentData[rowIndex][colName] = newValue;
       const updatePath = `${userAccount.value}.Schedule.ScheduleData`;
-      await updateDoc(userRef.value, {[updatePath]: currentData});
+      await updateDoc(userRef.value, { [updatePath]: currentData });
       $q.notify({
-          message: "已儲存更改",
-          color: "positive",
-          position: "bottom",
-          timeout: 2000,
-        });
+        message: "已儲存更改",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+    };
+
+    const confirmClassChange = (newClass) => {
+      selectedClass.value = newClass;
+      confirmClassChangeDialog.value = true;
+    };
+
+    const cancelClassChange = () => {
+      selectedClass.value = userClass.value;
+      confirmClassChangeDialog.value = false;
+    };
+
+    const updateUserClass = async () => {
+      const updatePath = `${userAccount.value}.Schedule.userClass`;
+      await updateDoc(userRef.value, { [updatePath]: selectedClass.value });
+      store.dispatch("setUserClass", selectedClass.value);
+      const response = await axios.get(SCHEDULE_URL);
+      const scheduleData = response.data[selectedClass.value]["schedule"];
+      const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
+      await updateDoc(userRef.value, { [updatePath2]: scheduleData });
+      store.dispatch("loadSchedule");
+      confirmClassChangeDialog.value = false;
+      refreshPage();
+      $q.notify({
+        message: `已成功更改班級為 ${selectedClass.value}`,
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+    };
+
+    const refreshPage = async () => {
+      if (Capacitor.isNativePlatform()) {
+        // Native app (iOS or Android)
+        await Browser.reload();
+      } else {
+        // Web browser
+        window.location.reload();
+      }
     };
 
     const getDayLabel = (day) => {
@@ -367,7 +456,8 @@ export default {
 
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
-        ["一", "二", "三", "四","五","五", "六", "七"][currentHour - 8] || "課後";
+        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
+        "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -393,7 +483,13 @@ export default {
       confirmRegenerate,
       regenerateSchedule,
       userData,
-      userAccount
+      userAccount,
+      selectedClass,
+      confirmClassChange,
+      classOptions,
+      confirmClassChangeDialog,
+      updateUserClass,
+      cancelClassChange,
     };
   },
 };

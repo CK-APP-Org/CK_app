@@ -25,7 +25,7 @@
               flat
               dense
               round
-              icon="edit"
+              icon="arrow_forward_ios"
               color="primary"
               size="0.8em"
               href="/#/schedule"
@@ -50,7 +50,7 @@
               flat
               dense
               round
-              icon="edit"
+              icon="arrow_forward_ios"
               color="primary"
               size="0.8em"
               href="/#/todo"

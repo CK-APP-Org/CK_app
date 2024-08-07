@@ -10,12 +10,11 @@
       <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
 
       <div v-else>
-        <div class="map-controls q-pa-md">
+        <div class="map-controls-1 q-pa-md">
           <q-btn
             color="primary"
-            icon="info"
-            label="圖例"
-            @click="showLegend = true"
+            label="畫面顯示列表"
+            @click="showRestaurantList = true"
             class="q-mr-sm"
           />
           <q-checkbox
@@ -26,7 +25,17 @@
           <q-checkbox v-model="showOnlyFavorites" label="我的最愛" />
         </div>
 
+        <div class="map-controls-2 q-pa-md">
+          <q-btn
+            color="primary"
+            icon="info"
+            @click="showLegend = true"
+            class="q-mr-sm"
+          />
+        </div>
+
         <l-map
+          ref="mapRef"
           style="height: 90vh; width: 100%"
           :zoom="16"
           :center="[25.031204, 121.515966]"
@@ -165,6 +174,45 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
+        <q-dialog v-model="showRestaurantList" full-width>
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">餐廳列表</div>
+            </q-card-section>
+            <q-card-section class="q-pa-none">
+              <q-list separator>
+                <q-item v-for="restaurant in markers" :key="restaurant.name">
+                  <q-item-section>
+                    <q-item-label>{{ restaurant.name }}</q-item-label>
+                    <q-item-label caption>
+                      今日營業: {{ restaurant.openingHours[getCurrentDay()] }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      :icon="isFavorite(restaurant) ? 'star' : 'star_border'"
+                      flat
+                      round
+                      color="yellow"
+                      @click="toggleFavorite(restaurant)"
+                    />
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      label="詳細資訊"
+                      color="primary"
+                      flat
+                      @click="showSidebarFromList(restaurant)"
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn flat label="關閉" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
     </q-page>
   </div>
@@ -177,10 +225,20 @@ import { onMounted, computed, ref } from "vue";
 import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
-import { useQuasar } from 'quasar';
-import { useStore } from 'vuex';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+import { useQuasar } from "quasar";
+import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+
+import L from "leaflet";
+
+const mapRef = ref(null);
 
 const hideClosedRestaurants = ref(false);
 
@@ -195,13 +253,15 @@ const mapOptions = {
 // );
 const $q = useQuasar();
 const userData = ref(null);
-const userRef = ref(null);  // Declare userRef here
+const userRef = ref(null); // Declare userRef here
 
 const userAccount = computed(() => store.getters.getUserAccount);
 
-const favoriteRestaurants = ref([])
+const favoriteRestaurants = ref([]);
 
 const showOnlyFavorites = ref(false);
+
+const showRestaurantList = ref(false);
 
 const openIcon = new Icon({
   iconUrl: "https://imgur.com/jZN5Ph6.png",
@@ -332,14 +392,19 @@ const toggleFavorite = async (restaurant) => {
     console.log("Toggling favorite for restaurant:", restaurant);
 
     const updatePath = `${userAccount.value}.Food.favoriteRestaurants`;
-    
+
     if (!Array.isArray(favoriteRestaurants.value)) {
-      console.error("favoriteRestaurants is not an array:", favoriteRestaurants.value);
+      console.error(
+        "favoriteRestaurants is not an array:",
+        favoriteRestaurants.value
+      );
       favoriteRestaurants.value = [];
     }
 
-    const index = favoriteRestaurants.value.findIndex(r => r.name === restaurant.name);
-    
+    const index = favoriteRestaurants.value.findIndex(
+      (r) => r.name === restaurant.name
+    );
+
     if (index === -1) {
       // Add to favorites
       console.log("Adding restaurant to favorites");
@@ -347,17 +412,19 @@ const toggleFavorite = async (restaurant) => {
     } else {
       // Remove from favorites
       console.log("Removing restaurant from favorites");
-      favoriteRestaurants.value = favoriteRestaurants.value.filter(r => r.name !== restaurant.name);
+      favoriteRestaurants.value = favoriteRestaurants.value.filter(
+        (r) => r.name !== restaurant.name
+      );
     }
 
     console.log("Updated favoriteRestaurants:", favoriteRestaurants.value);
     console.log("Updating Firestore document");
 
     await updateDoc(userRef.value, {
-      [updatePath]: favoriteRestaurants.value.map(r => ({
+      [updatePath]: favoriteRestaurants.value.map((r) => ({
         name: r.name,
         // Include other necessary fields here
-      }))
+      })),
     });
 
     console.log("Firestore update successful");
@@ -367,7 +434,6 @@ const toggleFavorite = async (restaurant) => {
     } else {
       store.dispatch("removeFavoriteRestaurant", restaurant.name);
     }
-
   } catch (error) {
     console.error("Error in toggleFavorite:", error);
     // Handle the error (e.g., show a notification to the user)
@@ -422,8 +488,31 @@ const closeSidebar = () => {
   sidebarOpen.value = false;
 };
 
-onMounted(async() => {
-  console.log(userAccount.value)
+const showSidebarFromList = (restaurant) => {
+  showSidebar(restaurant);
+  showRestaurantList.value = false;
+
+  // Find the marker for the selected restaurant
+  const marker = markers.value.find((m) => m.name === restaurant.name);
+
+  if (marker && mapRef.value) {
+    // Pan the map to the marker's position
+    mapRef.value.leafletObject.panTo(marker.position);
+
+    // Open the popup
+    mapRef.value.leafletObject.eachLayer((layer) => {
+      if (
+        layer instanceof L.Marker &&
+        layer.getLatLng().equals(marker.position)
+      ) {
+        layer.openPopup();
+      }
+    });
+  }
+};
+
+onMounted(async () => {
+  console.log(userAccount.value);
   const firebaseConfig = {
     apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
     authDomain: "ck-app-database.firebaseapp.com",
@@ -431,17 +520,17 @@ onMounted(async() => {
     storageBucket: "ck-app-database.appspot.com",
     messagingSenderId: "253500838094",
     appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-    measurementId: "G-T79H6D7WRT"
+    measurementId: "G-T79H6D7WRT",
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+  userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
   const docSnap = await getDoc(userRef.value);
   userData.value = docSnap.data()[userAccount.value];
   favoriteRestaurants.value = userData.value["Food"]["favoriteRestaurants"];
-  console.log(userData.value["Food"]["favoriteRestaurants"])
+  console.log(userData.value["Food"]["favoriteRestaurants"]);
 
   fetchRestaurantData();
   delete Icon.Default.prototype._getIconUrl;
@@ -527,10 +616,19 @@ onMounted(async() => {
   right: 50px; /* Adjust this value to position it next to the close button */
 }
 
-.map-controls {
+.map-controls-1 {
   position: absolute;
   top: 10px;
   left: 10px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  padding: 10px;
+}
+.map-controls-2 {
+  position: absolute;
+  bottom: 50px;
+  right: 8px;
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;

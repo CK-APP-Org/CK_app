@@ -177,6 +177,10 @@ import { onMounted, computed, ref } from "vue";
 import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
+import { useQuasar } from 'quasar';
+import { useStore } from 'vuex';
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
 const hideClosedRestaurants = ref(false);
 
@@ -186,9 +190,16 @@ const mapOptions = {
   zoomControl: false,
 };
 
-const favoriteRestaurants = computed(
-  () => store.getters.getFavoriteRestaurants
-);
+// const favoriteRestaurants = computed(
+//   () => store.getters.getFavoriteRestaurants
+// );
+const $q = useQuasar();
+const userData = ref(null);
+const userRef = ref(null);  // Declare userRef here
+
+const userAccount = computed(() => store.getters.getUserAccount);
+
+const favoriteRestaurants = ref(null)
 
 const showOnlyFavorites = ref(false);
 
@@ -315,11 +326,14 @@ const getCurrentDay = () => {
   return days[new Date().getDay()];
 };
 
-const toggleFavorite = (restaurant) => {
+const toggleFavorite = async (restaurant) => {
   const index = favoriteRestaurants.value.findIndex(
     (r) => r.name === restaurant.name
   );
   if (index === -1) {
+    const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStation.value.value)}`;
+    console.log(`${userAccount.value}.Youbike.stationList.${selectedStation.value.value}`)
+    await updateDoc(userRef.value, {[updatePath]: currentData});
     store.dispatch("addFavoriteRestaurant", restaurant);
   } else {
     store.dispatch("removeFavoriteRestaurant", restaurant.name);
@@ -374,16 +388,27 @@ const closeSidebar = () => {
   sidebarOpen.value = false;
 };
 
-onMounted(() => {
-  console.log(restaurantData);
-  /*
-  console.log("Restaurants with empty discount value:");
-  restaurantData.value.forEach((restaurant) => {
-    if (restaurant.discount === "") {
-      console.log(restaurant.name);
-    }
-  });
-  */
+onMounted(async() => {
+  console.log(userAccount.value)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+    authDomain: "ck-app-database.firebaseapp.com",
+    projectId: "ck-app-database",
+    storageBucket: "ck-app-database.appspot.com",
+    messagingSenderId: "253500838094",
+    appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+    measurementId: "G-T79H6D7WRT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+  const docSnap = await getDoc(userRef.value);
+  userData.value = docSnap.data()[userAccount.value];
+  favoriteRestaurants.value = userData.value["Food"]["favoriteRestaurants"];
+  console.log(userData.value["Food"]["favoriteRestaurants"])
+
   fetchRestaurantData();
   delete Icon.Default.prototype._getIconUrl;
   Icon.Default.mergeOptions({

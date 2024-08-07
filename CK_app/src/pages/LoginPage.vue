@@ -205,19 +205,19 @@ export default {
               },
               Youbike: {
                 stationList: {
-                  "YouBike2.0_泉州寧波西街口": {
+                  "YouBike2%2E0_泉州寧波西街口": {
                     nickname: "泉州寧波西街口(建中側門)",
                     city: "臺北市",
                   },
-                  "YouBike2.0_郵政博物館": {
+                  "YouBike2%2E0_郵政博物館": {
                     nickname: "郵政博物館",
                     city: "臺北市",
                   },
-                  "YouBike2.0_植物園": {
+                  "YouBike2%2E0_植物園": {
                     nickname: "台北植物園",
                     city: "臺北市",
                   },
-                  "YouBike2.0_捷運中正紀念堂站(2號出口)": {
+                  "YouBike2%2E0_捷運中正紀念堂站(2號出口)": {
                     nickname: "中正紀念堂站(2號出口)",
                     city: "臺北市",
                   },

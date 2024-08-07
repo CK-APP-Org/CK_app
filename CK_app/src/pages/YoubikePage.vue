@@ -153,11 +153,14 @@
 </template>
 
 <script>
-import { defineComponent, computed } from "vue";
-import axios from "axios";
-import { formatDistanceToNow, parseISO, parse } from "date-fns";
-import { zhTW } from "date-fns/locale";
-import store from "../store/index";
+import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
+import { useQuasar } from 'quasar';
+import axios from 'axios';
+import { formatDistanceToNow, parseISO, parse } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
+import { useStore } from 'vuex';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField  } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
 class Station {
   constructor(name) {
@@ -170,94 +173,140 @@ class Station {
 
 export default defineComponent({
   setup() {
-    const StationList = computed(() => store.getters.getStationList);
-    return { StationList };
-  },
-  data() {
-    return {
-      stations: {},
-      stationsNickname: {},
-      showAddStationDialog: false,
-      showEditNicknameDialog: false,
-      showDeleteStationDialog: false,
-      selectedStationForEdit: null,
-      newNickname: "",
-      selectedStationForDelete: null,
-      selectedCity: null,
-      selectedDistrict: null,
-      selectedStation: null,
-      cityOptions: [
-        { label: "臺北市", value: "臺北市" },
-        { label: "新北市", value: "新北市" },
-      ],
-      districtOptionsTPC: [
-        { label: "大安區", value: "大安區" },
-        { label: "中正區", value: "中正區" },
-        { label: "萬華區", value: "萬華區" },
-        { label: "信義區", value: "信義區" },
-        { label: "南港區", value: "南港區" },
-        { label: "文山區", value: "文山區" },
-        { label: "大同區", value: "大同區" },
-        { label: "中山區", value: "中山區" },
-        { label: "松山區", value: "松山區" },
-        { label: "內湖區", value: "內湖區" },
-        { label: "士林區", value: "士林區" },
-        { label: "北投區", value: "北投區" },
-        { label: "臺大公館校區", value: "臺大公館校區" },
-      ],
-      districtOptionsNTC: [
-        { label: "八里區", value: "八里區" },
-        { label: "三芝區", value: "三芝區" },
-        { label: "三重區", value: "三重區" },
-        { label: "三峽區", value: "三峽區" },
-        { label: "土城區", value: "土城區" },
-        { label: "中和區", value: "中和區" },
-        { label: "五股區", value: "五股區" },
-        { label: "永和區", value: "永和區" },
-        { label: "石門區", value: "石門區" },
-        { label: "石碇區", value: "石碇區" },
-        { label: "汐止區", value: "汐止區" },
-        { label: "金山區", value: "金山區" },
-        { label: "林口區", value: "林口區" },
-        { label: "坪林區", value: "坪林區" },
-        { label: "板橋區", value: "板橋區" },
-        { label: "泰山區", value: "泰山區" },
-        { label: "淡水區", value: "淡水區" },
-        { label: "深坑區", value: "深坑區" },
-        { label: "萬里區", value: "萬里區" },
-        { label: "瑞芳區", value: "瑞芳區" },
-        { label: "新店區", value: "新店區" },
-        { label: "新莊區", value: "新莊區" },
-        { label: "樹林區", value: "樹林區" },
-        { label: "雙溪區", value: "雙溪區" },
-        { label: "蘆洲區", value: "蘆洲區" },
-        { label: "鶯歌區", value: "鶯歌區" },
-      ],
-      stationOptions: [],
-      isLoading: true,
-    };
-  },
-  //根據選擇的城市設定行政區的選項
-  computed: {
-    districtOptions() {
-      if (this.selectedCity) {
-        if (this.selectedCity["value"] === "臺北市") {
-          return this.districtOptionsTPC;
-        } else if (this.selectedCity["value"] === "新北市") {
-          return this.districtOptionsNTC;
+    const $q = useQuasar();
+    const store = useStore();
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const stationList = computed(() => store.getters.getStationList);
+    const StationList = ref({
+      "YouBike2.0_泉州寧波西街口": {
+        nickname: "泉州寧波西街口(建中側門)",
+        city: "臺北市",
+      },
+      "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
+      "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
+      "YouBike2.0_捷運中正紀念堂站(2號出口)": {
+        nickname: "中正紀念堂站(2號出口)",
+        city: "臺北市",
+      },
+    },);
+
+    const userRef = ref(null);  // Declare userRef here
+    const userData = ref(null);
+
+    function escapeFirebaseKey(key) {
+      return key.replace(/\./g, '%2E');
+    }
+    function unescapeFirebaseKey(key) {
+      return key.replace(/%2E/g, '.');
+    }
+
+    onMounted(async () => {
+      isLoading.value = true;
+      console.log(userAccount.value)
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+        authDomain: "ck-app-database.firebaseapp.com",
+        projectId: "ck-app-database",
+        storageBucket: "ck-app-database.appspot.com",
+        messagingSenderId: "253500838094",
+        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+        measurementId: "G-T79H6D7WRT"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      StationList.value = userData.value["Youbike"]["stationList"];
+      console.log(userData.value["Youbike"]["stationList"])
+      fetchData();
+    });
+
+    const stations = ref({});
+    const stationsNickname = ref({});
+    const showAddStationDialog = ref(false);
+    const showEditNicknameDialog = ref(false);
+    const showDeleteStationDialog = ref(false);
+    const selectedStationForEdit = ref(null);
+    const newNickname = ref('');
+    const selectedStationForDelete = ref(null);
+    const selectedCity = ref(null);
+    const selectedDistrict = ref(null);
+    const selectedStation = ref(null);
+    const isLoading = ref(true);
+    const stationOptions = ref([]);
+
+    const cityOptions = [
+      { label: "臺北市", value: "臺北市" },
+      { label: "新北市", value: "新北市" },
+    ];
+
+    const districtOptionsTPC = [
+      { label: "大安區", value: "大安區" },
+      { label: "中正區", value: "中正區" },
+      { label: "萬華區", value: "萬華區" },
+      { label: "信義區", value: "信義區" },
+      { label: "南港區", value: "南港區" },
+      { label: "文山區", value: "文山區" },
+      { label: "大同區", value: "大同區" },
+      { label: "中山區", value: "中山區" },
+      { label: "松山區", value: "松山區" },
+      { label: "內湖區", value: "內湖區" },
+      { label: "士林區", value: "士林區" },
+      { label: "北投區", value: "北投區" },
+      { label: "臺大公館校區", value: "臺大公館校區" },
+    ];
+
+    const districtOptionsNTC = [
+      { label: "八里區", value: "八里區" },
+      { label: "三芝區", value: "三芝區" },
+      { label: "三重區", value: "三重區" },
+      { label: "三峽區", value: "三峽區" },
+      { label: "土城區", value: "土城區" },
+      { label: "中和區", value: "中和區" },
+      { label: "五股區", value: "五股區" },
+      { label: "永和區", value: "永和區" },
+      { label: "石門區", value: "石門區" },
+      { label: "石碇區", value: "石碇區" },
+      { label: "汐止區", value: "汐止區" },
+      { label: "金山區", value: "金山區" },
+      { label: "林口區", value: "林口區" },
+      { label: "坪林區", value: "坪林區" },
+      { label: "板橋區", value: "板橋區" },
+      { label: "泰山區", value: "泰山區" },
+      { label: "淡水區", value: "淡水區" },
+      { label: "深坑區", value: "深坑區" },
+      { label: "萬里區", value: "萬里區" },
+      { label: "瑞芳區", value: "瑞芳區" },
+      { label: "新店區", value: "新店區" },
+      { label: "新莊區", value: "新莊區" },
+      { label: "樹林區", value: "樹林區" },
+      { label: "雙溪區", value: "雙溪區" },
+      { label: "蘆洲區", value: "蘆洲區" },
+      { label: "鶯歌區", value: "鶯歌區" },
+    ];
+
+
+    const districtOptions = computed(() => {
+      if (selectedCity.value) {
+        if (selectedCity.value.value === "臺北市") {
+          return districtOptionsTPC;
+        } else if (selectedCity.value.value === "新北市") {
+          return districtOptionsNTC;
         }
       }
       return [];
-    },
-  },
-  methods: {
-    async fetchData() {
-      this.isLoading = true;
-      const stationList = this.StationList;
-      this.stations = Object.fromEntries(
+    });
+
+    const fetchData = async () => {
+      isLoading.value = true;
+      const stationList = StationList.value;
+      stations.value = Object.fromEntries(
         Object.keys(stationList).map((name) => [name, new Station(name)])
       );
-      this.stationsNickname = Object.fromEntries(
+      stationsNickname.value = Object.fromEntries(
         Object.entries(stationList).map(([key, value]) => [key, value.nickname])
       );
       try {
@@ -267,8 +316,8 @@ export default defineComponent({
         );
         const dataTPC = responseTPC.data;
         //Fetch data from NTC API
-        var responseNTC;
-        var dataNTC;
+        let responseNTC;
+        let dataNTC;
         responseNTC = await axios.get(
           "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
         );
@@ -280,56 +329,57 @@ export default defineComponent({
         dataNTC = [...dataNTC, ...responseNTC.data]; //Merging the two arrays of objects together
 
         //Fetch data for each station
-        for (const key in this.stations) {
+        for (const key in stations.value) {
           if (stationList[key].city == "臺北市") {
             const stationData = dataTPC.find(
-              (station) => station.sna === this.stations[key].name
+              (station) => station.sna === unescapeFirebaseKey(stations.value[key].name)
             );
 
             if (stationData) {
-              this.stations[key].available_rent_bikes =
+              stations.value[key].available_rent_bikes =
                 stationData.available_rent_bikes;
-              this.stations[key].available_return_bikes =
+              stations.value[key].available_return_bikes =
                 stationData.available_return_bikes;
-              this.stations[key].infoTime = stationData.mday;
+              stations.value[key].infoTime = stationData.mday;
             } else {
-              this.stations[key].available_rent_bikes = "Station not found";
-              this.stations[key].available_return_bikes = "Station not found";
-              this.stations[key].infoTime = "Station not found";
+              stations.value[key].available_rent_bikes = "Station not found";
+              stations.value[key].available_return_bikes = "Station not found";
+              stations.value[key].infoTime = "Station not found";
             }
           } else if (stationList[key].city == "新北市") {
             const stationData = dataNTC.find(
-              (station) => station.sna === this.stations[key].name
+              (station) => station.sna === unescapeFirebaseKey(stations.value[key].name)
             );
 
             if (stationData) {
-              this.stations[key].available_rent_bikes = stationData.sbi;
-              this.stations[key].available_return_bikes = stationData.bemp;
-              this.stations[key].infoTime = stationData.mday;
+              stations.value[key].available_rent_bikes = stationData.sbi;
+              stations.value[key].available_return_bikes = stationData.bemp;
+              stations.value[key].infoTime = stationData.mday;
             } else {
-              this.stations[key].available_rent_bikes = "Station not found";
-              this.stations[key].available_return_bikes = "Station not found";
-              this.stations[key].infoTime = "Station not found";
+              stations.value[key].available_rent_bikes = "Station not found";
+              stations.value[key].available_return_bikes = "Station not found";
+              stations.value[key].infoTime = "Station not found";
             }
           }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        for (const key in this.stations) {
-          this.stations[key].available_rent_bikes = "Error fetching data";
-          this.stations[key].available_return_bikes = "Error fetching data";
-          this.stations[key].infoTime = "Error fetching data";
+        for (const key in stations.value) {
+          stations.value[key].available_rent_bikes = "Error fetching data";
+          stations.value[key].available_return_bikes = "Error fetching data";
+          stations.value[key].infoTime = "Error fetching data";
         }
       } finally {
-        this.isLoading = false;
+        isLoading.value = false;
       }
-    },
-    async addStation() {
-      if (this.selectedStation) {
-        const station = new Station(this.selectedStation["value"]);
-        this.stations[this.selectedStation["value"]] = station;
+    };
+
+    const addStation = async () => {
+      if (selectedStation.value) {
+        const station = new Station(selectedStation.value.value);
+        stations.value[selectedStation.value.value] = station;
         //臺北市&新北市使用不同API
-        if (this.selectedCity["value"] === "臺北市") {
+        if (selectedCity.value.value === "臺北市") {
           try {
             const response = await axios.get(
               "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
@@ -337,7 +387,7 @@ export default defineComponent({
             const data = response.data;
 
             const stationData = data.find(
-              (s) => s.sna === this.selectedStation["value"]
+              (s) => s.sna === selectedStation.value.value
             );
 
             if (stationData) {
@@ -356,7 +406,7 @@ export default defineComponent({
             station.available_return_bikes = "Error fetching data";
             station.infoTime = "Error fetching data";
           }
-        } else if (this.selectedCity["value"] === "新北市") {
+        } else if (selectedCity.value.value === "新北市") {
           try {
             let response;
             let data;
@@ -371,7 +421,7 @@ export default defineComponent({
             data = [...data, ...response.data]; //Merging the two arrays of objects together
 
             const stationData = data.find(
-              (s) => s.sna === this.selectedStation["value"]
+              (s) => s.sna === selectedStation.value.value
             );
 
             if (stationData) {
@@ -395,35 +445,50 @@ export default defineComponent({
         }
 
         // Update store
+        const currentData = {
+          nickname: selectedStation.value.label,
+          city: selectedCity.value.value,
+        };
+        console.log(selectedStation.value.value)
+        const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStation.value.value)}`;
+        console.log(`${userAccount.value}.Youbike.stationList.${selectedStation.value.value}`)
+        await updateDoc(userRef.value, {[updatePath]: currentData});
+        $q.notify({
+            message: "已儲存更改",
+            color: "positive",
+            position: "bottom",
+            timeout: 2000,
+          });
         store.dispatch("addStation", {
-          stationName: this.selectedStation["value"],
+          stationName: selectedStation.value.value,
           stationData: {
-            nickname: this.selectedStation.label,
-            city: this.selectedCity.value,
+            nickname: selectedStation.value.label,
+            city: selectedCity.value.value,
           },
         });
 
-        this.showAddStationDialog = false;
-        this.selectedCity = null;
-        this.selectedDistrict = null;
-        this.selectedStation = null;
+        showAddStationDialog.value = false;
+        selectedCity.value = null;
+        selectedDistrict.value = null;
+        selectedStation.value = null;
       }
-    },
-    onCityChange() {
-      this.selectedDistrict = null;
-      this.selectedStation = null;
-      this.stationOptions = [];
-    },
-    //選完行政區後抓站點選項
-    async onDistrictChange() {
-      this.selectedStation = null;
-      this.stationOptions = [];
-      if (this.selectedDistrict) {
+    };
+
+    const onCityChange = () => {
+      selectedDistrict.value = null;
+      selectedStation.value = null;
+      stationOptions.value = [];
+    };
+
+    const onDistrictChange = async () => {
+      selectedStation.value = null;
+      stationOptions.value = [];
+      if (selectedDistrict.value) {
         let apiUrl;
-        if (this.selectedCity["value"] === "臺北市") {
+        if (selectedCity.value.value === "臺北市") {
           apiUrl =
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json";
-        } else if (this.selectedCity["value"] === "新北市") {
+        } else if (selectedCity.value.value === "新北市") {
           apiUrl =
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000";
         }
@@ -434,7 +499,7 @@ export default defineComponent({
           data = response.data;
 
           //Because NTC API has two pages
-          if (this.selectedCity["value"] === "新北市") {
+          if (selectedCity.value.value === "新北市") {
             const response = await axios.get(
               "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
             );
@@ -443,64 +508,74 @@ export default defineComponent({
 
           // Filter stations by selected district
           const filteredStations = data.filter(
-            (station) => station.sarea === this.selectedDistrict["value"]
+            (station) => station.sarea === selectedDistrict.value.value
           );
 
           // Map the filtered stations to station options
-          this.stationOptions = filteredStations.map((station) => ({
+          stationOptions.value = filteredStations.map((station) => ({
             label: station.sna.substr(11),
             value: station.sna,
           }));
         } catch (error) {
           console.error("Error fetching data:", error);
-          this.stationOptions = [];
+          stationOptions.value = [];
         }
       } else {
-        this.stationOptions = [];
+        stationOptions.value = [];
       }
-    },
-    openEditNicknameDialog(stationName) {
-      this.selectedStationForEdit = stationName;
-      this.newNickname = this.stationsNickname[stationName] || "";
-      this.showEditNicknameDialog = true;
-    },
-    updateNickname() {
-      if (this.selectedStationForEdit && this.newNickname) {
+    };
+
+    const openEditNicknameDialog = (stationName) => {
+      selectedStationForEdit.value = stationName;
+      newNickname.value = stationsNickname.value[stationName] || "";
+      showEditNicknameDialog.value = true;
+    };
+
+    const updateNickname = async () => {
+      if (selectedStationForEdit.value && newNickname.value) {
         // Update local state
-        this.stationsNickname = {
-          ...this.stationsNickname,
-          [this.selectedStationForEdit]: this.newNickname,
+        stationsNickname.value = {
+          ...stationsNickname.value,
+          [selectedStationForEdit.value]: newNickname.value,
         };
+        const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStationForEdit.value)}.nickname`;
+        await updateDoc(userRef.value, {[updatePath]: newNickname.value});
+        $q.notify({
+            message: "已儲存更改",
+            color: "positive",
+            position: "bottom",
+            timeout: 2000,
+          });
 
         // Update store
         store.dispatch("updateStationNickname", {
-          stationName: this.selectedStationForEdit,
-          newNickname: this.newNickname,
+          stationName: selectedStationForEdit.value,
+          newNickname: newNickname.value,
         });
       }
-      this.showEditNicknameDialog = false;
-    },
-    openDeleteStationDialog(stationName) {
-      this.selectedStationForDelete = stationName;
-      this.showDeleteStationDialog = true;
-    },
-    deleteStation(key) {
-      if (this.stations[key]) {
-        const stationName = this.stations[key].name;
+      showEditNicknameDialog.value = false;
+    };
 
+    const openDeleteStationDialog = (stationName) => {
+      selectedStationForDelete.value = stationName;
+      showDeleteStationDialog.value = true;
+    };
+
+    const deleteStation = async (key) => {
+      if (stations.value[key]) {
+        const stationName = stations.value[key].name;
         // Remove from local component state
-        delete this.stationsNickname[stationName];
-        delete this.stations[key];
+        delete stationsNickname.value[stationName];
+        delete stations.value[key];
 
         // Update store
+        const deletePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(stationName)}`;
+        await updateDoc(userRef.value, {[deletePath]: deleteField()})
         store.dispatch("deleteStation", stationName);
-      } else {
-        // If the station is not in the local state, it might be directly in the store
-        store.dispatch("deleteStation", key);
       }
-      this.showDeleteStationDialog = false;
-    },
-    parseTimestamp(timestamp) {
+    };
+
+    const parseTimestamp = (timestamp) => {
       if (typeof timestamp === "string") {
         // Check if the timestamp matches the 新北市 format (YYYYMMDDHHMMSS)
         if (/^\d{14}$/.test(timestamp)) {
@@ -512,20 +587,47 @@ export default defineComponent({
       }
       // If it's not a string, return it as is (it might already be a Date object)
       return timestamp;
-    },
-    timeAgo(time) {
-      const parsedTime = this.parseTimestamp(time);
+    };
+
+    const timeAgo = (time) => {
+      const parsedTime = parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
-    },
-    getChipColor(value) {
+    };
+
+    const getChipColor = (value) => {
       if (value === 0) return "red-9";
       if (value >= 1 && value <= 3) return "orange-8";
       return "green";
-    },
-  },
-  mounted() {
-    console.log(JSON.parse(localStorage.getItem("store")));
-    this.fetchData();
+    };
+
+    return {
+      stations,
+      stationsNickname,
+      showAddStationDialog,
+      showEditNicknameDialog,
+      showDeleteStationDialog,
+      selectedStationForEdit,
+      newNickname,
+      selectedStationForDelete,
+      selectedCity,
+      selectedDistrict,
+      selectedStation,
+      cityOptions,
+      districtOptions,
+      stationOptions,
+      isLoading,
+      StationList,
+      fetchData,
+      addStation,
+      onCityChange,
+      onDistrictChange,
+      openEditNicknameDialog,
+      updateNickname,
+      openDeleteStationDialog,
+      deleteStation,
+      timeAgo,
+      getChipColor,
+    };
   },
 });
 </script>

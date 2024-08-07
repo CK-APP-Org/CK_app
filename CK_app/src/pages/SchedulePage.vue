@@ -202,7 +202,6 @@
 
 <script>
 import { onMounted, ref, computed } from "vue";
-import { getAuth } from 'firebase/auth';
 import { useQuasar } from 'quasar';
 import { useStore } from 'vuex';
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';

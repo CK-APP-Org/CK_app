@@ -100,7 +100,7 @@ import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { useQuasar } from "quasar";
 import axios from "axios";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -170,8 +170,8 @@ export default {
                 position: "bottom",
                 timeout: 2000,
               });
-              console.log(userAccount.value)
-              router.push('/');
+              console.log(userAccount.value);
+              router.push("/");
             } else {
               processingNotif(); // Dismiss the processing notification
               $q.notify({
@@ -238,6 +238,7 @@ export default {
               },
               Food: {
                 favoriteRestaurants: [],
+                userRatings: {},
               },
               Todo: {
                 events: [],
@@ -262,7 +263,7 @@ export default {
               position: "bottom",
               timeout: 2000,
             });
-            router.push('/');
+            router.push("/");
           }
         }
       } catch (error) {

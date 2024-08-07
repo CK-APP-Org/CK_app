@@ -80,6 +80,19 @@
           <div class="sidebar-name">
             <div v-if="selectedMarker">
               <div class="text-h5">{{ selectedMarker.name }}</div>
+              <div class="rating-section">
+                <q-btn
+                  :label="
+                    getUserRating(selectedMarker)
+                      ? '您的評分: ' + getUserRating(selectedMarker)
+                      : '評分'
+                  "
+                  color="primary"
+                  outline
+                  class="Rating-btn"
+                  @click="showRatingDialog"
+                />
+              </div>
               <div v-if="selectedMarker.openingHours">
                 <div class="text-h6">營業時間:</div>
                 <div
@@ -112,10 +125,10 @@
             </div>
           </div>
           <q-btn
-            :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
+            :icon="isFavorite(selectedMarker) ? 'favorite' : 'favorite_border'"
             flat
             round
-            color="yellow"
+            color="red"
             class="favorite-btn"
             @click="toggleFavorite(selectedMarker)"
           />
@@ -213,6 +226,30 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
+        <q-dialog v-model="showRatingPrompt">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">Rate {{ selectedMarker.name }}</div>
+            </q-card-section>
+            <q-card-section>
+              <q-rating
+                v-model="userRating"
+                :max="5"
+                size="3em"
+                color="yellow"
+              />
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn flat label="Cancel" color="primary" v-close-popup />
+              <q-btn
+                flat
+                label="Submit"
+                color="primary"
+                @click="submitRating"
+              />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
     </q-page>
   </div>
@@ -233,6 +270,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  increment,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 
@@ -511,6 +549,58 @@ const showSidebarFromList = (restaurant) => {
   }
 };
 
+//Rating section
+const showRatingPrompt = ref(false);
+const userRating = ref(0);
+
+const getAverageScore = (restaurant) => {
+  if (!restaurant.ratings || restaurant.ratings.numberOfRatings === 0) {
+    return "Not rated";
+  }
+  return (
+    restaurant.ratings.totalScore / restaurant.ratings.numberOfRatings
+  ).toFixed(1);
+};
+
+const getUserRating = (restaurant) => {
+  return userData.value?.Food?.userRatings?.[restaurant.name] || null;
+};
+
+const showRatingDialog = () => {
+  userRating.value = getUserRating(selectedMarker.value) || 0;
+  showRatingPrompt.value = true;
+};
+
+const submitRating = async () => {
+  try {
+    const userRatingPath = `${userAccount.value}.Food.userRatings.${selectedMarker.value.name}`;
+
+    // Update user's rating
+    await updateDoc(userRef.value, {
+      [userRatingPath]: userRating.value,
+    });
+
+    // Update local state
+    if (!userData.value.Food.userRatings) {
+      userData.value.Food.userRatings = {};
+    }
+    userData.value.Food.userRatings[selectedMarker.value.name] =
+      userRating.value;
+
+    showRatingPrompt.value = false;
+    $q.notify({
+      color: "positive",
+      message: "評分已送出",
+    });
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+    $q.notify({
+      color: "negative",
+      message: "無法送出評分，請重試",
+    });
+  }
+};
+
 onMounted(async () => {
   console.log(userAccount.value);
   const firebaseConfig = {
@@ -659,5 +749,10 @@ onMounted(async () => {
 .error-message {
   color: #ff5252;
   font-weight: bold;
+}
+
+.Rating-btn {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 </style>

@@ -243,6 +243,11 @@ export default {
                 currentView: "calendar",
                 todoCategories: [],
               },
+              Settings: {
+                showSchedule: true,
+                showTodo: true,
+                showSchoolNews: true,
+              },
             };
             await setDoc(userRef, { [username]: newUserData }, { merge: true });
             processingNotif(); // Dismiss the processing notification

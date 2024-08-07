@@ -43,11 +43,14 @@
                   <q-btn icon="close" flat round dense v-close-popup />
                 </q-card-section>
 
-                <q-card-section>
-                  目前的班級為{{
-                    userClass
-                  }}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
-                </q-card-section>
+                <q-select
+                  filled
+                  @update:model-value="confirmClassChange"
+                  :options="classOptions"
+                  v-model="selectedClass"
+                  label="選擇班級(用於課表資料匯入)"
+                  class="q-mb-md"
+                />
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">編輯課表</div>
                   <q-space />
@@ -207,6 +210,16 @@ import { useStore } from 'vuex';
 import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import loadingSchedule from '../data/loadingSchedule.json'
+
+const classOptions = [
+  101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+  116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
+  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
+  219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
+  307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+  322, 323, 325, 326, 327, 328,
+];
+
 
 const columns = [
   {

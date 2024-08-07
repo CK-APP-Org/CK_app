@@ -10,33 +10,6 @@
           label="選擇班級(用於課表資料匯入)"
           class="q-mb-md"
         />
-        <!--
-        <q-card class="q-mb-md">
-          <q-card-section>
-            <div class="text-h6 q-mb-md">主題顏色設定</div>
-            <q-select
-              v-model="themeColor"
-              :options="colorOptions"
-              label="選擇主題顏色"
-              emit-value
-              map-options
-            >
-              <template v-slot:option="{ itemProps, opt, toggleOption }">
-                <q-item v-bind="itemProps" @click="toggleOption(opt)">
-                  <q-item-section avatar>
-                    <q-avatar :color="opt.value" text-color="white">
-                      {{ opt.label.charAt(0) }}
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label>{{ opt.label }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </q-card-section>
-        </q-card>
-        -->
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
@@ -50,7 +23,7 @@
 
         <q-btn
           color="primary"
-          label="清除所有資料"
+          label="移除帳號"
           @click="confirmClear"
           class="full-width q-mb-md"
         />
@@ -98,9 +71,12 @@
 </template>
 
 <script>
-import { computed, ref, watch } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import axios from "axios";
 
 const classOptions = [
   101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
@@ -125,48 +101,72 @@ export default {
     const store = useStore();
     const confirmDialog = ref(false);
     const confirmClassChangeDialog = ref(false);
-    const userClass = computed(() => store.getters.getUserClass);
-    const selectedClass = ref(userClass.value);
+    const userAccount = computed(() => store.getters.getUserAccount);
 
-    // Theme color
-    const themeColor = ref("#1976D2"); // Default to blue
+    const userClass = ref('317');
+    const selectedClass = ref("載入中");
 
-    // Watch for theme color changes and apply them
-    /*
-    watch(
-      themeColor,
-      (newColor) => {
-        $q.dark.set(false); // Ensure light mode is active
-        document.body.style.setProperty("--q-primary", newColor);
-      },
-      { immediate: true }
-    );
-    */
+    const userData = ref(null);
+    const userRef = ref(null);  // Declare userRef here
+
+
+    const showSchedule = ref(true)
+    const showTodo = ref(true)
+    const showSchoolNews = ref(true)
+
+    const SCHEDULE_URL = "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
+
+    // Inside the setup function
+    watch(showSchedule, (newValue) => {
+      updateSettingInFirebase('showSchedule', newValue);
+    });
+
+    watch(showTodo, (newValue) => {
+      updateSettingInFirebase('showTodo', newValue);
+    });
+
+    watch(showSchoolNews, (newValue) => {
+      updateSettingInFirebase('showSchoolNews', newValue);
+    });
+
+    onMounted(async () => {
+      console.log(userAccount.value)
+      const firebaseConfig = {
+        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+        authDomain: "ck-app-database.firebaseapp.com",
+        projectId: "ck-app-database",
+        storageBucket: "ck-app-database.appspot.com",
+        messagingSenderId: "253500838094",
+        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+        measurementId: "G-T79H6D7WRT"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      userClass.value = userData.value["Schedule"]["userClass"];
+      showSchedule.value = userData.value["Settings"]["showSchedule"];
+      showTodo.value = userData.value["Settings"]["showTodo"];
+      showSchoolNews.value = userData.value["Settings"]["showSchoolNews"];
+      selectedClass.value = userClass.value;
+    });
 
     // Computed properties for checkbox states
-    const showSchedule = computed({
-      get: () => store.getters.getShowSchedule,
-      set: (value) => store.commit("SET_SHOW_SCHEDULE", value),
-    });
 
-    const showTodo = computed({
-      get: () => store.getters.getShowTodo,
-      set: (value) => store.commit("SET_SHOW_TODO", value),
-    });
-
-    const showSchoolNews = computed({
-      get: () => store.getters.getShowSchoolNews,
-      set: (value) => store.commit("SET_SHOW_NEWS", value),
-    });
 
     const confirmClear = () => {
       confirmDialog.value = true;
     };
 
-    const clearAllData = () => {
+    const clearAllData = async () => {
+      const updatePath = `${userAccount.value}`;
+      await updateDoc(userRef.value, {[updatePath]: deleteField()});  
       store.dispatch("clearALL");
       $q.notify({
-        message: `已刪除所有資料`,
+        message: `已刪除此帳號`,
         color: "positive",
         position: "bottom",
         timeout: 2000,
@@ -178,8 +178,14 @@ export default {
       confirmClassChangeDialog.value = true;
     };
 
-    const updateUserClass = () => {
+    const updateUserClass = async () => {
+      const updatePath = `${userAccount.value}.Schedule.userClass`;
+      await updateDoc(userRef.value, {[updatePath]: selectedClass.value});
       store.dispatch("setUserClass", selectedClass.value);
+      const response = await axios.get(SCHEDULE_URL);
+      const scheduleData = response.data[selectedClass.value]["schedule"];
+      const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
+      await updateDoc(userRef.value, {[updatePath2]: scheduleData});
       store.dispatch("loadSchedule");
       confirmClassChangeDialog.value = false;
 
@@ -196,6 +202,27 @@ export default {
       confirmClassChangeDialog.value = false;
     };
 
+    const updateSettingInFirebase = async (setting, value) => {
+      try {
+        const updatePath = `${userAccount.value}.Settings.${setting}`;
+        await updateDoc(userRef.value, {[updatePath]: value});
+        $q.notify({
+          message: `已更新設定`,
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+      } catch (error) {
+        console.error(`Error updating ${setting}:`, error);
+        $q.notify({
+          message: `更新設定失敗`,
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    };
+
     return {
       confirmDialog,
       confirmClassChangeDialog,
@@ -210,8 +237,6 @@ export default {
       showSchedule,
       showTodo,
       showSchoolNews,
-      themeColor,
-      themeColors,
     };
   },
 };

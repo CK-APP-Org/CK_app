@@ -5,7 +5,7 @@
         inline
         class="custom-card-margin"
         style="height: 127px; width: 350px"
-        v-for="(station, key) in stations"
+        v-for="(station, key) in sortedStations"
         :key="key"
       >
         <q-card-section>
@@ -153,14 +153,29 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
-import { useQuasar } from 'quasar';
-import axios from 'axios';
-import { formatDistanceToNow, parseISO, parse } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
-import { useStore } from 'vuex';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField  } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  reactive,
+  nextTick,
+} from "vue";
+import { useQuasar } from "quasar";
+import axios from "axios";
+import { formatDistanceToNow, parseISO, parse } from "date-fns";
+import { zhTW } from "date-fns/locale";
+import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 
 class Station {
   constructor(name) {
@@ -181,28 +196,48 @@ export default defineComponent({
       "YouBike2.0_泉州寧波西街口": {
         nickname: "泉州寧波西街口(建中側門)",
         city: "臺北市",
+        order: new Date("2024-01-01T00:00:00").getTime(),
       },
-      "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
-      "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
       "YouBike2.0_捷運中正紀念堂站(2號出口)": {
         nickname: "中正紀念堂站(2號出口)",
         city: "臺北市",
+        order: new Date("2024-01-01T00:01:00").getTime(),
       },
-    },);
+      "YouBike2.0_郵政博物館": {
+        nickname: "郵政博物館",
+        city: "臺北市",
+        order: new Date("2024-01-01T00:02:00").getTime(),
+      },
+      "YouBike2.0_植物園": {
+        nickname: "台北植物園",
+        city: "臺北市",
+        order: new Date("2024-01-01T00:03:00").getTime(),
+      },
+    });
 
-    const userRef = ref(null);  // Declare userRef here
+    const sortedStations = computed(() => {
+      return Object.fromEntries(
+        Object.entries(stations.value).sort((a, b) => {
+          const orderA = StationList.value[a[0]]?.order || 0;
+          const orderB = StationList.value[b[0]]?.order || 0;
+          return orderA - orderB;
+        })
+      );
+    });
+
+    const userRef = ref(null); // Declare userRef here
     const userData = ref(null);
 
     function escapeFirebaseKey(key) {
-      return key.replace(/\./g, '%2E');
+      return key.replace(/\./g, "%2E");
     }
     function unescapeFirebaseKey(key) {
-      return key.replace(/%2E/g, '.');
+      return key.replace(/%2E/g, ".");
     }
 
     onMounted(async () => {
       isLoading.value = true;
-      console.log(userAccount.value)
+      console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
         authDomain: "ck-app-database.firebaseapp.com",
@@ -210,17 +245,17 @@ export default defineComponent({
         storageBucket: "ck-app-database.appspot.com",
         messagingSenderId: "253500838094",
         appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-        measurementId: "G-T79H6D7WRT"
+        measurementId: "G-T79H6D7WRT",
       };
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       StationList.value = userData.value["Youbike"]["stationList"];
-      console.log(userData.value["Youbike"]["stationList"])
+      console.log(userData.value["Youbike"]["stationList"]);
       fetchData();
     });
 
@@ -230,7 +265,7 @@ export default defineComponent({
     const showEditNicknameDialog = ref(false);
     const showDeleteStationDialog = ref(false);
     const selectedStationForEdit = ref(null);
-    const newNickname = ref('');
+    const newNickname = ref("");
     const selectedStationForDelete = ref(null);
     const selectedCity = ref(null);
     const selectedDistrict = ref(null);
@@ -288,7 +323,6 @@ export default defineComponent({
       { label: "鶯歌區", value: "鶯歌區" },
     ];
 
-
     const districtOptions = computed(() => {
       if (selectedCity.value) {
         if (selectedCity.value.value === "臺北市") {
@@ -332,7 +366,8 @@ export default defineComponent({
         for (const key in stations.value) {
           if (stationList[key].city == "臺北市") {
             const stationData = dataTPC.find(
-              (station) => station.sna === unescapeFirebaseKey(stations.value[key].name)
+              (station) =>
+                station.sna === unescapeFirebaseKey(stations.value[key].name)
             );
 
             if (stationData) {
@@ -348,7 +383,8 @@ export default defineComponent({
             }
           } else if (stationList[key].city == "新北市") {
             const stationData = dataNTC.find(
-              (station) => station.sna === unescapeFirebaseKey(stations.value[key].name)
+              (station) =>
+                station.sna === unescapeFirebaseKey(stations.value[key].name)
             );
 
             if (stationData) {
@@ -377,100 +413,98 @@ export default defineComponent({
     const addStation = async () => {
       if (selectedStation.value) {
         const station = new Station(selectedStation.value.value);
-        stations.value[selectedStation.value.value] = station;
-        //臺北市&新北市使用不同API
-        if (selectedCity.value.value === "臺北市") {
-          try {
-            const response = await axios.get(
-              "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
-            );
-            const data = response.data;
+        const newStationName = selectedStation.value.value;
 
-            const stationData = data.find(
-              (s) => s.sna === selectedStation.value.value
-            );
-
-            if (stationData) {
-              station.available_rent_bikes = stationData.available_rent_bikes;
-              station.available_return_bikes =
-                stationData.available_return_bikes;
-              station.infoTime = stationData.mday;
-            } else {
-              station.available_rent_bikes = "Station not found";
-              station.available_return_bikes = "Station not found";
-              station.infoTime = "Station not found";
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            station.available_rent_bikes = "Error fetching data";
-            station.available_return_bikes = "Error fetching data";
-            station.infoTime = "Error fetching data";
-          }
-        } else if (selectedCity.value.value === "新北市") {
-          try {
-            let response;
-            let data;
-            response = await axios.get(
-              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
-            );
-            data = response.data;
-            //fetch the data of the second page of the NTC API
-            response = await axios.get(
-              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
-            );
-            data = [...data, ...response.data]; //Merging the two arrays of objects together
-
-            const stationData = data.find(
-              (s) => s.sna === selectedStation.value.value
-            );
-
-            if (stationData) {
-              station.available_rent_bikes = stationData.sbi;
-              station.available_return_bikes = stationData.bemp;
-              station.infoTime = stationData.mday;
-            } else {
-              station.available_rent_bikes = "Station not found";
-              station.available_return_bikes = "Station not found";
-              station.infoTime = "Station not found";
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            station.available_rent_bikes = "Error fetching data";
-            station.available_return_bikes = "Error fetching data";
-            station.infoTime = "Error fetching data";
-          }
-        } else {
-          console.error("Unknown city selected");
-          return;
-        }
-
-        // Update store
-        const currentData = {
+        // Create the new station data
+        const newStationData = {
           nickname: selectedStation.value.label,
           city: selectedCity.value.value,
+          order: Date.now(),
         };
-        console.log(selectedStation.value.value)
-        const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStation.value.value)}`;
-        console.log(`${userAccount.value}.Youbike.stationList.${selectedStation.value.value}`)
-        await updateDoc(userRef.value, {[updatePath]: currentData});
-        $q.notify({
-            message: "已儲存更改",
-            color: "positive",
-            position: "bottom",
-            timeout: 2000,
-          });
+
+        // Update local state
+        stations.value[newStationName] = station;
+        StationList.value[newStationName] = newStationData;
+
+        // Fetch and update station data
+        await fetchStationData(station, selectedCity.value.value);
+
+        // Update store and Firestore
+        const updatePath = `${
+          userAccount.value
+        }.Youbike.stationList.${escapeFirebaseKey(newStationName)}`;
+        await updateDoc(userRef.value, { [updatePath]: newStationData });
+
         store.dispatch("addStation", {
-          stationName: selectedStation.value.value,
-          stationData: {
-            nickname: selectedStation.value.label,
-            city: selectedCity.value.value,
-          },
+          stationName: newStationName,
+          stationData: newStationData,
+        });
+
+        $q.notify({
+          message: "已儲存更改",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+
+        // Force re-computation of sortedStations
+        nextTick(() => {
+          const temp = { ...stations.value };
+          stations.value = {};
+          stations.value = temp;
         });
 
         showAddStationDialog.value = false;
         selectedCity.value = null;
         selectedDistrict.value = null;
         selectedStation.value = null;
+      }
+    };
+
+    // Helper function to fetch station data
+    const fetchStationData = async (station, city) => {
+      let apiUrl, data;
+      if (city === "臺北市") {
+        apiUrl =
+          "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json";
+      } else if (city === "新北市") {
+        apiUrl =
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000";
+      }
+
+      try {
+        const response = await axios.get(apiUrl);
+        data = response.data;
+
+        if (city === "新北市") {
+          const response2 = await axios.get(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+          );
+          data = [...data, ...response2.data];
+        }
+
+        const stationData = data.find((s) => s.sna === station.name);
+
+        if (stationData) {
+          if (city === "臺北市") {
+            station.available_rent_bikes = stationData.available_rent_bikes;
+            station.available_return_bikes = stationData.available_return_bikes;
+            station.infoTime = stationData.mday;
+          } else {
+            station.available_rent_bikes = stationData.sbi;
+            station.available_return_bikes = stationData.bemp;
+            station.infoTime = stationData.mday;
+          }
+        } else {
+          station.available_rent_bikes = "Station not found";
+          station.available_return_bikes = "Station not found";
+          station.infoTime = "Station not found";
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        station.available_rent_bikes = "Error fetching data";
+        station.available_return_bikes = "Error fetching data";
+        station.infoTime = "Error fetching data";
       }
     };
 
@@ -538,14 +572,18 @@ export default defineComponent({
           ...stationsNickname.value,
           [selectedStationForEdit.value]: newNickname.value,
         };
-        const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStationForEdit.value)}.nickname`;
-        await updateDoc(userRef.value, {[updatePath]: newNickname.value});
+        const updatePath = `${
+          userAccount.value
+        }.Youbike.stationList.${escapeFirebaseKey(
+          selectedStationForEdit.value
+        )}.nickname`;
+        await updateDoc(userRef.value, { [updatePath]: newNickname.value });
         $q.notify({
-            message: "已儲存更改",
-            color: "positive",
-            position: "bottom",
-            timeout: 2000,
-          });
+          message: "已儲存更改",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
 
         // Update store
         store.dispatch("updateStationNickname", {
@@ -562,15 +600,20 @@ export default defineComponent({
     };
 
     const deleteStation = async (key) => {
+      showDeleteStationDialog.value = false;
+
       if (stations.value[key]) {
         const stationName = stations.value[key].name;
         // Remove from local component state
         delete stationsNickname.value[stationName];
         delete stations.value[key];
+        delete StationList.value[stationName];
 
         // Update store
-        const deletePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(stationName)}`;
-        await updateDoc(userRef.value, {[deletePath]: deleteField()})
+        const deletePath = `${
+          userAccount.value
+        }.Youbike.stationList.${escapeFirebaseKey(stationName)}`;
+        await updateDoc(userRef.value, { [deletePath]: deleteField() });
         store.dispatch("deleteStation", stationName);
       }
     };
@@ -617,6 +660,7 @@ export default defineComponent({
       stationOptions,
       isLoading,
       StationList,
+      sortedStations,
       fetchData,
       addStation,
       onCityChange,

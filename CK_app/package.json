@@ -13,6 +13,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@capacitor/browser": "^6.0.1",
     "@quasar/extras": "^1.16.4",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "axios": "^1.2.1",

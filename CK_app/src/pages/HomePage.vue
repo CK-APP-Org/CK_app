@@ -1,136 +1,135 @@
 <template>
   <div class="app-container">
-    <!-- New Banner Component -->
-    
-    <q-banner class="bg-primary text-white q-mb-md" rounded>
-      <template v-slot:avatar>
-        <q-icon name="announcement" color="white" size="md" />
-      </template>
-      CKAPP第二版隆重推出
-    </q-banner>
-   
-
-    <!-- <div class="header">
-      <h5 class="font-weight-bold">歡迎使用 CK APP</h5>
-      <h6>為你量身打造的專屬校園APP</h6>
-    </div> -->
-
-    <!-- Current Class Section -->
-    <div class="current-class-section q-mb-md" v-if="showSchedule">
-      <q-card class="cursor-pointer">
-        <q-card-section :style="{ backgroundColor: currentClass.color }">
-          <div class="row items-center q-mb-sm">
-            <div class="text-h6 q-mr-sm">目前課程</div>
-            <q-btn
-              flat
-              dense
-              round
-              icon="arrow_forward_ios"
-              color="primary"
-              size="0.8em"
-              href="/#/schedule"
-            />
-          </div>
-          <div style="font-weight: bold; font-size: x-large">
-            {{ currentClass.subject }}
-          </div>
-          <q-separator class="q-my-sm" />
-          <div class="text-caption">課程備註：</div>
-          <div>{{ currentClass.note }}</div>
-        </q-card-section>
-      </q-card>
-    </div>
-    <!-- Todo Tasks Section -->
-    <div class="todo-tasks-section q-mb-md" v-if="showTodo">
-      <q-card>
-        <q-card-section class="bg-blue-1">
-          <div class="row items-center q-mb-sm">
-            <div class="text-h6 q-mr-sm">今日待辦事項</div>
-            <q-btn
-              flat
-              dense
-              round
-              icon="arrow_forward_ios"
-              color="primary"
-              size="0.8em"
-              href="/#/todo"
-            />
-          </div>
-          <q-list dense>
-            <q-item v-for="task in todayTodos" :key="task.id">
-              <q-item-section avatar>
-                <q-checkbox
-                  v-model="task.completed"
-                  @update:model-value="onTodoCheck(task)"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ task.title }}</q-item-label>
-                <q-item-label caption v-if="task.category">{{
-                  task.category.name
-                }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <div v-if="todayTodos.length === 0" class="text-center q-pa-md">
-            今天沒有待辦事項
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-    <!-- Pinned School News Section -->
-    <div class="school-news-section q-mb-md" v-if="showSchoolNews">
-      <q-card>
-        <q-card-section class="bg-blue-1">
-          <div class="row items-center q-mb-sm">
-            <div class="text-h6 q-mr-sm">釘選校網內容</div>
-            <q-btn
-              flat
-              dense
-              round
-              icon="edit"
-              color="primary"
-              size="0.8em"
-              href="/#/news"
-            />
-          </div>
-          <q-list dense v-if="pinnedNews.length > 0">
-            <q-item
-              v-for="(news, index) in pinnedNews"
-              :key="index"
-              clickable
-              v-ripple
-              :href="news.link"
-            >
-              <q-item-section side>
-                <q-icon name="fiber_manual_record" size="xs" color="primary" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ news.title }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <div v-else class="text-center q-pa-md">無釘選內容</div>
-        </q-card-section>
-      </q-card>
+    <!-- Loading Spinner -->
+    <div v-if="loading" class="loading-spinner">
+      <q-spinner size="3em" color="primary" />
     </div>
 
-    <!-- <q-input filled v-model="search" label="搜尋功能" dense class="q-mb-md">
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input> -->
-    <div class="icon-grid">
-      <div v-for="item in filteredItems" :key="item.name" class="icon-item">
-        <q-btn
-          stack
-          class="icon-btn"
-          :rounded="true"
-          @click="navigateTo(item.link)"
-        >
-          <q-icon :name="item.icon" size="2.5em" />
-          <div class="text-content text-capitalize">{{ item.name }}</div>
-        </q-btn>
+    <!-- Main Content -->
+    <div v-else>
+      <!-- New Banner Component -->
+      <q-banner class="bg-primary text-white q-mb-md" rounded>
+        <template v-slot:avatar>
+          <q-icon name="announcement" color="white" size="md" />
+        </template>
+        CKAPP第二版隆重推出
+      </q-banner>
+
+      <!-- Current Class Section -->
+      <div class="current-class-section q-mb-md" v-if="showSchedule">
+        <q-card class="cursor-pointer">
+          <q-card-section :style="{ backgroundColor: currentClass.color }">
+            <div class="row items-center q-mb-sm">
+              <div class="text-h6 q-mr-sm">目前課程</div>
+              <q-btn
+                flat
+                dense
+                round
+                icon="arrow_forward_ios"
+                color="primary"
+                size="0.8em"
+                href="/#/schedule"
+              />
+            </div>
+            <div style="font-weight: bold; font-size: x-large">
+              {{ currentClass.subject }}
+            </div>
+            <q-separator class="q-my-sm" />
+            <div class="text-caption">課程備註：</div>
+            <div>{{ currentClass.note }}</div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Todo Tasks Section -->
+      <div class="todo-tasks-section q-mb-md" v-if="showTodo">
+        <q-card>
+          <q-card-section class="bg-blue-1">
+            <div class="row items-center q-mb-sm">
+              <div class="text-h6 q-mr-sm">今日待辦事項</div>
+              <q-btn
+                flat
+                dense
+                round
+                icon="arrow_forward_ios"
+                color="primary"
+                size="0.8em"
+                href="/#/todo"
+              />
+            </div>
+            <q-list dense>
+              <q-item v-for="task in todayTodos" :key="task.id">
+                <q-item-section avatar>
+                  <q-checkbox
+                    v-model="task.completed"
+                    @update:model-value="onTodoCheck(task)"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ task.title }}</q-item-label>
+                  <q-item-label caption v-if="task.category">{{
+                    task.category.name
+                  }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-if="todayTodos.length === 0" class="text-center q-pa-md">
+              今天沒有待辦事項
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Pinned School News Section -->
+      <div class="school-news-section q-mb-md" v-if="showSchoolNews">
+        <q-card>
+          <q-card-section class="bg-blue-1">
+            <div class="row items-center q-mb-sm">
+              <div class="text-h6 q-mr-sm">釘選校網內容</div>
+              <q-btn
+                flat
+                dense
+                round
+                icon="edit"
+                color="primary"
+                size="0.8em"
+                href="/#/news"
+              />
+            </div>
+            <q-list dense v-if="pinnedNews.length > 0">
+              <q-item
+                v-for="(news, index) in pinnedNews"
+                :key="index"
+                clickable
+                v-ripple
+                :href="news.link"
+              >
+                <q-item-section side>
+                  <q-icon name="fiber_manual_record" size="xs" color="primary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ news.title }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-else class="text-center q-pa-md">無釘選內容</div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <!-- Icon Grid -->
+      <div class="icon-grid">
+        <div v-for="item in filteredItems" :key="item.name" class="icon-item">
+          <q-btn
+            stack
+            class="icon-btn"
+            :rounded="true"
+            @click="navigateTo(item.link)"
+          >
+            <q-icon :name="item.icon" size="2.5em" />
+            <div class="text-content text-capitalize">{{ item.name }}</div>
+          </q-btn>
+        </div>
       </div>
     </div>
   </div>
@@ -162,12 +161,14 @@ export default {
     const todos = ref([]);
     const pinnedNews = ref([])
 
-    const showSchedule = ref(true)
-    const showTodo = ref(true)
-    const showSchoolNews = ref(true)
+    const showSchedule = ref(false)
+    const showTodo = ref(false)
+    const showSchoolNews = ref(false)
 
     const userData = ref(null);
     const userRef = ref(null); // Declare userRef here
+
+    const loading = ref(true);
 
     const search = ref("");
     const items = ref([
@@ -192,6 +193,10 @@ export default {
     ];
 
     onMounted(async () => {
+      // Set loading to true before data fetching
+      loading.value = true;
+      
+      // Your existing data fetching logic
       console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
@@ -209,10 +214,14 @@ export default {
       userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
-      userClass.value = userData.value["Schedule"]["userClass"];
       scheduleData.value = userData.value["Schedule"]["ScheduleData"];
+      showSchedule.value = userData.value["Settings"]["showSchedule"];
+      showTodo.value = userData.value["Settings"]["showTodo"];
+      showSchoolNews.value = userData.value["Settings"]["showSchoolNews"];
       console.log(userData.value["Schedule"]["ScheduleData"]);
-      selectedClass.value = userClass.value;
+      
+      // Set loading to false once data fetching is complete
+      loading.value = false;
     });
 
     const filteredItems = computed(() => {
@@ -310,12 +319,20 @@ export default {
       todayTodos,
       navigateTo,
       onTodoCheck,
+      loading,
     };
   },
 };
 </script>
 
 <style scoped>
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+}
+
 .app-container {
   padding: 25px;
   font-weight: bold;

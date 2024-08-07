@@ -101,23 +101,13 @@
                 {{ getCellNote(props.row, props.col.name) }}
               </div>
             </div>
-            <q-popup-edit
-              v-model="props.row[props.col.name]"
-              auto-save
-              v-slot="scope"
-            >
+            <q-popup-edit v-model="props.row[props.col.name]" v-slot="scope">
               <div class="text-h6 q-mb-md">自訂課表</div>
               <q-input
                 v-model="scope.value.subject"
                 label="科目"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    subject: $event,
-                  })
-                "
               />
               <q-input
                 v-if="scope.value.subject === '自訂'"
@@ -125,24 +115,12 @@
                 label="自訂科目名稱"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    subject: $event,
-                  })
-                "
               />
               <q-input
                 v-model="scope.value.note"
                 label="備註"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    note: $event,
-                  })
-                "
               />
               <q-select
                 :options="colorOptions"
@@ -150,12 +128,6 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    color: $event.label,
-                  })
-                "
               >
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
@@ -172,6 +144,14 @@
                   </q-item>
                 </template>
               </q-select>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  label="儲存"
+                  color="primary"
+                  @click="saveCell(props.row, props.col.name, scope.value)"
+                  v-close-popup
+                />
+              </div>
             </q-popup-edit>
           </template>
           <template v-else>
@@ -370,19 +350,21 @@ export default {
       return option ? option.value : "#f4f4f1"; // Default color if not found
     };
 
-    const updateCell = async (row, colName, newValue) => {
+    const saveCell = async (row, colName, newValue) => {
       $q.notify({
         message: "儲存中",
         color: "yellow-7",
         position: "bottom",
         timeout: 2000,
       });
+
       const rowIndex = scheduleData.value.indexOf(row);
       store.dispatch("updateSchedule", { rowIndex, colName, newValue });
       const currentData = scheduleData.value;
       currentData[rowIndex][colName] = newValue;
       const updatePath = `${userAccount.value}.Schedule.ScheduleData`;
       await updateDoc(userRef.value, { [updatePath]: currentData });
+
       $q.notify({
         message: "已儲存更改",
         color: "positive",
@@ -470,7 +452,6 @@ export default {
       colorOptions,
       getCellColor,
       getCellSubject,
-      updateCell,
       getCellNote,
       changeVisibleColumn,
       getDayLabel,
@@ -490,6 +471,7 @@ export default {
       confirmClassChangeDialog,
       updateUserClass,
       cancelClassChange,
+      saveCell,
     };
   },
 };

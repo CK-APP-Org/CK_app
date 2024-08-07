@@ -74,6 +74,14 @@
           </q-menu>
         </q-btn>
       </q-card>
+      <div class="flex justify-center q-mt-md">
+        <q-btn
+          icon="search"
+          color="primary"
+          label="尋找最近的五個站點"
+          @click="findNearestStations"
+        />
+      </div>
     </div>
 
     <!--按鈕(新增站點)-->
@@ -149,6 +157,66 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!--對話框(最近站點)-->
+    <q-dialog v-model="showNearestStationsDialog">
+      <q-card style="width: 300px">
+        <q-card-section>
+          <div class="text-h6">最近的站點</div>
+        </q-card-section>
+        <q-card-section>
+          <div
+            v-for="(station, index) in nearestStations"
+            :key="index"
+            class="q-mb-sm"
+          >
+            <div class="row items-center justify-between">
+              <div>
+                {{ index + 1 }}. {{ station.sna.substr(11) }} -
+                {{ (station.distance * 1000).toFixed(0) }} m
+              </div>
+              <q-btn
+                color="primary"
+                label="Add"
+                size="sm"
+                @click="addNearestStation(station)"
+                :disable="isStationInList(station.sna)"
+              />
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-section>
+          <l-map
+            v-if="userPosition"
+            style="height: 270px; width: 100%"
+            :zoom="mapZoom"
+            :center="mapCenter"
+            :options="mapOptions"
+          >
+            <l-tile-layer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></l-tile-layer>
+            <l-marker :lat-lng="userPosition" :icon="userIcon">
+              <l-popup>Your Location</l-popup>
+            </l-marker>
+            <l-marker
+              v-for="station in nearestStations"
+              :key="station.sna"
+              :lat-lng="[parseFloat(station.lat), parseFloat(station.lng)]"
+              :icon="youbikeIcon"
+            >
+              <l-popup>
+                <div class="text-bold">{{ station.sna.substr(11) }}</div>
+                <div>可借車輛: {{ station.sbi }}</div>
+                <div>可還車輛: {{ station.bemp }}</div>
+              </l-popup>
+            </l-marker>
+          </l-map>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" @click="showNearestStationsDialog = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -176,6 +244,9 @@ import {
   deleteField,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+import { Icon } from "leaflet";
 
 class Station {
   constructor(name) {
@@ -187,6 +258,12 @@ class Station {
 }
 
 export default defineComponent({
+  components: {
+    LMap,
+    LTileLayer,
+    LMarker,
+    LPopup,
+  },
   setup() {
     const $q = useQuasar();
     const store = useStore();
@@ -643,6 +720,188 @@ export default defineComponent({
       return "green";
     };
 
+    //Three nearest stations:
+    const nearestStations = ref([]);
+    const showNearestStationsDialog = ref(false);
+
+    const findNearestStations = async () => {
+      try {
+        // Get user's current position
+        const position = await getCurrentPosition();
+        console.log(position);
+        const { latitude: userLat, longitude: userLng } = position.coords;
+
+        userPosition.value = [userLat, userLng];
+        mapCenter.value = [userLat, userLng];
+
+        // Fetch all stations data
+        const allStations = await fetchAllStationsData();
+
+        // Calculate distances and sort
+        const stationsWithDistances = allStations.map((station) => ({
+          ...station,
+          distance: calculateDistance(
+            userLat,
+            userLng,
+            station.lat,
+            station.lng
+          ),
+        }));
+
+        stationsWithDistances.sort((a, b) => a.distance - b.distance);
+
+        // Get the three nearest stations
+        nearestStations.value = stationsWithDistances.slice(0, 5);
+
+        // Show the result
+        showNearestStationsDialog.value = true;
+      } catch (error) {
+        console.error("Error finding nearest stations:", error);
+        $q.notify({
+          message: "無法搜尋最近站點",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    };
+
+    const getCurrentPosition = () => {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation is not supported by this browser."));
+        } else {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        }
+      });
+    };
+
+    const fetchAllStationsData = async () => {
+      try {
+        // Fetch Taipei City data
+        const tpcResponse = await axios.get(
+          "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+        );
+        const tpcData = tpcResponse.data.map((station) => ({
+          ...station,
+          lat: station.latitude,
+          lng: station.longitude,
+          city: "臺北市",
+        }));
+
+        // Fetch New Taipei City data (both pages)
+        const ntcResponse1 = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+        );
+        const ntcResponse2 = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+        );
+        const ntcData = [...ntcResponse1.data, ...ntcResponse2.data].map(
+          (station) => ({
+            ...station,
+            lat: parseFloat(station.lat),
+            lng: parseFloat(station.lng),
+            city: "新北市",
+          })
+        );
+
+        return [...tpcData, ...ntcData];
+      } catch (error) {
+        console.error("Error fetching all stations data:", error);
+        throw error;
+      }
+    };
+
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371; // Radius of the earth in km
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) *
+          Math.cos(deg2rad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const d = R * c; // Distance in km
+      return d;
+    };
+
+    const deg2rad = (deg) => {
+      return deg * (Math.PI / 180);
+    };
+
+    const userPosition = ref(null);
+    const mapCenter = ref([25.031204, 121.515966]); // Default center (you can adjust this)
+    const mapZoom = ref(15);
+
+    const mapOptions = {
+      zoomControl: false,
+    };
+
+    const youbikeIcon = new Icon({
+      iconUrl: "https://imgur.com/jZN5Ph6.png", // Replace with actual YouBike icon URL
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+    });
+
+    const userIcon = new Icon({
+      iconUrl: "https://imgur.com/de9dxzv.png", // Replace with actual user icon URL
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+    });
+
+    const addNearestStation = async (station) => {
+      const newStationName = station.sna;
+      const newStationData = {
+        nickname: station.sna.substr(11),
+        city: station.city,
+        order: Date.now(),
+      };
+
+      // Update local state
+      stations.value[newStationName] = new Station(newStationName);
+      StationList.value[newStationName] = newStationData;
+
+      // Fetch and update station data
+      await fetchStationData(stations.value[newStationName], station.city);
+
+      // Update store and Firestore
+      const updatePath = `${
+        userAccount.value
+      }.Youbike.stationList.${escapeFirebaseKey(newStationName)}`;
+      await updateDoc(userRef.value, { [updatePath]: newStationData });
+
+      store.dispatch("addStation", {
+        stationName: newStationName,
+        stationData: newStationData,
+      });
+
+      $q.notify({
+        message: "站點已新增至您的清單",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+
+      // Force re-computation of sortedStations
+      nextTick(() => {
+        const temp = { ...stations.value };
+        stations.value = {};
+        stations.value = temp;
+      });
+    };
+
+    const isStationInList = (stationName) => {
+      // Normalize the input stationName by replacing '.' with '%2E'
+      const normalizedStationName = stationName.replace(/\./g, "%2E");
+
+      // Check if the normalized name exists in StationList.value
+      return Object.keys(StationList.value).some(
+        (key) => key === normalizedStationName || key === stationName
+      );
+    };
+
     return {
       stations,
       stationsNickname,
@@ -661,6 +920,17 @@ export default defineComponent({
       isLoading,
       StationList,
       sortedStations,
+      showNearestStationsDialog,
+      nearestStations,
+      userPosition,
+      mapCenter,
+      mapZoom,
+      mapOptions,
+      youbikeIcon,
+      userIcon,
+      addNearestStation,
+      isStationInList,
+      findNearestStations,
       fetchData,
       addStation,
       onCityChange,

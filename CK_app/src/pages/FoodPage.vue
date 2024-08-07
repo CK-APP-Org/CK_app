@@ -199,7 +199,7 @@ const userRef = ref(null);  // Declare userRef here
 
 const userAccount = computed(() => store.getters.getUserAccount);
 
-const favoriteRestaurants = ref(null)
+const favoriteRestaurants = ref([])
 
 const showOnlyFavorites = ref(false);
 
@@ -327,16 +327,50 @@ const getCurrentDay = () => {
 };
 
 const toggleFavorite = async (restaurant) => {
-  const index = favoriteRestaurants.value.findIndex(
-    (r) => r.name === restaurant.name
-  );
-  if (index === -1) {
-    const updatePath = `${userAccount.value}.Youbike.stationList.${escapeFirebaseKey(selectedStation.value.value)}`;
-    console.log(`${userAccount.value}.Youbike.stationList.${selectedStation.value.value}`)
-    await updateDoc(userRef.value, {[updatePath]: currentData});
-    store.dispatch("addFavoriteRestaurant", restaurant);
-  } else {
-    store.dispatch("removeFavoriteRestaurant", restaurant.name);
+  try {
+    console.log("Current favoriteRestaurants:", favoriteRestaurants.value);
+    console.log("Toggling favorite for restaurant:", restaurant);
+
+    const updatePath = `${userAccount.value}.Food.favoriteRestaurants`;
+    
+    if (!Array.isArray(favoriteRestaurants.value)) {
+      console.error("favoriteRestaurants is not an array:", favoriteRestaurants.value);
+      favoriteRestaurants.value = [];
+    }
+
+    const index = favoriteRestaurants.value.findIndex(r => r.name === restaurant.name);
+    
+    if (index === -1) {
+      // Add to favorites
+      console.log("Adding restaurant to favorites");
+      favoriteRestaurants.value = [...favoriteRestaurants.value, restaurant];
+    } else {
+      // Remove from favorites
+      console.log("Removing restaurant from favorites");
+      favoriteRestaurants.value = favoriteRestaurants.value.filter(r => r.name !== restaurant.name);
+    }
+
+    console.log("Updated favoriteRestaurants:", favoriteRestaurants.value);
+    console.log("Updating Firestore document");
+
+    await updateDoc(userRef.value, {
+      [updatePath]: favoriteRestaurants.value.map(r => ({
+        name: r.name,
+        // Include other necessary fields here
+      }))
+    });
+
+    console.log("Firestore update successful");
+
+    if (index === -1) {
+      store.dispatch("addFavoriteRestaurant", restaurant);
+    } else {
+      store.dispatch("removeFavoriteRestaurant", restaurant.name);
+    }
+
+  } catch (error) {
+    console.error("Error in toggleFavorite:", error);
+    // Handle the error (e.g., show a notification to the user)
   }
 };
 

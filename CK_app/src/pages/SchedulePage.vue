@@ -72,8 +72,19 @@
                 </q-card-section>
 
                 <q-card-actions align="right">
-                  <q-btn flat label="取消" color="primary" @click="cancelClassChange" />
-                  <q-btn flat label="確認" color="primary" @click="updateUserClass" :disable="!selectedClass" />
+                  <q-btn
+                    flat
+                    label="取消"
+                    color="primary"
+                    @click="classHelp = false"
+                  />
+                  <q-btn
+                    flat
+                    label="確認"
+                    color="primary"
+                    @click="updateUserClass"
+                    :disable="!selectedClass"
+                  />
                 </q-card-actions>
               </q-card>
             </q-dialog>
@@ -176,7 +187,7 @@
         </q-td>
       </template>
     </q-table>
-    
+
     <q-dialog v-model="regenerateConfirm" persistent>
       <q-card>
         <q-card-section class="row items-center">
@@ -310,7 +321,7 @@ export default {
     };
 
     onMounted(async () => {
-      loading.value = true
+      loading.value = true;
       console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
@@ -332,7 +343,7 @@ export default {
       scheduleData.value = userData.value["Schedule"]["ScheduleData"];
       console.log(userData.value["Schedule"]["ScheduleData"]);
       selectedClass.value = userClass.value;
-      loading.value = false
+      loading.value = false;
     });
 
     const getCellSubject = (row, colName) => {
@@ -384,11 +395,6 @@ export default {
     const confirmClassChange = (newClass) => {
       selectedClass.value = newClass;
       confirmClassChangeDialog.value = true;
-    };
-
-    const cancelClassChange = () => {
-      selectedClass.value = userClass.value;
-      confirmClassChangeDialog.value = false;
     };
 
     const updateUserClass = async () => {
@@ -478,9 +484,8 @@ export default {
       classOptions,
       confirmClassChangeDialog,
       updateUserClass,
-      cancelClassChange,
       saveCell,
-      loading
+      loading,
     };
   },
 };
@@ -628,5 +633,4 @@ export default {
   display: flex;
   align-items: center;
 }
-
 </style>

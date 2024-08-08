@@ -73,38 +73,36 @@
       v-model:pagination="pagination"
       :loading="isLoading"
     >
-    <template v-slot:top>
-      <div class="row items-center full-width q-px-sm q-py-md">
-        <div class="col-4">
-          <!-- Empty space to balance the layout -->
+      <template v-slot:top>
+        <div class="row items-center full-width q-px-sm q-py-md">
+          <div class="col-4">
+            <!-- Empty space to balance the layout -->
+          </div>
+          <div class="col-4 text-center">
+            <div class="text-h5 text-weight-bold news-title">未讀訊息</div>
+          </div>
+          <div class="col-4 flex justify-end">
+            <q-btn-group outline>
+              <q-btn
+                color="negative"
+                icon="delete"
+                @click="showDeleteDialog = true"
+                dense
+                flat
+              >
+              </q-btn>
+              <q-btn
+                color="positive"
+                icon="restore"
+                @click="showRecoverDialog = true"
+                dense
+                flat
+              >
+              </q-btn>
+            </q-btn-group>
+          </div>
         </div>
-        <div class="col-4 text-center">
-          <div class="text-h5 text-weight-bold news-title">未讀訊息</div>
-        </div>
-        <div class="col-4 flex justify-end">
-          <q-btn-group outline>
-            <q-btn
-              color="negative"
-              icon="delete"
-              @click="showDeleteDialog = true"
-              dense
-              flat
-            >
-              <q-tooltip>清空所有訊息</q-tooltip>
-            </q-btn>
-            <q-btn
-              color="positive"
-              icon="restore"
-              @click="showRecoverDialog = true"
-              dense
-              flat
-            >
-              <q-tooltip>恢復所有訊息</q-tooltip>
-            </q-btn>
-          </q-btn-group>
-        </div>
-      </div>
-    </template>
+      </template>
 
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -249,8 +247,6 @@ export default {
       },
     ];
 
-
-      
     const pinRow = async (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
@@ -262,8 +258,8 @@ export default {
           [updatePath]: pinnedNews.value.map((item) => ({
             title: item.title,
             pubDate: item.pubDate,
-            link: item.link
-          }))
+            link: item.link,
+          })),
         });
 
         store.dispatch("pinNews", pinnedItem);
@@ -271,7 +267,9 @@ export default {
     };
 
     const unpinRow = async (row) => {
-      const index = pinnedNews.value.findIndex((item) => item.title === row.title);
+      const index = pinnedNews.value.findIndex(
+        (item) => item.title === row.title
+      );
       if (index !== -1) {
         const unpinnedItem = pinnedNews.value.splice(index, 1)[0];
         news.value.push(unpinnedItem);
@@ -281,8 +279,8 @@ export default {
           [updatePath]: pinnedNews.value.map((item) => ({
             title: item.title,
             pubDate: item.pubDate,
-            link: item.link
-          }))
+            link: item.link,
+          })),
         });
 
         store.dispatch("unpinNews", row.title);
@@ -335,7 +333,8 @@ export default {
             }))
             .filter(
               (item) =>
-                !lastClearedTime.value || item.pubDate > new Date(lastClearedTime.value)
+                !lastClearedTime.value ||
+                item.pubDate > new Date(lastClearedTime.value)
             );
           allNews = allNews.concat(newsData);
         });
@@ -377,9 +376,9 @@ export default {
       const updatePath = `${userAccount.value}.News.lastClearedTime`;
       await updateDoc(userRef.value, { [updatePath]: null });
       store.dispatch("setLastClearedTime", null);
-      
+
       // Fetch all news again
-      
+
       $q.notify({
         message: "已恢復所有訊息",
         color: "positive",
@@ -388,10 +387,10 @@ export default {
       });
 
       showRecoverDialog.value = false;
-      refreshPage()
+      refreshPage();
     };
 
-    onMounted(async() => {
+    onMounted(async () => {
       console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
@@ -410,8 +409,8 @@ export default {
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       pinnedNews.value = userData.value["News"]["pinnedNews"];
-      lastClearedTime.value = userData.value["News"]["lastClearedTime"].toDate();
-      console.log(lastClearedTime.value)
+      lastClearedTime.value = userData.value["News"]["lastClearedTime"];
+      console.log(lastClearedTime.value);
       register("zh_TW", zh_TW);
       fetchNews();
     });

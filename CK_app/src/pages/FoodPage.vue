@@ -3,7 +3,7 @@
     <q-page class="flex column relative-position">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="loading-overlay flex flex-center">
-        <q-spinner-gears size="50px" color="primary" />
+        <q-spinner size="70px" color="primary" />
         <div class="q-mt-sm text-primary">讀取資料中...</div>
       </div>
 
@@ -203,10 +203,12 @@
                   </q-item-section>
                   <q-item-section side>
                     <q-btn
-                      :icon="isFavorite(restaurant) ? 'star' : 'star_border'"
+                      :icon="
+                        isFavorite(restaurant) ? 'favorite' : 'favorite_border'
+                      "
                       flat
                       round
-                      color="yellow"
+                      color="red"
                       @click="toggleFavorite(restaurant)"
                     />
                   </q-item-section>

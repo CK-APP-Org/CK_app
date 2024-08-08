@@ -74,8 +74,15 @@
 import { computed, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteField,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 import axios from "axios";
 
 const classOptions = [
@@ -103,34 +110,34 @@ export default {
     const confirmClassChangeDialog = ref(false);
     const userAccount = computed(() => store.getters.getUserAccount);
 
-    const userClass = ref('317');
+    const userClass = ref("317");
     const selectedClass = ref("載入中");
 
     const userData = ref(null);
-    const userRef = ref(null);  // Declare userRef here
+    const userRef = ref(null); // Declare userRef here
 
+    const showSchedule = ref(true);
+    const showTodo = ref(true);
+    const showSchoolNews = ref(true);
 
-    const showSchedule = ref(true)
-    const showTodo = ref(true)
-    const showSchoolNews = ref(true)
-
-    const SCHEDULE_URL = "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
+    const SCHEDULE_URL =
+      "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
 
     // Inside the setup function
     watch(showSchedule, (newValue) => {
-      updateSettingInFirebase('showSchedule', newValue);
+      updateSettingInFirebase("showSchedule", newValue);
     });
 
     watch(showTodo, (newValue) => {
-      updateSettingInFirebase('showTodo', newValue);
+      updateSettingInFirebase("showTodo", newValue);
     });
 
     watch(showSchoolNews, (newValue) => {
-      updateSettingInFirebase('showSchoolNews', newValue);
+      updateSettingInFirebase("showSchoolNews", newValue);
     });
 
     onMounted(async () => {
-      console.log(userAccount.value)
+      console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
         authDomain: "ck-app-database.firebaseapp.com",
@@ -138,13 +145,13 @@ export default {
         storageBucket: "ck-app-database.appspot.com",
         messagingSenderId: "253500838094",
         appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-        measurementId: "G-T79H6D7WRT"
+        measurementId: "G-T79H6D7WRT",
       };
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      userRef.value = doc(db, 'User Data', 'Userdata');  // Initialize userRef here
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       userClass.value = userData.value["Schedule"]["userClass"];
@@ -156,14 +163,13 @@ export default {
 
     // Computed properties for checkbox states
 
-
     const confirmClear = () => {
       confirmDialog.value = true;
     };
 
     const clearAllData = async () => {
       const updatePath = `${userAccount.value}`;
-      await updateDoc(userRef.value, {[updatePath]: deleteField()});  
+      await updateDoc(userRef.value, { [updatePath]: deleteField() });
       store.dispatch("clearALL");
       $q.notify({
         message: `已刪除此帳號`,
@@ -180,12 +186,12 @@ export default {
 
     const updateUserClass = async () => {
       const updatePath = `${userAccount.value}.Schedule.userClass`;
-      await updateDoc(userRef.value, {[updatePath]: selectedClass.value});
+      await updateDoc(userRef.value, { [updatePath]: selectedClass.value });
       store.dispatch("setUserClass", selectedClass.value);
       const response = await axios.get(SCHEDULE_URL);
       const scheduleData = response.data[selectedClass.value]["schedule"];
       const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
-      await updateDoc(userRef.value, {[updatePath2]: scheduleData});
+      await updateDoc(userRef.value, { [updatePath2]: scheduleData });
       store.dispatch("loadSchedule");
       confirmClassChangeDialog.value = false;
 
@@ -205,7 +211,7 @@ export default {
     const updateSettingInFirebase = async (setting, value) => {
       try {
         const updatePath = `${userAccount.value}.Settings.${setting}`;
-        await updateDoc(userRef.value, {[updatePath]: value});
+        await updateDoc(userRef.value, { [updatePath]: value });
         $q.notify({
           message: `已更新設定`,
           color: "positive",

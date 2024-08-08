@@ -91,12 +91,39 @@
       </q-card-actions>
     </q-card>
   </q-page>
+  <q-dialog v-model="showClassDialog">
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">選擇班級</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <q-select
+          filled
+          v-model="selectedClass"
+          :options="classOptions"
+          label="選擇班級(用於課表資料匯入)"
+          class="q-mb-md"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right" class="text-primary">
+        <q-btn flat label="確定" @click="updateUserClass" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
 import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { useQuasar } from "quasar";
 import axios from "axios";
@@ -142,6 +169,20 @@ export default {
         console.error("Error fetching class schedule:", error);
       }
     });
+
+    const showClassDialog = ref(false);
+    const selectedClass = ref(null);
+    const classOptions = [
+      101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+      116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
+      204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
+      219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
+      307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+      322, 323, 325, 326, 327, 328,
+    ];
+
+    const SCHEDULE_URL =
+      "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
 
     const onSubmit = async () => {
       const username = accountName.value;
@@ -263,7 +304,8 @@ export default {
               position: "bottom",
               timeout: 2000,
             });
-            router.push("/");
+            // Show the class selection dialog instead of redirecting
+            showClassDialog.value = true;
           }
         }
       } catch (error) {
@@ -279,6 +321,39 @@ export default {
       }
     };
 
+    const updateUserClass = async () => {
+      if (selectedClass.value) {
+        const updatePath = `${accountName.value}.Schedule.userClass`;
+        await updateDoc(userRef, { [updatePath]: selectedClass.value });
+
+        const response = await axios.get(SCHEDULE_URL);
+        const scheduleData = response.data[selectedClass.value]["schedule"];
+        const updatePath2 = `${accountName.value}.Schedule.ScheduleData`;
+        await updateDoc(userRef, { [updatePath2]: scheduleData });
+
+        store.dispatch("setUserClass", selectedClass.value);
+        store.dispatch("loadSchedule");
+
+        showClassDialog.value = false;
+
+        $q.notify({
+          message: `班級已設定為 ${selectedClass.value}`,
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+
+        router.push("/");
+      } else {
+        $q.notify({
+          message: "請選擇班級",
+          color: "warning",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    };
+
     return {
       isLogin,
       accountName,
@@ -287,6 +362,10 @@ export default {
       showPassword,
       onSubmit,
       userAccount,
+      showClassDialog,
+      selectedClass,
+      classOptions,
+      updateUserClass,
     };
   },
 };

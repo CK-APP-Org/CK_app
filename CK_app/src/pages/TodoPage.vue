@@ -982,7 +982,7 @@ export default {
         })),
       });
 
-      //store.dispatch("updateEvent", updatedEvent);
+      store.dispatch("updateEvent", updatedEvent);
 
       resetEventForm();
       showEventDialog.value = false;
@@ -1017,7 +1017,7 @@ export default {
 
     async function deleteEvent() {
       if (editingEvent.value) {
-        //store.dispatch("deleteEvent", editingEvent.value.id);
+        store.dispatch("deleteEvent", editingEvent.value.id);
       }
       const eventIndex = events.value.findIndex(
         (event) => event.id === editingEvent.value.id
@@ -1058,14 +1058,13 @@ export default {
         const docSnap = await getDoc(userRef.value);
         userData.value = docSnap.data()[userAccount.value];
         eventCategories.value = userData.value["Todo"]["eventCategories"];
-        /*
+
         store.dispatch("addEventCategory", {
           name: newEventCategoryName.value,
           color: newEventCategoryColor.value,
         });
         newEventCategoryName.value = "";
         newEventCategoryColor.value = "#ADADAD";
-        */
       }
     }
 
@@ -1080,7 +1079,7 @@ export default {
 
     async function confirmDeleteEventCategory() {
       if (eventCategoryToDelete.value) {
-        //store.dispatch("deleteEventCategory", eventCategoryToDelete.value);
+        store.dispatch("deleteEventCategory", eventCategoryToDelete.value);
         console.log(eventCategoryToDelete.value);
         const eventIndex = eventCategories.value.findIndex(
           (event) => event.name === eventCategoryToDelete.value
@@ -1117,7 +1116,7 @@ export default {
       if (todoDate.value && !isValidDate(todoDate.value)) {
         $q.notify({
           type: "negative",
-          message: "Please enter a valid date.",
+          message: "請輸入正確之日期",
         });
         return;
       }
@@ -1155,12 +1154,12 @@ export default {
     async function updateView(newView) {
       const updatePath = `${userAccount.value}.Todo.currentView`;
       await updateDoc(userRef.value, { [updatePath]: newView });
-      //store.dispatch("updateCurrentView", newView);
+      store.dispatch("updateCurrentView", newView);
     }
 
     async function onTodoCheck(todo) {
       todo.completed = true;
-      //store.dispatch("deleteTodo", todo.id);
+      store.dispatch("deleteTodo", todo.id);
       $q.notify({
         type: "positive",
         message: "已完成",
@@ -1222,11 +1221,10 @@ export default {
         todoCategories.value = userData.value["Todo"]["todoCategories"];
 
         // Dispatch the addTodoCategory action with the new category
-        /*
+
         store.dispatch("addTodoCategory", {
           name: newTodoCategoryName.value,
         });
-        */
 
         // Clear the input value for new category name
         newTodoCategoryName.value = "";
@@ -1249,7 +1247,7 @@ export default {
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       eventCategories.value = userData.value["Todo"]["todoCategories"];
-      //store.dispatch("deleteTodoCategory", categoryName);
+      store.dispatch("deleteTodoCategory", categoryName);
     }
 
     function toggleSidebar() {

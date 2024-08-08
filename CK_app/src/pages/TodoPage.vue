@@ -666,7 +666,6 @@ export default {
         endDate: event.endDate.toDate(),
       }));
       eventCategories.value = userData.value["Todo"]["eventCategories"];
-      todos.value = userData.value["Todo"]["todos"];
       todos.value = userData.value["Todo"]["todos"].map((event) => ({
         ...event,
         date: event.date ? event.date.toDate() : null,

@@ -218,7 +218,13 @@ export default {
       showSchedule.value = userData.value["Settings"]["showSchedule"];
       showTodo.value = userData.value["Settings"]["showTodo"];
       showSchoolNews.value = userData.value["Settings"]["showSchoolNews"];
-      console.log(userData.value["Schedule"]["ScheduleData"]);
+      console.log(userData.value["Todo"]["todos"]);
+      pinnedNews.value = userData.value["News"]["pinnedNews"];
+      todos.value = userData.value["Todo"]["todos"].map((event) => ({
+        ...event,
+        date: event.date ? event.date.toDate() : null,
+      }));
+
       
       // Set loading to false once data fetching is complete
       loading.value = false;

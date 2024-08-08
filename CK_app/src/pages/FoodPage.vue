@@ -3,8 +3,8 @@
     <q-page class="flex column relative-position">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="loading-overlay flex flex-center">
-        <q-spinner-gears size="50px" color="primary" />
-        <div class="q-mt-sm text-primary">Loading map data...</div>
+        <q-spinner size="70px" color="primary" />
+        <div class="q-mt-sm text-primary">讀取資料中...</div>
       </div>
 
       <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
@@ -42,7 +42,7 @@
           :options="mapOptions"
         >
           <l-tile-layer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
           ></l-tile-layer>
           <l-marker
             v-for="marker in markers"
@@ -203,10 +203,12 @@
                   </q-item-section>
                   <q-item-section side>
                     <q-btn
-                      :icon="isFavorite(restaurant) ? 'star' : 'star_border'"
+                      :icon="
+                        isFavorite(restaurant) ? 'favorite' : 'favorite_border'
+                      "
                       flat
                       round
-                      color="yellow"
+                      color="red"
                       @click="toggleFavorite(restaurant)"
                     />
                   </q-item-section>
@@ -240,13 +242,8 @@
               />
             </q-card-section>
             <q-card-actions align="right">
-              <q-btn flat label="Cancel" color="primary" v-close-popup />
-              <q-btn
-                flat
-                label="Submit"
-                color="primary"
-                @click="submitRating"
-              />
+              <q-btn flat label="取消" color="primary" v-close-popup />
+              <q-btn flat label="送出" color="primary" @click="submitRating" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -303,26 +300,26 @@ const showRestaurantList = ref(false);
 
 const openIcon = new Icon({
   iconUrl: "https://imgur.com/jZN5Ph6.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+  iconSize: [18, 30],
+  iconAnchor: [9, 25],
 });
 
 const closedIcon = new Icon({
   iconUrl: "https://imgur.com/de9dxzv.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+  iconSize: [18, 30],
+  iconAnchor: [9, 25],
 });
 
 const openVarIcon = new Icon({
   iconUrl: "https://imgur.com/hizjEaj.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+  iconSize: [18, 30],
+  iconAnchor: [9, 25],
 });
 
 const closedVarIcon = new Icon({
   iconUrl: "https://imgur.com/upabpUD.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
+  iconSize: [18, 30],
+  iconAnchor: [9, 25],
 });
 
 const getMarkerIcon = (marker) => {

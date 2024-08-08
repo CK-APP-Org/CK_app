@@ -84,6 +84,12 @@
 
       <q-card-actions align="right">
         <q-btn
+          v-if="isLogin"
+          flat
+          label="忘記密碼?"
+          @click="showForgotPasswordDialog = true"
+        />
+        <q-btn
           flat
           :label="isLogin ? '尚未註冊?' : '已有帳號?'"
           @click="isLogin = !isLogin"
@@ -91,26 +97,29 @@
       </q-card-actions>
     </q-card>
   </q-page>
-  <q-dialog v-model="showClassDialog">
+
+  <q-dialog v-model="showForgotPasswordDialog">
     <q-card style="min-width: 350px">
       <q-card-section>
-        <div class="text-h6">選擇班級</div>
+        <div class="text-h6">忘記密碼</div>
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <q-select
-          filled
-          v-model="selectedClass"
-          :options="classOptions"
-          label="選擇班級(用於課表資料匯入)"
-          class="q-mb-md"
-        />
+        <p>
+          若您忘記密碼，請聯絡
+          ckappofficial@gmail.com，並告知您的帳號名稱及註冊用的Email。
+          我們會協助您找回帳號密碼。
+        </p>
       </q-card-section>
 
       <q-card-actions align="right" class="text-primary">
-        <q-btn flat label="確定" @click="updateUserClass" />
+        <q-btn flat label="確定" @click="showForgotPasswordDialog = false" />
       </q-card-actions>
     </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="showClassDialog">
+    <!-- ... rest of the code remains the same ... -->
   </q-dialog>
 </template>
 
@@ -157,6 +166,8 @@ export default {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const userRef = doc(db, "User Data", "Userdata");
+
+    const showForgotPasswordDialog = ref(false);
 
     onMounted(async () => {
       console.log(userRef);
@@ -364,6 +375,7 @@ export default {
       selectedClass,
       classOptions,
       updateUserClass,
+      showForgotPasswordDialog,
     };
   },
 };

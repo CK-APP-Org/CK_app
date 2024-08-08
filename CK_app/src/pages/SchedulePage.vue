@@ -76,7 +76,7 @@
                     flat
                     label="取消"
                     color="primary"
-                    @click="classHelp = false"
+                    @click="confirmClassChangeDialog = false"
                   />
                   <q-btn
                     flat
@@ -495,7 +495,6 @@ export default {
       getFormattedColor,
       days,
       isCurrentClass,
-      classHelp: ref(false),
       regenerateConfirm,
       confirmRegenerate,
       regenerateSchedule,

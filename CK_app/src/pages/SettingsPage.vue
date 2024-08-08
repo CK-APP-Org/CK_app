@@ -17,6 +17,12 @@
                 @click="confirmClear"
                 class="full-width q-mt-md"
               />
+              <q-btn
+                color="primary"
+                label="登出"
+                @click="logout"
+                class="full-width q-mt-md"
+              />
             </div>
           </q-card-section>
         </q-card>
@@ -247,6 +253,24 @@ export default {
       }
     };
 
+    const logout = () => {
+      // Clear user data from Vuex store
+      store.dispatch("clearUserData");
+
+      // Clear any other user-specific data (e.g., local storage, cookies)
+      localStorage.removeItem("userAccount");
+
+      $q.notify({
+        message: `已登出`,
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+
+      // Navigate to the login page
+      router.push("/login");
+    };
+
     return {
       confirmDialog,
       confirmClassChangeDialog,
@@ -264,6 +288,7 @@ export default {
       loading,
       userAccount,
       userData,
+      logout,
     };
   },
 };

@@ -79,8 +79,13 @@
         >
           <div class="sidebar-name">
             <div v-if="selectedMarker">
-              <div class="text-h5">{{ selectedMarker.name }}</div>
+              <div class="restaurant-name">
+                {{ selectedMarker.name }}
+              </div>
               <div class="rating-section">
+                <div class="text-h6">
+                  平均評分: {{ averageRating }} ({{ numberOfRatings }})
+                </div>
                 <q-btn
                   :label="
                     getUserRating(selectedMarker)
@@ -88,7 +93,7 @@
                       : '評分'
                   "
                   color="primary"
-                  outline
+                  :outline="getUserRating(selectedMarker) ? true : false"
                   class="Rating-btn"
                   @click="showRatingDialog"
                 />
@@ -272,6 +277,7 @@ import {
 import { initializeApp } from "firebase/app";
 
 import L from "leaflet";
+//scoring//import { initializeRestaurantData } from "./restaurant.repository";
 
 const mapRef = ref(null);
 
@@ -498,6 +504,7 @@ const fetchRestaurantData = async () => {
     isLoading.value = false;
   }
 };
+
 const markers = computed(() =>
   restaurantData.value
     .map((marker) => ({
@@ -514,9 +521,10 @@ const markers = computed(() =>
 const sidebarOpen = ref(false);
 const selectedMarker = ref(null);
 
-const showSidebar = (marker) => {
+const showSidebar = async (marker) => {
   selectedMarker.value = marker;
   sidebarOpen.value = true;
+  await fetchRestaurantRating(marker.name);
 };
 
 const closeSidebar = () => {
@@ -550,13 +558,36 @@ const showSidebarFromList = (restaurant) => {
 const showRatingPrompt = ref(false);
 const userRating = ref(0);
 
-const getAverageScore = (restaurant) => {
-  if (!restaurant.ratings || restaurant.ratings.numberOfRatings === 0) {
-    return "Not rated";
+const averageRating = computed(() => {
+  if (numberOfRatings.value > 0) {
+    return (totalScore.value / numberOfRatings.value).toFixed(1);
+  } else {
+    return "無";
   }
-  return (
-    restaurant.ratings.totalScore / restaurant.ratings.numberOfRatings
-  ).toFixed(1);
+});
+
+const numberOfRatings = ref(0);
+const totalScore = ref(0);
+
+const fetchRestaurantRating = async (restaurantName) => {
+  try {
+    const restaurantRef = doc(db, "Restaurants", restaurantName);
+    const restaurantDoc = await getDoc(restaurantRef);
+
+    if (restaurantDoc.exists()) {
+      const { totalScore: score, numberOfRatings: ratings } =
+        restaurantDoc.data();
+      totalScore.value = score;
+      numberOfRatings.value = ratings;
+    } else {
+      totalScore.value = 0;
+      numberOfRatings.value = 0;
+    }
+  } catch (error) {
+    console.error("Error fetching restaurant rating:", error);
+    totalScore.value = 0;
+    numberOfRatings.value = 0;
+  }
 };
 
 const getUserRating = (restaurant) => {
@@ -571,11 +602,35 @@ const showRatingDialog = () => {
 const submitRating = async () => {
   try {
     const userRatingPath = `${userAccount.value}.Food.userRatings.${selectedMarker.value.name}`;
+    const oldRating = getUserRating(selectedMarker.value) || 0;
 
     // Update user's rating
     await updateDoc(userRef.value, {
       [userRatingPath]: userRating.value,
     });
+
+    // Update restaurant's rating in the Restaurants collection
+    const restaurantRef = doc(db, "Restaurants", selectedMarker.value.name);
+    const restaurantDoc = await getDoc(restaurantRef);
+
+    if (restaurantDoc.exists()) {
+      const { totalScore, numberOfRatings } = restaurantDoc.data();
+      const newTotalScore = totalScore - oldRating + userRating.value;
+      const newNumberOfRatings =
+        oldRating === 0 ? numberOfRatings + 1 : numberOfRatings;
+
+      await updateDoc(restaurantRef, {
+        totalScore: newTotalScore,
+        numberOfRatings: newNumberOfRatings,
+      });
+    } else {
+      // Create new restaurant document if it doesn't exist
+      await setDoc(restaurantRef, {
+        name: selectedMarker.value.name,
+        totalScore: userRating.value,
+        numberOfRatings: 1,
+      });
+    }
 
     // Update local state
     if (!userData.value.Food.userRatings) {
@@ -589,6 +644,9 @@ const submitRating = async () => {
       color: "positive",
       message: "評分已送出",
     });
+
+    // Refresh the average rating display
+    await fetchRestaurantRating(selectedMarker.value.name);
   } catch (error) {
     console.error("Error submitting rating:", error);
     $q.notify({
@@ -598,21 +656,21 @@ const submitRating = async () => {
   }
 };
 
+console.log(userAccount.value);
+const firebaseConfig = {
+  apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+  authDomain: "ck-app-database.firebaseapp.com",
+  projectId: "ck-app-database",
+  storageBucket: "ck-app-database.appspot.com",
+  messagingSenderId: "253500838094",
+  appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+  measurementId: "G-T79H6D7WRT",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 onMounted(async () => {
-  console.log(userAccount.value);
-  const firebaseConfig = {
-    apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
-    authDomain: "ck-app-database.firebaseapp.com",
-    projectId: "ck-app-database",
-    storageBucket: "ck-app-database.appspot.com",
-    messagingSenderId: "253500838094",
-    appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-    measurementId: "G-T79H6D7WRT",
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
   userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
   const docSnap = await getDoc(userRef.value);
   userData.value = docSnap.data()[userAccount.value];
@@ -627,6 +685,7 @@ onMounted(async () => {
     iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
     shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
   });
+  //scoring//await initializeRestaurantData();
 });
 </script>
 
@@ -751,5 +810,15 @@ onMounted(async () => {
 .Rating-btn {
   margin-top: 5px;
   margin-bottom: 5px;
+}
+.rating-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.restaurant-name {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 </style>

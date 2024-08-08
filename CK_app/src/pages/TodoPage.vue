@@ -190,7 +190,11 @@
             <template v-slot:option="{ itemProps, opt }">
               <q-item v-bind="itemProps">
                 <q-item-section side>
-                  <q-chip :style="{ backgroundColor: opt.color }" square dense />
+                  <q-chip
+                    :style="{ backgroundColor: opt.color }"
+                    square
+                    dense
+                  />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ opt.name }}</q-item-label>
@@ -417,7 +421,9 @@
           >
             <template v-slot:no-option>
               <q-item>
-                <q-item-section class="text-grey"> 尚未建立類別 </q-item-section>
+                <q-item-section class="text-grey">
+                  尚未建立類別
+                </q-item-section>
               </q-item>
             </template>
             <template v-slot:option="{ itemProps, opt }">
@@ -496,7 +502,12 @@
       </q-card>
     </q-dialog>
 
-    <q-drawer v-model="leftDrawerOpen" side="left" bordered class="todo-sidebar">
+    <q-drawer
+      v-model="leftDrawerOpen"
+      side="left"
+      bordered
+      class="todo-sidebar"
+    >
       <q-list padding>
         <q-item-label header class="text-h6 q-py-md">選擇顯示類別</q-item-label>
 
@@ -518,7 +529,7 @@
               :text-color="selectedCategory === null ? 'black' : 'white'"
               size="md"
             >
-              {{ Object.keys(todos).length }}
+              {{ todosCount }}
             </q-chip>
           </q-item-section>
         </q-item>
@@ -542,7 +553,9 @@
           <q-item-section side>
             <q-chip
               :color="selectedCategory === category.name ? 'white' : 'primary'"
-              :text-color="selectedCategory === category.name ? 'black' : 'white'"
+              :text-color="
+                selectedCategory === category.name ? 'black' : 'white'
+              "
               size="md"
             >
               {{ getTodosCountForCategory(category.name) }}
@@ -569,13 +582,20 @@
 import { computed, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { colors, useQuasar } from "quasar";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteField,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 
 export default {
   setup() {
     const store = useStore();
-    const $q = useQuasar()
+    const $q = useQuasar();
 
     const currentDate = ref(new Date());
     const weekdays = ref(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
@@ -608,11 +628,11 @@ export default {
     const selectedCategory = ref(null);
     const selectedDayItems = ref([]);
 
-    const events = ref([])
-    const eventCategories = ref([])
-    const todoCategories = ref([])
-    const todos = ref([])
-    const currentView = ref("calendar")
+    const events = ref([]);
+    const eventCategories = ref([]);
+    const todoCategories = ref([]);
+    const todos = ref([]);
+    const currentView = ref("calendar");
 
     const userData = ref(null);
     const userRef = ref(null); // Declare userRef here
@@ -622,40 +642,38 @@ export default {
     const userAccount = computed(() => store.getters.getUserAccount);
 
     const firebaseConfig = {
-        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
-        authDomain: "ck-app-database.firebaseapp.com",
-        projectId: "ck-app-database",
-        storageBucket: "ck-app-database.appspot.com",
-        messagingSenderId: "253500838094",
-        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-        measurementId: "G-T79H6D7WRT",
-      };
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+      apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+      authDomain: "ck-app-database.firebaseapp.com",
+      projectId: "ck-app-database",
+      storageBucket: "ck-app-database.appspot.com",
+      messagingSenderId: "253500838094",
+      appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+      measurementId: "G-T79H6D7WRT",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    onMounted(async() => {
-      loading.value = true
+    onMounted(async () => {
+      loading.value = true;
       console.log(userAccount.value);
-
 
       userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
-      events.value = userData.value["Todo"]["events"].map(event => ({
+      events.value = userData.value["Todo"]["events"].map((event) => ({
         ...event,
         startDate: event.startDate.toDate(),
-        endDate: event.endDate.toDate()
+        endDate: event.endDate.toDate(),
       }));
-      console.log(events.value)
       eventCategories.value = userData.value["Todo"]["eventCategories"];
       todos.value = userData.value["Todo"]["todos"];
-      todos.value = userData.value["Todo"]["todos"].map(event => ({
+      todos.value = userData.value["Todo"]["todos"].map((event) => ({
         ...event,
         date: event.date ? event.date.toDate() : null,
       }));
       currentView.value = userData.value["Todo"]["currentView"];
       todoCategories.value = userData.value["Todo"]["todoCategories"];
-      loading.value = false
+      loading.value = false;
     });
 
     const currentMonthYear = computed(() => {
@@ -676,14 +694,14 @@ export default {
       const startingDayOfWeek = firstDayOfMonth.getDay();
 
       const refreshPage = async () => {
-      if (Capacitor.isNativePlatform()) {
-        // Native app (iOS or Android)
-        await Browser.reload();
-      } else {
-        // Web browser
-        window.location.reload();
-      }
-    };
+        if (Capacitor.isNativePlatform()) {
+          // Native app (iOS or Android)
+          await Browser.reload();
+        } else {
+          // Web browser
+          window.location.reload();
+        }
+      };
 
       let calendarDays = [];
 
@@ -777,9 +795,7 @@ export default {
 
     const sortedTodos = computed(() => {
       const grouped = filteredTodos.value.reduce((acc, todo) => {
-        const dateKey = todo.date
-          ? formatDate(new Date(todo.date))
-          : "無日期";
+        const dateKey = todo.date ? formatDate(new Date(todo.date)) : "無日期";
         if (!acc[dateKey]) {
           acc[dateKey] = [];
         }
@@ -799,7 +815,6 @@ export default {
           todos: grouped[date],
         }));
     });
-
 
     function previousMonth() {
       currentDate.value = new Date(
@@ -835,6 +850,18 @@ export default {
       if (isEditing.value) {
         saveEditedEvent();
       } else {
+        // Check if the start date and end date are valid
+        if (
+          !isValidDate(eventStartDate.value) ||
+          !isValidDate(eventEndDate.value)
+        ) {
+          $q.notify({
+            type: "negative",
+            message: "請輸入正確之日期",
+          });
+          return;
+        }
+
         const newEvent = {
           id: Date.now(),
           title: eventTitle.value,
@@ -842,7 +869,7 @@ export default {
           endDate: new Date(eventEndDate.value),
           category: eventCategorySelected.value,
         };
-        console.log(newEvent.startDate)
+
         events.value = [...events.value, newEvent];
         const updatePath = `${userAccount.value}.Todo.events`;
         await updateDoc(userRef.value, {
@@ -851,15 +878,19 @@ export default {
             title: item.title,
             startDate: item.startDate,
             endDate: item.endDate,
-            category: item.category
-          }))});
-
-        store.dispatch("addEvent", events);
+            category: item.category,
+          })),
+        });
 
         resetEventForm();
         showEventDialog.value = false;
         updateSelectedDayEvents();
       }
+    }
+
+    function isValidDate(dateString) {
+      const date = new Date(dateString);
+      return !isNaN(date.getTime());
     }
 
     function resetEventForm() {
@@ -924,12 +955,14 @@ export default {
         endDate: new Date(eventEndDate.value),
         category: eventCategorySelected.value,
       };
-      
+
       console.log(updatedEvent.startDate);
-      
+
       // Find the index of the event with the same id
-      const eventIndex = events.value.findIndex(event => event.id === updatedEvent.id);
-      
+      const eventIndex = events.value.findIndex(
+        (event) => event.id === updatedEvent.id
+      );
+
       if (eventIndex !== -1) {
         // Replace the event at the found index
         events.value[eventIndex] = updatedEvent;
@@ -937,7 +970,7 @@ export default {
         // If not found, add the new event (optional, depending on your requirements)
         events.value.push(updatedEvent);
       }
-      
+
       const updatePath = `${userAccount.value}.Todo.events`;
       await updateDoc(userRef.value, {
         [updatePath]: events.value.map((item) => ({
@@ -945,16 +978,16 @@ export default {
           title: item.title,
           startDate: item.startDate,
           endDate: item.endDate,
-          category: item.category
-        }))
+          category: item.category,
+        })),
       });
-      
-      store.dispatch("updateEvent", updatedEvent);
-      
+
+      //store.dispatch("updateEvent", updatedEvent);
+
       resetEventForm();
       showEventDialog.value = false;
       showDayEventsDialog.value = false;
-      
+
       updateSelectedDayEvents();
     }
 
@@ -963,10 +996,10 @@ export default {
         userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
         const docSnap = await getDoc(userRef.value);
         userData.value = docSnap.data()[userAccount.value];
-        const allEvents = userData.value["Todo"]["events"].map(event => ({
+        const allEvents = userData.value["Todo"]["events"].map((event) => ({
           ...event,
           startDate: event.startDate.toDate(),
-          endDate: event.endDate.toDate()
+          endDate: event.endDate.toDate(),
         }));
         selectedDayEvents.value = allEvents.filter((event) => {
           const eventStart = new Date(event.startDate);
@@ -984,9 +1017,11 @@ export default {
 
     async function deleteEvent() {
       if (editingEvent.value) {
-        store.dispatch("deleteEvent", editingEvent.value.id);
+        //store.dispatch("deleteEvent", editingEvent.value.id);
       }
-      const eventIndex = events.value.findIndex(event => event.id === editingEvent.value.id);
+      const eventIndex = events.value.findIndex(
+        (event) => event.id === editingEvent.value.id
+      );
       events.value.splice(eventIndex, 1);
       const updatePath = `${userAccount.value}.Todo.events`;
       await updateDoc(userRef.value, {
@@ -995,8 +1030,8 @@ export default {
           title: item.title,
           startDate: item.startDate,
           endDate: item.endDate,
-          category: item.category
-        }))
+          category: item.category,
+        })),
       });
       resetEventForm();
       showEventDialog.value = false;
@@ -1009,7 +1044,7 @@ export default {
       if (newEventCategoryName.value && newEventCategoryColor.value) {
         const newCategory = {
           name: newEventCategoryName,
-          color: newEventCategoryColor
+          color: newEventCategoryColor,
         };
         eventCategories.value = [...eventCategories.value, newCategory];
         const updatePath = `${userAccount.value}.Todo.eventCategories`;
@@ -1017,17 +1052,20 @@ export default {
           [updatePath]: eventCategories.value.map((item) => ({
             name: item.name,
             color: item.color,
-          }))});
+          })),
+        });
         userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
         const docSnap = await getDoc(userRef.value);
         userData.value = docSnap.data()[userAccount.value];
-        eventCategories.value = userData.value["Todo"]["eventCategories"]
+        eventCategories.value = userData.value["Todo"]["eventCategories"];
+        /*
         store.dispatch("addEventCategory", {
           name: newEventCategoryName.value,
           color: newEventCategoryColor.value,
         });
         newEventCategoryName.value = "";
         newEventCategoryColor.value = "#ADADAD";
+        */
       }
     }
 
@@ -1042,22 +1080,24 @@ export default {
 
     async function confirmDeleteEventCategory() {
       if (eventCategoryToDelete.value) {
-        store.dispatch("deleteEventCategory", eventCategoryToDelete.value);
-        console.log(eventCategoryToDelete.value)
-        const eventIndex = eventCategories.value.findIndex(event => event.name === eventCategoryToDelete.value);
-        console.log(eventIndex)
+        //store.dispatch("deleteEventCategory", eventCategoryToDelete.value);
+        console.log(eventCategoryToDelete.value);
+        const eventIndex = eventCategories.value.findIndex(
+          (event) => event.name === eventCategoryToDelete.value
+        );
+        console.log(eventIndex);
         eventCategories.value.splice(eventIndex, 1);
         const updatePath = `${userAccount.value}.Todo.eventCategories`;
         await updateDoc(userRef.value, {
           [updatePath]: eventCategories.value.map((item) => ({
             name: item.name,
             color: item.color,
-          }))
+          })),
         });
         userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
         const docSnap = await getDoc(userRef.value);
         userData.value = docSnap.data()[userAccount.value];
-        eventCategories.value = userData.value["Todo"]["eventCategories"]
+        eventCategories.value = userData.value["Todo"]["eventCategories"];
       }
       showDeleteEventCategoryConfirmation.value = false;
       eventCategoryToDelete.value = null;
@@ -1073,24 +1113,35 @@ export default {
     }
 
     async function addTodo() {
+      // Check if the todo date is valid
+      if (todoDate.value && !isValidDate(todoDate.value)) {
+        $q.notify({
+          type: "negative",
+          message: "Please enter a valid date.",
+        });
+        return;
+      }
+
       const newTodo = {
         id: Date.now(),
         title: todoTitle.value,
         date: todoDate.value ? new Date(todoDate.value) : null,
         completed: false,
-        category: todoCategorySelected.value ? todoCategorySelected.value : null,
+        category: todoCategorySelected.value
+          ? todoCategorySelected.value
+          : null,
       };
       todos.value = [...todos.value, newTodo];
-        const updatePath = `${userAccount.value}.Todo.todos`;
-        await updateDoc(userRef.value, {
-          [updatePath]: todos.value.map((item) => ({
-            id: item.id,
-            title: item.title,
-            date: item.date,
-            completed: item.completed,
-            category: item.category
-          }))});
-      store.dispatch("addTodo", newTodo);
+      const updatePath = `${userAccount.value}.Todo.todos`;
+      await updateDoc(userRef.value, {
+        [updatePath]: todos.value.map((item) => ({
+          id: item.id,
+          title: item.title,
+          date: item.date,
+          completed: item.completed,
+          category: item.category,
+        })),
+      });
       resetTodoForm();
       showTodoDialog.value = false;
     }
@@ -1103,29 +1154,32 @@ export default {
 
     async function updateView(newView) {
       const updatePath = `${userAccount.value}.Todo.currentView`;
-      await updateDoc(userRef.value, {[updatePath]: newView})
-      store.dispatch("updateCurrentView", newView);
+      await updateDoc(userRef.value, { [updatePath]: newView });
+      //store.dispatch("updateCurrentView", newView);
     }
 
     async function onTodoCheck(todo) {
       todo.completed = true;
-      
-      setTimeout(() => {
-        store.dispatch("deleteTodo", todo.id);
-      }, 1000);
-      const eventIndex = events.value.findIndex(event => event.id === todo.value.id);
-      todos.value.splice(eventIndex, 1);
-      const updatePath = `${userAccount.value}.Todo.todos`;
-      await updateDoc(userRef.value, {
-          [updatePath]: todos.value.map((item) => ({
-            id: item.id,
-            title: item.title,
-            date: item.date,
-            completed: item.completed,
-            category: item.category
-          }))
-        });
+      //store.dispatch("deleteTodo", todo.id);
+      $q.notify({
+        type: "positive",
+        message: "已完成",
+      });
+      const todoIndex = todos.value.findIndex((t) => t.id === todo.id);
 
+      todos.value.splice(todoIndex, 1);
+
+      const updatePath = `${userAccount.value}.Todo.todos`;
+
+      await updateDoc(userRef.value, {
+        [updatePath]: todos.value.map((item) => ({
+          id: item.id,
+          title: item.title,
+          date: item.date,
+          completed: item.completed,
+          category: item.category,
+        })),
+      });
     }
 
     async function addTodoCategory() {
@@ -1150,17 +1204,17 @@ export default {
 
         // Update Firestore with the new categories
         await updateDoc(userRef.value, {
-              [updatePath]: todoCategories.value.map((item) => ({
-                name: item.name,
-              }))
-            });
+          [updatePath]: todoCategories.value.map((item) => ({
+            name: item.name,
+          })),
+        });
 
         // Initialize userRef here if needed (ensure this is correct)
         userRef.value = doc(db, "User Data", "Userdata");
 
         // Get the updated document snapshot
         const docSnap = await getDoc(userRef.value);
-        
+
         // Update local userData with the fetched data
         userData.value = docSnap.data()[userAccount.value];
 
@@ -1168,9 +1222,11 @@ export default {
         todoCategories.value = userData.value["Todo"]["todoCategories"];
 
         // Dispatch the addTodoCategory action with the new category
+        /*
         store.dispatch("addTodoCategory", {
           name: newTodoCategoryName.value,
         });
+        */
 
         // Clear the input value for new category name
         newTodoCategoryName.value = "";
@@ -1178,21 +1234,23 @@ export default {
     }
 
     async function deleteTodoCategory(categoryName) {
-        const eventIndex = todoCategories.value.findIndex(event => event.name === categoryName);
-        console.log(eventIndex)
-        todoCategories.value.splice(eventIndex, 1);
-        const updatePath = `${userAccount.value}.Todo.todoCategories`;
-        await updateDoc(userRef.value, {
-          [updatePath]: todoCategories.value.map((item) => ({
-            name: item.name,
-          }))
-        });
-        userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
-        const docSnap = await getDoc(userRef.value);
-        userData.value = docSnap.data()[userAccount.value];
-        eventCategories.value = userData.value["Todo"]["todoCategories"]
-      store.dispatch("deleteTodoCategory", categoryName);
-    };
+      const eventIndex = todoCategories.value.findIndex(
+        (event) => event.name === categoryName
+      );
+      console.log(eventIndex);
+      todoCategories.value.splice(eventIndex, 1);
+      const updatePath = `${userAccount.value}.Todo.todoCategories`;
+      await updateDoc(userRef.value, {
+        [updatePath]: todoCategories.value.map((item) => ({
+          name: item.name,
+        })),
+      });
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      eventCategories.value = userData.value["Todo"]["todoCategories"];
+      //store.dispatch("deleteTodoCategory", categoryName);
+    }
 
     function toggleSidebar() {
       leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -1208,6 +1266,10 @@ export default {
         (todo) => todo.category && todo.category.name === categoryName
       ).length;
     }
+
+    const todosCount = computed(() => {
+      return todos.value ? todos.value.length : 0;
+    });
 
     watch(eventStartDate, validateEndDate);
     watch(eventEndDate, validateEndDate);
@@ -1254,6 +1316,7 @@ export default {
       filteredTodos,
       sortedTodos,
       todoCategories,
+      todosCount,
       previousMonth,
       nextMonth,
       toggleMenu,
@@ -1286,7 +1349,7 @@ export default {
       getTodosCountForCategory,
       loading,
     };
-  }
+  },
 };
 </script>
 
@@ -1611,5 +1674,4 @@ export default {
   align-items: center;
   height: 100vh; /* Full viewport height */
 }
-
 </style>

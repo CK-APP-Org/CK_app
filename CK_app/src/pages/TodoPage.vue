@@ -692,15 +692,6 @@ export default {
       const daysInMonth = lastDayOfMonth.getDate();
       const startingDayOfWeek = firstDayOfMonth.getDay();
 
-      const refreshPage = async () => {
-        if (Capacitor.isNativePlatform()) {
-          // Native app (iOS or Android)
-          await Browser.reload();
-        } else {
-          // Web browser
-          window.location.reload();
-        }
-      };
 
       let calendarDays = [];
 

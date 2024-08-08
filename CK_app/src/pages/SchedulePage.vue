@@ -31,7 +31,7 @@
               icon="edit"
               color="primary"
               class="q-mr-sm"
-              @click="classHelp = true"
+              @click="confirmClassChangeDialog = true"
             />
             <div class="text-h5 text-bold">{{ userClass }} 課表 &thinsp;</div>
             <q-btn
@@ -42,7 +42,7 @@
               icon="refresh"
               @click="confirmRegenerate"
             />
-            <q-dialog v-model="classHelp">
+            <q-dialog v-model="confirmClassChangeDialog">
               <q-card style="min-width: 300px; max-width: 400px">
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">設定班級</div>
@@ -289,17 +289,45 @@ export default {
     };
 
     const regenerateSchedule = async () => {
-      const response = await axios.get(SCHEDULE_URL);
-      const scheduleData = response.data[userClass.value]["schedule"];
-      const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
-      await updateDoc(userRef.value, { [updatePath2]: scheduleData });
-      $q.notify({
-        message: "已重新匯入課表",
-        color: "positive",
-        position: "bottom",
-        timeout: 2000,
-      });
-      refreshPage();
+      try {
+        console.log("Fetching new schedule data...");
+        const response = await axios.get(SCHEDULE_URL);
+        console.log("Received response:", response.data);
+
+        const newScheduleData = response.data[userClass.value]["schedule"];
+        console.log("New schedule data:", newScheduleData);
+
+        const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
+        await updateDoc(userRef.value, { [updatePath2]: newScheduleData });
+        console.log("Firestore document updated");
+
+        store.dispatch("loadSchedule");
+        console.log("Vuex store updated");
+
+        // Refresh user data and class
+        userRef.value = doc(db, "User Data", "Userdata");
+        const docSnap = await getDoc(userRef.value);
+        userData.value = docSnap.data()[userAccount.value];
+        userClass.value = userData.value["Schedule"]["userClass"];
+        scheduleData.value = userData.value["Schedule"]["ScheduleData"];
+
+        console.log("User data refreshed");
+
+        $q.notify({
+          message: "已重新匯入課表",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+      } catch (error) {
+        console.error("Error regenerating schedule:", error);
+        $q.notify({
+          message: "重新匯入課表時發生錯誤",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
     };
 
     const visibleColumns = ref([
@@ -320,21 +348,21 @@ export default {
       visibleColumns.value = ["name", columnName];
     };
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+      authDomain: "ck-app-database.firebaseapp.com",
+      projectId: "ck-app-database",
+      storageBucket: "ck-app-database.appspot.com",
+      messagingSenderId: "253500838094",
+      appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+      measurementId: "G-T79H6D7WRT",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     onMounted(async () => {
       loading.value = true;
-      console.log(userAccount.value);
-      const firebaseConfig = {
-        apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
-        authDomain: "ck-app-database.firebaseapp.com",
-        projectId: "ck-app-database",
-        storageBucket: "ck-app-database.appspot.com",
-        messagingSenderId: "253500838094",
-        appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-        measurementId: "G-T79H6D7WRT",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
 
       userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
@@ -407,23 +435,17 @@ export default {
       await updateDoc(userRef.value, { [updatePath2]: scheduleData });
       store.dispatch("loadSchedule");
       confirmClassChangeDialog.value = false;
-      refreshPage();
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      userClass.value = userData.value["Schedule"]["userClass"];
+      scheduleData.value = userData.value["Schedule"]["ScheduleData"];
       $q.notify({
         message: `已成功更改班級為 ${selectedClass.value}`,
         color: "positive",
         position: "bottom",
         timeout: 2000,
       });
-    };
-
-    const refreshPage = async () => {
-      if (Capacitor.isNativePlatform()) {
-        // Native app (iOS or Android)
-        await Browser.reload();
-      } else {
-        // Web browser
-        window.location.reload();
-      }
     };
 
     const getDayLabel = (day) => {

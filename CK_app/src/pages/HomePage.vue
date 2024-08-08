@@ -254,7 +254,7 @@ export default {
       ][now.getDay()];
       const currentHour = now.getHours();
       const currentPeriod =
-        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] || "課後";
       
       if (
         currentPeriod < 1 ||
@@ -418,7 +418,7 @@ export default {
 }
 
 .icon-btn ::v-deep .text-content {
-  font-size: 0.9em;
+  font-size: 1.1em;
   line-height: 1.2;
   color: #4a4a4a;
 }

@@ -73,24 +73,38 @@
       v-model:pagination="pagination"
       :loading="isLoading"
     >
-      <template v-slot:top>
-        <div class="row items-center full-width q-px-sm">
-          <div class="col-2">
-            <!-- Empty space to balance the layout -->
-          </div>
-          <div class="col-8 text-center">
-            <div class="text-h6">未讀訊息</div>
-          </div>
-          <div class="col-2 text-right">
+    <template v-slot:top>
+      <div class="row items-center full-width q-px-sm q-py-md">
+        <div class="col-4">
+          <!-- Empty space to balance the layout -->
+        </div>
+        <div class="col-4 text-center">
+          <div class="text-h5 text-weight-bold news-title">未讀訊息</div>
+        </div>
+        <div class="col-4 flex justify-end">
+          <q-btn-group outline>
             <q-btn
               color="negative"
               icon="delete"
               @click="showDeleteDialog = true"
               dense
-            />
-          </div>
+              flat
+            >
+              <q-tooltip>清空所有訊息</q-tooltip>
+            </q-btn>
+            <q-btn
+              color="positive"
+              icon="restore"
+              @click="showRecoverDialog = true"
+              dense
+              flat
+            >
+              <q-tooltip>恢復所有訊息</q-tooltip>
+            </q-btn>
+          </q-btn-group>
         </div>
-      </template>
+      </div>
+    </template>
 
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -158,6 +172,17 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="showRecoverDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">確認恢復所有訊息?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showRecoverDialog = false" />
+          <q-btn flat label="確認" @click="recoverAllNews" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -176,6 +201,7 @@ import {
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import axios from "axios";
+import { Browser } from "@capacitor/browser";
 
 export default {
   name: "NewsPage",
@@ -193,6 +219,7 @@ export default {
     const isLoading = ref(true);
     const news = ref([]);
     const showDeleteDialog = ref(false);
+    const showRecoverDialog = ref(false);
     const columns = [
       {
         name: "pin",
@@ -224,16 +251,42 @@ export default {
 
 
       
-    const pinRow = (row) => {
+    const pinRow = async (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
-        store.dispatch("pinNews", news.value.splice(index, 1)[0]);
+        const pinnedItem = news.value.splice(index, 1)[0];
+        pinnedNews.value = [...pinnedNews.value, pinnedItem];
+
+        const updatePath = `${userAccount.value}.News.pinnedNews`;
+        await updateDoc(userRef.value, {
+          [updatePath]: pinnedNews.value.map((item) => ({
+            title: item.title,
+            pubDate: item.pubDate,
+            link: item.link
+          }))
+        });
+
+        store.dispatch("pinNews", pinnedItem);
       }
     };
 
-    const unpinRow = (row) => {
-      store.dispatch("unpinNews", row.title);
-      news.value.push(row);
+    const unpinRow = async (row) => {
+      const index = pinnedNews.value.findIndex((item) => item.title === row.title);
+      if (index !== -1) {
+        const unpinnedItem = pinnedNews.value.splice(index, 1)[0];
+        news.value.push(unpinnedItem);
+
+        const updatePath = `${userAccount.value}.News.pinnedNews`;
+        await updateDoc(userRef.value, {
+          [updatePath]: pinnedNews.value.map((item) => ({
+            title: item.title,
+            pubDate: item.pubDate,
+            link: item.link
+          }))
+        });
+
+        store.dispatch("unpinNews", row.title);
+      }
     };
 
     const pagination = ref({
@@ -242,6 +295,16 @@ export default {
       page: 1,
       rowsPerPage: 20,
     });
+
+    const refreshPage = async () => {
+      if (Capacitor.isNativePlatform()) {
+        // Native app (iOS or Android)
+        await Browser.reload();
+      } else {
+        // Web browser
+        window.location.reload();
+      }
+    };
 
     const fetchNews = async () => {
       isLoading.value = true;
@@ -291,14 +354,41 @@ export default {
       return format(date, "zh_TW");
     };
 
-    const deleteAllNews = () => {
+    const deleteAllNews = async () => {
       // Clear all unpinned news
       news.value = [];
       // Record the current time
       const currentTime = new Date();
+      const updatePath = `${userAccount.value}.News.lastClearedTime`;
+      await updateDoc(userRef.value, { [updatePath]: currentTime });
       store.dispatch("setLastClearedTime", currentTime);
+      $q.notify({
+        message: "已清空所有未讀訊息",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
 
       showDeleteDialog.value = false;
+    };
+
+    const recoverAllNews = async () => {
+      // Set lastClearedTime to null
+      const updatePath = `${userAccount.value}.News.lastClearedTime`;
+      await updateDoc(userRef.value, { [updatePath]: null });
+      store.dispatch("setLastClearedTime", null);
+      
+      // Fetch all news again
+      
+      $q.notify({
+        message: "已恢復所有訊息",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+
+      showRecoverDialog.value = false;
+      refreshPage()
     };
 
     onMounted(async() => {
@@ -336,6 +426,8 @@ export default {
       unpinRow,
       showDeleteDialog,
       deleteAllNews,
+      showRecoverDialog,
+      recoverAllNews,
     };
   },
 };

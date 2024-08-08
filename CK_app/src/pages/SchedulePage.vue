@@ -1,5 +1,12 @@
 <template>
-  <div class="q-pa-md">
+  <div v-if="loading" class="loading-spinner">
+    <q-spinner size="3em" color="primary" />
+  </div>
+  <div v-else class="q-pa-md">
+    <div class="custom-banner q-mb-md">
+      <q-icon name="info" color="info" size="sm" class="q-mr-sm" />
+      點擊課表格子可自訂科目、顏色和備註
+    </div>
     <q-table
       flat
       bordered
@@ -36,29 +43,38 @@
               @click="confirmRegenerate"
             />
             <q-dialog v-model="classHelp">
-              <q-card>
+              <q-card style="min-width: 300px; max-width: 400px">
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">設定班級</div>
                   <q-space />
                   <q-btn icon="close" flat round dense v-close-popup />
                 </q-card-section>
 
-                <q-select
-                  class="col-8 col-sm-6 col-md-4 q-mb-md"
-                  filled
-                  @update:model-value="confirmClassChange"
-                  :options="classOptions"
-                  v-model="selectedClass"
-                  label="選擇班級(用於課表資料匯入)"
-                />
-                <q-card-section class="row items-center q-pb-none">
-                  <div class="text-h6 text-bold">編輯課表</div>
-                  <q-space />
+                <q-card-section class="q-pt-md">
+                  <q-select
+                    filled
+                    v-model="selectedClass"
+                    :options="classOptions"
+                    @update:model-value="confirmClassChange"
+                    label="選擇班級"
+                    use-input
+                    input-debounce="0"
+                    behavior="menu"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="school" color="primary" />
+                    </template>
+                  </q-select>
                 </q-card-section>
 
-                <q-card-section>
-                  若要自訂義課表任何一節的顏色、科目，或加入註解，請輕觸想要編輯的那一，將跳出視窗編輯視窗
+                <q-card-section class="text-caption text-grey-8">
+                  更改班級將重置當前的課表。
                 </q-card-section>
+
+                <q-card-actions align="right">
+                  <q-btn flat label="取消" color="primary" @click="cancelClassChange" />
+                  <q-btn flat label="確認" color="primary" @click="updateUserClass" :disable="!selectedClass" />
+                </q-card-actions>
               </q-card>
             </q-dialog>
           </div>
@@ -160,6 +176,7 @@
         </q-td>
       </template>
     </q-table>
+    
     <q-dialog v-model="regenerateConfirm" persistent>
       <q-card>
         <q-card-section class="row items-center">
@@ -177,24 +194,6 @@
             @click="regenerateSchedule"
             v-close-popup
           />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    <q-dialog v-model="confirmClassChangeDialog">
-      <q-card>
-        <q-card-section class="row items-center">
-          <span class="q-ml-sm" style="font-size: 1.5rem"
-            >確定更改班級為 <strong>{{ selectedClass }}</strong
-            >?</span
-          >
-          <span class="q-ml-sm"
-            >(請注意，本動作會導致所有過去自訂的顏色和標籤全部消失並無法復原)</span
-          >
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="取消" color="primary" @click="cancelClassChange" />
-          <q-btn flat label="確定" color="primary" @click="updateUserClass" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -268,6 +267,7 @@ export default {
 
     const userData = ref(null);
     const userRef = ref(null); // Declare userRef here
+    const loading = ref(true);
 
     const SCHEDULE_URL =
       "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
@@ -282,6 +282,12 @@ export default {
       const scheduleData = response.data[userClass.value]["schedule"];
       const updatePath2 = `${userAccount.value}.Schedule.ScheduleData`;
       await updateDoc(userRef.value, { [updatePath2]: scheduleData });
+      $q.notify({
+        message: "已重新匯入課表",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
       refreshPage();
     };
 
@@ -304,6 +310,7 @@ export default {
     };
 
     onMounted(async () => {
+      loading.value = true
       console.log(userAccount.value);
       const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
@@ -325,6 +332,7 @@ export default {
       scheduleData.value = userData.value["Schedule"]["ScheduleData"];
       console.log(userData.value["Schedule"]["ScheduleData"]);
       selectedClass.value = userClass.value;
+      loading.value = false
     });
 
     const getCellSubject = (row, colName) => {
@@ -472,6 +480,7 @@ export default {
       updateUserClass,
       cancelClassChange,
       saveCell,
+      loading
     };
   },
 };
@@ -602,4 +611,22 @@ export default {
   font-style: italic;
   color: #666;
 }
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+}
+
+.custom-banner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+}
+
 </style>

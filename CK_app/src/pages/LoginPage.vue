@@ -275,7 +275,6 @@ export default {
               News: {
                 pinnedNews: [],
                 lastClearedTime: null,
-                displayNewsWidget: true,
               },
               Food: {
                 favoriteRestaurants: [],
@@ -284,7 +283,6 @@ export default {
               Todo: {
                 events: [],
                 eventCategories: [{ name: "Default", color: "#ADADAD" }],
-                displayTodoWidget: true,
                 todos: [],
                 currentView: "calendar",
                 todoCategories: [],

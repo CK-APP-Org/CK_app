@@ -410,7 +410,8 @@ export default {
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       pinnedNews.value = userData.value["News"]["pinnedNews"];
-      lastClearedTime.value = userData.value["News"]["lastClearedTime"];
+      lastClearedTime.value = userData.value["News"]["lastClearedTime"].toDate();
+      console.log(lastClearedTime.value)
       register("zh_TW", zh_TW);
       fetchNews();
     });

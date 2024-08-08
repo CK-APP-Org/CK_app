@@ -294,16 +294,6 @@ export default {
       rowsPerPage: 20,
     });
 
-    const refreshPage = async () => {
-      if (Capacitor.isNativePlatform()) {
-        // Native app (iOS or Android)
-        await Browser.reload();
-      } else {
-        // Web browser
-        window.location.reload();
-      }
-    };
-
     const fetchNews = async () => {
       isLoading.value = true;
       const urls = [
@@ -385,14 +375,20 @@ export default {
         position: "bottom",
         timeout: 2000,
       });
-
+      userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+      const docSnap = await getDoc(userRef.value);
+      userData.value = docSnap.data()[userAccount.value];
+      pinnedNews.value = userData.value["News"]["pinnedNews"];
+      lastClearedTime.value = userData.value["News"]["lastClearedTime"] 
+        ? userData.value["News"]["lastClearedTime"].toDate() 
+        : null;
+      console.log(lastClearedTime.value);
+      register("zh_TW", zh_TW);
+      fetchNews();
       showRecoverDialog.value = false;
-      refreshPage();
     };
 
-    onMounted(async () => {
-      console.log(userAccount.value);
-      const firebaseConfig = {
+    const firebaseConfig = {
         apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
         authDomain: "ck-app-database.firebaseapp.com",
         projectId: "ck-app-database",
@@ -405,11 +401,16 @@ export default {
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
+    onMounted(async () => {
+      console.log(userAccount.value);
+
       userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
       const docSnap = await getDoc(userRef.value);
       userData.value = docSnap.data()[userAccount.value];
       pinnedNews.value = userData.value["News"]["pinnedNews"];
-      lastClearedTime.value = userData.value["News"]["lastClearedTime"];
+      lastClearedTime.value = userData.value["News"]["lastClearedTime"] 
+        ? userData.value["News"]["lastClearedTime"].toDate() 
+        : null;
       console.log(lastClearedTime.value);
       register("zh_TW", zh_TW);
       fetchNews();

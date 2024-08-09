@@ -1,5 +1,8 @@
 <template>
-  <div class="q-pa-md">
+  <div v-if="loading" class="loading-spinner">
+    <q-spinner size="3em" color="primary" />
+  </div>
+  <div v-else class="q-pa-md">
     <div class="custom-banner q-mb-md">
       <q-icon name="info" color="info" size="sm" class="q-mr-sm" />
       點擊課表格子可自訂科目、顏色和備註
@@ -28,7 +31,7 @@
               icon="edit"
               color="primary"
               class="q-mr-sm"
-              @click="classHelp = true"
+              @click="confirmClassChangeDialog = true"
             />
             <div class="text-h5 text-bold">{{ userClass }} 課表 &thinsp;</div>
             <q-btn
@@ -39,27 +42,50 @@
               icon="refresh"
               @click="confirmRegenerate"
             />
-            <q-dialog v-model="classHelp">
-              <q-card>
+            <q-dialog v-model="confirmClassChangeDialog">
+              <q-card style="min-width: 300px; max-width: 400px">
                 <q-card-section class="row items-center q-pb-none">
                   <div class="text-h6 text-bold">設定班級</div>
                   <q-space />
                   <q-btn icon="close" flat round dense v-close-popup />
                 </q-card-section>
 
-                <q-card-section>
-                  目前的班級為{{
-                    userClass
-                  }}。若要自訂班級並匯入該班課表，請到設定頁面(點選右上角設定按鈕)中進行編輯
-                </q-card-section>
-                <q-card-section class="row items-center q-pb-none">
-                  <div class="text-h6 text-bold">編輯課表</div>
-                  <q-space />
+                <q-card-section class="q-pt-md">
+                  <q-select
+                    filled
+                    v-model="selectedClass"
+                    :options="classOptions"
+                    @update:model-value="confirmClassChange"
+                    label="選擇班級"
+                    use-input
+                    input-debounce="0"
+                    behavior="menu"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="school" color="primary" />
+                    </template>
+                  </q-select>
                 </q-card-section>
 
-                <q-card-section>
-                  若要自訂義課表任何一節的顏色、科目，或加入註解，請輕觸想要編輯的那一，將跳出視窗編輯視窗
+                <q-card-section class="text-caption text-grey-8">
+                  更改班級將重置當前的課表。
                 </q-card-section>
+
+                <q-card-actions align="right">
+                  <q-btn
+                    flat
+                    label="取消"
+                    color="primary"
+                    @click="confirmClassChangeDialog = false"
+                  />
+                  <q-btn
+                    flat
+                    label="確認"
+                    color="primary"
+                    @click="updateUserClass"
+                    :disable="!selectedClass"
+                  />
+                </q-card-actions>
               </q-card>
             </q-dialog>
           </div>
@@ -102,23 +128,13 @@
                 {{ getCellNote(props.row, props.col.name) }}
               </div>
             </div>
-            <q-popup-edit
-              v-model="props.row[props.col.name]"
-              auto-save
-              v-slot="scope"
-            >
+            <q-popup-edit v-model="props.row[props.col.name]" v-slot="scope">
               <div class="text-h6 q-mb-md">自訂課表</div>
               <q-input
                 v-model="scope.value.subject"
                 label="科目"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    subject: $event,
-                  })
-                "
               />
               <q-input
                 v-if="scope.value.subject === '自訂'"
@@ -126,24 +142,12 @@
                 label="自訂科目名稱"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    subject: $event,
-                  })
-                "
               />
               <q-input
                 v-model="scope.value.note"
                 label="備註"
                 dense
                 class="q-mb-sm"
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    note: $event,
-                  })
-                "
               />
               <q-select
                 :options="colorOptions"
@@ -151,12 +155,6 @@
                 label="顏色"
                 dense
                 options-dense
-                @update:model-value="
-                  updateCell(props.row, props.col.name, {
-                    ...scope.value,
-                    color: $event.label,
-                  })
-                "
               >
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
@@ -173,6 +171,14 @@
                   </q-item>
                 </template>
               </q-select>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  label="儲存"
+                  color="primary"
+                  @click="saveCell(props.row, props.col.name, scope.value)"
+                  v-close-popup
+                />
+              </div>
             </q-popup-edit>
           </template>
           <template v-else>
@@ -181,6 +187,7 @@
         </q-td>
       </template>
     </q-table>
+
     <q-dialog v-model="regenerateConfirm" persistent>
       <q-card>
         <q-card-section class="row items-center">
@@ -206,7 +213,17 @@
 
 <script>
 import { onMounted, ref, computed } from "vue";
+import { useQuasar } from "quasar";
 import store from "../store/index";
+
+const classOptions = [
+  101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+  116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
+  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
+  219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
+  307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+  322, 323, 325, 326, 327, 328,
+];
 
 const columns = [
   {
@@ -237,13 +254,38 @@ const colorOptions = [
 
 export default {
   setup() {
+    const $q = useQuasar();
+
+    const confirmClassChangeDialog = ref(false);
+    const scheduleData = computed(() => store.getters.getScheduleData);
+    const userClass = computed(() => store.getters.getUserClass);
+    const selectedClass = ref(userClass.value);
+    const loading = ref(true);
+
     const regenerateConfirm = ref(false);
     const confirmRegenerate = () => {
       regenerateConfirm.value = true;
     };
 
-    const regenerateSchedule = () => {
-      store.dispatch("loadSchedule");
+    const regenerateSchedule = async () => {
+      try {
+        await store.dispatch("loadSchedule");
+        scheduleData.value = store.getters.getScheduleData;
+        $q.notify({
+          message: "已重新匯入課表",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+      } catch (error) {
+        console.error("Error regenerating schedule:", error);
+        $q.notify({
+          message: "重新匯入課表時發生錯誤",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
     };
 
     const visibleColumns = ref([
@@ -264,13 +306,11 @@ export default {
       visibleColumns.value = ["name", columnName];
     };
 
-    const scheduleData = computed(() => store.getters.getScheduleData);
-    const userClass = computed(() => store.getters.getUserClass);
-
-    onMounted(() => {
-      if (scheduleData.value.length === 0) {
-        store.dispatch("loadSchedule");
-      }
+    onMounted(async () => {
+      loading.value = true;
+      await store.dispatch("loadSchedule");
+      scheduleData.value = store.getters.getScheduleData;
+      loading.value = false;
     });
 
     const getCellSubject = (row, colName) => {
@@ -296,9 +336,42 @@ export default {
       return option ? option.value : "#f4f4f1"; // Default color if not found
     };
 
-    const updateCell = (row, colName, newValue) => {
+    const saveCell = async (row, colName, newValue) => {
+      $q.notify({
+        message: "儲存中",
+        color: "yellow-7",
+        position: "bottom",
+        timeout: 2000,
+      });
+
       const rowIndex = scheduleData.value.indexOf(row);
-      store.dispatch("updateSchedule", { rowIndex, colName, newValue });
+      await store.dispatch("updateSchedule", { rowIndex, colName, newValue });
+      scheduleData.value = store.getters.getScheduleData;
+
+      $q.notify({
+        message: "已儲存更改",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+    };
+
+    const confirmClassChange = (newClass) => {
+      selectedClass.value = newClass;
+      confirmClassChangeDialog.value = true;
+    };
+
+    const updateUserClass = async () => {
+      await store.dispatch("setUserClass", selectedClass.value);
+      await store.dispatch("loadSchedule");
+      scheduleData.value = store.getters.getScheduleData;
+      confirmClassChangeDialog.value = false;
+      $q.notify({
+        message: `已成功更改班級為 ${selectedClass.value}`,
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
     };
 
     const getDayLabel = (day) => {
@@ -327,7 +400,8 @@ export default {
 
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
-        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
+        "課後";
 
       return colName === currentDay && row.name === currentPeriod.toString();
     };
@@ -340,7 +414,6 @@ export default {
       colorOptions,
       getCellColor,
       getCellSubject,
-      updateCell,
       getCellNote,
       changeVisibleColumn,
       getDayLabel,
@@ -348,10 +421,16 @@ export default {
       getFormattedColor,
       days,
       isCurrentClass,
-      classHelp: ref(false),
       regenerateConfirm,
       confirmRegenerate,
       regenerateSchedule,
+      selectedClass,
+      confirmClassChange,
+      classOptions,
+      confirmClassChangeDialog,
+      updateUserClass,
+      saveCell,
+      loading,
     };
   },
 };
@@ -481,6 +560,13 @@ export default {
 .q-item__label.text-italic {
   font-style: italic;
   color: #666;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
 }
 
 .custom-banner {

@@ -74,6 +74,16 @@
           </q-menu>
         </q-btn>
       </q-card>
+      <div class="flex justify-center q-mt-md">
+        <div v-if="!isLoading" class="flex justify-center serach-btn">
+          <q-btn
+            icon="search"
+            color="primary"
+            label="尋找最近的五個站點"
+            @click="findNearestStations"
+          />
+        </div>
+      </div>
     </div>
 
     <!--按鈕(新增站點)-->
@@ -82,7 +92,7 @@
     </div>
 
     <!--對話框(新增站點)-->
-    <q-dialog v-model="showAddStationDialog">
+    <q-dialog v-model="showAddStationDialog" full-width>
       <q-card>
         <q-card-section>
           <div class="text-h6">選擇新增之站點</div>
@@ -107,8 +117,18 @@
             label="選擇站點"
             :disable="!selectedDistrict"
           />
+          <div class="separator-or">或</div>
+          <div class="row justify-center q-mt-md">
+            <q-btn
+              icon="search"
+              color="primary"
+              label="尋找最近的五個站點"
+              @click="findNearestStationsFromDialog"
+            />
+          </div>
         </q-card-section>
         <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showAddStationDialog = false" />
           <q-btn flat label="確認" @click="addStation" />
         </q-card-actions>
       </q-card>
@@ -149,6 +169,76 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <!--對話框(最近站點)-->
+    <q-dialog v-model="showNearestStationsDialog" full-width>
+      <q-card style="width: 300px">
+        <q-card-section>
+          <div class="text-h6">最近的站點</div>
+        </q-card-section>
+        <q-card-section>
+          <div
+            v-for="(station, index) in nearestStations"
+            :key="index"
+            class="q-mb-sm"
+          >
+            <div class="row items-center justify-between">
+              <div>
+                {{ index + 1 }}. {{ station.sna.substr(11) }} -
+                {{ (station.distance * 1000).toFixed(0) }} m
+              </div>
+              <q-btn
+                color="primary"
+                label="Add"
+                size="sm"
+                @click="addNearestStation(station)"
+                :disable="isStationInList(station.sna)"
+              />
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-section>
+          <l-map
+            v-if="userPosition"
+            style="height: 270px; width: 100%"
+            :zoom="mapZoom"
+            :center="mapCenter"
+            :options="mapOptions"
+          >
+            <l-tile-layer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></l-tile-layer>
+            <l-circle
+              :lat-lng="userPosition"
+              :radius="circleRadius"
+              color="red"
+              dashArray="10, 10"
+              :opacity="0.45"
+              :fill="true"
+              fillColor="red"
+              :fillOpacity="0.05"
+            ></l-circle>
+            <l-marker :lat-lng="userPosition" :icon="userIcon">
+              <l-popup>Your Location</l-popup>
+            </l-marker>
+            <l-marker
+              v-for="station in nearestStations"
+              :key="station.sna"
+              :lat-lng="[parseFloat(station.lat), parseFloat(station.lng)]"
+              :icon="youbikeIcon"
+            >
+              <l-popup>
+                <div class="text-bold">{{ station.sna.substr(11) }}</div>
+                <div>可借車輛: {{ station.sbi }}</div>
+                <div>可還車輛: {{ station.bemp }}</div>
+              </l-popup>
+            </l-marker>
+          </l-map>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" @click="showNearestStationsDialog = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -158,6 +248,16 @@ import axios from "axios";
 import { formatDistanceToNow, parseISO, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import store from "../store/index";
+
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  LPopup,
+  LCircle,
+} from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+import { Icon } from "leaflet";
 
 class Station {
   constructor(name) {
@@ -169,6 +269,13 @@ class Station {
 }
 
 export default defineComponent({
+  components: {
+    LMap,
+    LTileLayer,
+    LMarker,
+    LPopup,
+    LCircle,
+  },
   setup() {
     const StationList = computed(() => store.getters.getStationList);
     return { StationList };
@@ -235,6 +342,26 @@ export default defineComponent({
       ],
       stationOptions: [],
       isLoading: true,
+
+      nearestStations: [],
+      showNearestStationsDialog: false,
+      userPosition: null,
+      mapCenter: [25.031204, 121.515966],
+      mapZoom: 15,
+      mapOptions: {
+        zoomControl: false,
+      },
+      youbikeIcon: new Icon({
+        iconUrl: "https://imgur.com/jZN5Ph6.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+      }),
+      userIcon: new Icon({
+        iconUrl: "https://imgur.com/de9dxzv.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+      }),
+      circleRadius: 0,
     };
   },
   //根據選擇的城市設定行政區的選項
@@ -522,6 +649,139 @@ export default defineComponent({
       if (value >= 1 && value <= 3) return "orange-8";
       return "green";
     },
+
+    async findNearestStations() {
+      try {
+        const position = await this.getCurrentPosition();
+        const { latitude: userLat, longitude: userLng } = position.coords;
+
+        this.userPosition = [userLat, userLng];
+        this.mapCenter = [userLat, userLng];
+
+        const allStations = await this.fetchAllStationsData();
+
+        const stationsWithDistances = allStations.map((station) => ({
+          ...station,
+          distance: this.calculateDistance(
+            userLat,
+            userLng,
+            station.lat,
+            station.lng
+          ),
+        }));
+
+        stationsWithDistances.sort((a, b) => a.distance - b.distance);
+
+        this.nearestStations = stationsWithDistances.slice(0, 5);
+
+        this.circleRadius = this.nearestStations[4].distance * 1100;
+
+        this.showNearestStationsDialog = true;
+      } catch (error) {
+        console.error("Error finding nearest stations:", error);
+        this.$q.notify({
+          message: "無法搜尋最近站點",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    },
+
+    getCurrentPosition() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation is not supported by this browser."));
+        } else {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        }
+      });
+    },
+
+    async fetchAllStationsData() {
+      try {
+        const tpcResponse = await axios.get(
+          "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+        );
+        const tpcData = tpcResponse.data.map((station) => ({
+          ...station,
+          lat: station.latitude,
+          lng: station.longitude,
+          city: "臺北市",
+        }));
+
+        const ntcResponse1 = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+        );
+        const ntcResponse2 = await axios.get(
+          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+        );
+        const ntcData = [...ntcResponse1.data, ...ntcResponse2.data].map(
+          (station) => ({
+            ...station,
+            lat: parseFloat(station.lat),
+            lng: parseFloat(station.lng),
+            city: "新北市",
+          })
+        );
+
+        return [...tpcData, ...ntcData];
+      } catch (error) {
+        console.error("Error fetching all stations data:", error);
+        throw error;
+      }
+    },
+
+    calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = this.deg2rad(lat2 - lat1);
+      const dLon = this.deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(this.deg2rad(lat1)) *
+          Math.cos(this.deg2rad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const d = R * c;
+      return d;
+    },
+
+    deg2rad(deg) {
+      return deg * (Math.PI / 180);
+    },
+
+    addNearestStation(station) {
+      const newStationName = station.sna;
+      const newStationData = {
+        nickname: station.sna.substr(11),
+        city: station.city,
+      };
+
+      this.stations[newStationName] = new Station(newStationName);
+      this.$store.dispatch("addStation", {
+        stationName: newStationName,
+        stationData: newStationData,
+      });
+
+      this.$q.notify({
+        message: "站點已新增至您的清單",
+        color: "positive",
+        position: "bottom",
+        timeout: 2000,
+      });
+
+      this.fetchData();
+    },
+
+    isStationInList(stationName) {
+      return Object.keys(this.stations).includes(stationName);
+    },
+
+    findNearestStationsFromDialog() {
+      this.showAddStationDialog = false;
+      this.findNearestStations();
+    },
   },
   mounted() {
     console.log(JSON.parse(localStorage.getItem("store")));
@@ -589,5 +849,29 @@ export default defineComponent({
 }
 .update-time .q-icon {
   margin-right: 4px;
+}
+
+.separator-or {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-top: 32px;
+}
+.separator-or::before,
+.separator-or::after {
+  content: "";
+  flex: 1;
+  border-bottom: 3px double #e0e0e0;
+}
+.separator-or::before {
+  margin-right: 0.5em;
+}
+.separator-or::after {
+  margin-left: 0.5em;
+}
+
+.serach-btn {
+  margin-top: 5px;
+  margin-bottom: 20px;
 }
 </style>

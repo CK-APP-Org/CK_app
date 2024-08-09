@@ -3,19 +3,18 @@
     <q-page class="flex column relative-position">
       <!-- Loading overlay -->
       <div v-if="isLoading" class="loading-overlay flex flex-center">
-        <q-spinner-gears size="50px" color="primary" />
-        <div class="q-mt-sm text-primary">Loading map data...</div>
+        <q-spinner size="70px" color="primary" />
+        <div class="q-mt-sm text-primary">讀取資料中...</div>
       </div>
 
       <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
 
       <div v-else>
-        <div class="map-controls q-pa-md">
+        <div class="map-controls-1 q-pa-md">
           <q-btn
             color="primary"
-            icon="info"
-            label="圖例"
-            @click="showLegend = true"
+            label="畫面顯示列表"
+            @click="showRestaurantList = true"
             class="q-mr-sm"
           />
           <q-checkbox
@@ -26,7 +25,17 @@
           <q-checkbox v-model="showOnlyFavorites" label="我的最愛" />
         </div>
 
+        <div class="map-controls-2 q-pa-md">
+          <q-btn
+            color="primary"
+            icon="info"
+            @click="showLegend = true"
+            class="q-mr-sm"
+          />
+        </div>
+
         <l-map
+          ref="mapRef"
           style="height: 90vh; width: 100%"
           :zoom="16"
           :center="[25.031204, 121.515966]"
@@ -103,10 +112,10 @@
             </div>
           </div>
           <q-btn
-            :icon="isFavorite(selectedMarker) ? 'star' : 'star_border'"
+            :icon="isFavorite(selectedMarker) ? 'favorite' : 'favorite_border'"
             flat
             round
-            color="yellow"
+            color="red"
             class="favorite-btn"
             @click="toggleFavorite(selectedMarker)"
           />
@@ -165,6 +174,47 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
+        <q-dialog v-model="showRestaurantList" full-width>
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">餐廳列表</div>
+            </q-card-section>
+            <q-card-section class="q-pa-none">
+              <q-list separator>
+                <q-item v-for="restaurant in markers" :key="restaurant.name">
+                  <q-item-section>
+                    <q-item-label>{{ restaurant.name }}</q-item-label>
+                    <q-item-label caption>
+                      今日營業: {{ restaurant.openingHours[getCurrentDay()] }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      :icon="
+                        isFavorite(restaurant) ? 'favorite' : 'favorite_border'
+                      "
+                      flat
+                      round
+                      color="red"
+                      @click="toggleFavorite(restaurant)"
+                    />
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-btn
+                      label="詳細資訊"
+                      color="primary"
+                      flat
+                      @click="showSidebarFromList(restaurant)"
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn flat label="關閉" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
     </q-page>
   </div>
@@ -177,11 +227,11 @@ import { onMounted, computed, ref } from "vue";
 import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
+import L from "leaflet";
 
+const mapRef = ref(null);
 const hideClosedRestaurants = ref(false);
-
 const showLegend = ref(false);
-
 const mapOptions = {
   zoomControl: false,
 };
@@ -191,6 +241,7 @@ const favoriteRestaurants = computed(
 );
 
 const showOnlyFavorites = ref(false);
+const showRestaurantList = ref(false);
 
 const openIcon = new Icon({
   iconUrl: "https://imgur.com/jZN5Ph6.png",
@@ -320,8 +371,10 @@ const toggleFavorite = (restaurant) => {
     (r) => r.name === restaurant.name
   );
   if (index === -1) {
+    favoriteRestaurants.value.push(restaurant);
     store.dispatch("addFavoriteRestaurant", restaurant);
   } else {
+    favoriteRestaurants.value.splice(index, 1);
     store.dispatch("removeFavoriteRestaurant", restaurant.name);
   }
 };
@@ -349,6 +402,7 @@ const fetchRestaurantData = async () => {
     isLoading.value = false;
   }
 };
+
 const markers = computed(() =>
   restaurantData.value
     .map((marker) => ({
@@ -374,16 +428,30 @@ const closeSidebar = () => {
   sidebarOpen.value = false;
 };
 
+const showSidebarFromList = (restaurant) => {
+  showSidebar(restaurant);
+  showRestaurantList.value = false;
+
+  // Find the marker for the selected restaurant
+  const marker = markers.value.find((m) => m.name === restaurant.name);
+
+  if (marker && mapRef.value) {
+    // Pan the map to the marker's position
+    mapRef.value.leafletObject.panTo(marker.position);
+
+    // Open the popup
+    mapRef.value.leafletObject.eachLayer((layer) => {
+      if (
+        layer instanceof L.Marker &&
+        layer.getLatLng().equals(marker.position)
+      ) {
+        layer.openPopup();
+      }
+    });
+  }
+};
+
 onMounted(() => {
-  console.log(restaurantData);
-  /*
-  console.log("Restaurants with empty discount value:");
-  restaurantData.value.forEach((restaurant) => {
-    if (restaurant.discount === "") {
-      console.log(restaurant.name);
-    }
-  });
-  */
   fetchRestaurantData();
   delete Icon.Default.prototype._getIconUrl;
   Icon.Default.mergeOptions({
@@ -468,10 +536,20 @@ onMounted(() => {
   right: 50px; /* Adjust this value to position it next to the close button */
 }
 
-.map-controls {
+.map-controls-1 {
   position: absolute;
   top: 10px;
   left: 10px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.map-controls-2 {
+  position: absolute;
+  bottom: 50px;
+  right: 8px;
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;

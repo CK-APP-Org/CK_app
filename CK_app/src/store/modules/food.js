@@ -6,9 +6,9 @@ export default {
     ADD_FAVORITE_RESTAURANT(state, restaurant) {
       state.favoriteRestaurants.push(restaurant);
     },
-    REMOVE_FAVORITE_RESTAURANT(state, restaurantContent) {
+    REMOVE_FAVORITE_RESTAURANT(state, restaurantName) {
       state.favoriteRestaurants = state.favoriteRestaurants.filter(
-        (item) => item.content !== restaurantContent
+        (item) => item.name !== restaurantName
       );
     },
   },

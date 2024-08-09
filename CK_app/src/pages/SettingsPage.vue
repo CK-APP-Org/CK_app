@@ -5,9 +5,15 @@
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">帳號資訊</div>
-            <div class="column q-gutter-y-sm">
-              <div><strong>帳號名稱:</strong> Account</div>
-              <div><strong>Email:</strong> Email</div>
+            <div v-if="isLoggedIn" class="column q-gutter-y-sm">
+              <div><strong>帳號名稱:</strong> {{ userName }}</div>
+              <div><strong>Email:</strong> {{ userEmail }}</div>
+              <q-btn
+                color="negative"
+                label="登出"
+                @click="logout"
+                class="full-width q-mt-md"
+              />
               <q-btn
                 color="negative"
                 label="清除所有資料"
@@ -18,6 +24,15 @@
                 color="primary"
                 label="備份資料"
                 @click="saveData"
+                class="full-width q-mt-md"
+              />
+            </div>
+            <div v-else class="column q-gutter-y-sm">
+              <p>您尚未登入</p>
+              <q-btn
+                color="primary"
+                label="登入/註冊"
+                @click="goToLoginPage"
                 class="full-width q-mt-md"
               />
             </div>
@@ -114,9 +129,19 @@
 </template>
 
 <script>
-import { computed, ref, watch } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const classOptions = [
   101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
@@ -143,6 +168,26 @@ export default {
     const confirmClassChangeDialog = ref(false);
     const userClass = computed(() => store.getters.getUserClass);
     const selectedClass = ref(userClass.value);
+
+    const router = useRouter();
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+      authDomain: "ck-app-database.firebaseapp.com",
+      projectId: "ck-app-database",
+      storageBucket: "ck-app-database.appspot.com",
+      messagingSenderId: "253500838094",
+      appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+      measurementId: "G-T79H6D7WRT",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const userRef = doc(db, "User Data", "Userdata");
+
+    const isLoggedIn = ref(false);
+    const userName = ref("");
+    const userEmail = ref("");
 
     // Theme color
     const themeColor = ref("#1976D2"); // Default to blue
@@ -212,6 +257,98 @@ export default {
       confirmClassChangeDialog.value = false;
     };
 
+    onMounted(() => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          isLoggedIn.value = true;
+          userName.value = user.displayName || "";
+          userEmail.value = user.email || "";
+          fetchUserData(user.uid);
+        } else {
+          isLoggedIn.value = false;
+          userName.value = "";
+          userEmail.value = "";
+        }
+      });
+    });
+
+    const fetchUserData = async (userId) => {
+      const userDoc = await getDoc(doc(db, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        Object.entries(userData).forEach(([key, value]) => {
+          localStorage.setItem(key, JSON.stringify(value));
+          store.commit(`SET_${key.toUpperCase()}`, value);
+        });
+      }
+    };
+
+    const saveData = async () => {
+      if (!isLoggedIn.value) {
+        $q.notify({
+          message: "請先登入以備份資料",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+        return;
+      }
+
+      const userId = auth.currentUser.uid;
+      const userData = {};
+
+      // Collect all data from localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        userData[key] = JSON.parse(localStorage.getItem(key));
+      }
+
+      try {
+        await setDoc(doc(db, "users", userId), userData);
+        $q.notify({
+          message: "資料已成功備份到 Firebase",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+      } catch (error) {
+        console.error("Error saving data to Firebase:", error);
+        $q.notify({
+          message: "備份資料時發生錯誤",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    };
+
+    const logout = async () => {
+      try {
+        await auth.signOut();
+        store.dispatch("clearUserData");
+        localStorage.clear();
+        $q.notify({
+          message: "已成功登出",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+        router.push("/login");
+      } catch (error) {
+        console.error("Error signing out:", error);
+        $q.notify({
+          message: "登出時發生錯誤",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
+        });
+      }
+    };
+
+    const goToLoginPage = () => {
+      router.push("/login");
+    };
+
     return {
       confirmDialog,
       confirmClassChangeDialog,
@@ -228,6 +365,12 @@ export default {
       showSchoolNews,
       themeColor,
       themeColors,
+      isLoggedIn,
+      userName,
+      userEmail,
+      saveData,
+      logout,
+      goToLoginPage,
     };
   },
 };

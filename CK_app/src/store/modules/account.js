@@ -1,34 +1,44 @@
 export default {
   state: () => ({
-    userName: null,
-    userEmail: null,
-    isLoggedIn: false,
+    userName: "Default",
+    password: "Default",
+    email: "Default"
   }),
   mutations: {
-    SET_USER_DATA(state, userData) {
-      state.userName = userData.userName;
-      state.userEmail = userData.userEmail;
-      state.isLoggedIn = true;
+    SET_USER_ACCOUNT(state, newAccount) {
+      console.log(newAccount)
+      state.userName = newAccount;
     },
-    CLEAR_USER_DATA(state) {
-      state.userName = null;
-      state.userEmail = null;
-      state.isLoggedIn = false;
+    SET_USER_EMAIL(state, email) {
+      console.log(email)
+      state.email = email;
+    },
+    SET_USER_PASSWORD(state, password) {
+      console.log(password)
+      state.password = password;
     },
   },
+
   actions: {
-    setUserData({ commit }, userData) {
-      commit("SET_USER_DATA", userData);
+    setUserAccount({ commit }, newAccount) {
+      commit("SET_USER_ACCOUNT", newAccount);
+      localStorage.setItem("userName", newAccount);
     },
-    clearUserData({ commit }) {
-      commit("CLEAR_USER_DATA");
+    setUserEmail({ commit }, mail) {
+      commit("SET_USER_EMAIL", mail);
+      localStorage.setItem("email", mail);
+      console.log(2)
+    },
+    setUserPassword({ commit }, password) {
+      console.log(1)
+      commit("SET_USER_PASSWORD", password);
+      localStorage.setItem("password", password);
     },
   },
+
   getters: {
-    getUserData: (state) => ({
-      userName: state.userName,
-      userEmail: state.userEmail,
-      isLoggedIn: state.isLoggedIn,
-    }),
+    getUserAccount: (state) => state.userName,
+    getEmail: (state) => state.email,
+    getPassword: (state) => state.password
   },
 };

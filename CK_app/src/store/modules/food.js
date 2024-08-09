@@ -11,6 +11,9 @@ export default {
         (item) => item.name !== restaurantName
       );
     },
+    LOAD_RESTAURANTS(state, restaurants) {
+      state.favoriteRestaurants = restaurants
+    }
   },
   actions: {
     addFavoriteRestaurant({ commit }, restaurant) {
@@ -19,6 +22,9 @@ export default {
     removeFavoriteRestaurant({ commit }, restaurantContent) {
       commit("REMOVE_FAVORITE_RESTAURANT", restaurantContent);
     },
+    loadRestaurants({ commit }, restaurants) {
+      commit("LOAD_RESTAURANTS", restaurants);
+    }
   },
   getters: {
     getFavoriteRestaurants: (state) => state.favoriteRestaurants,

@@ -6,8 +6,8 @@
           <q-card-section>
             <div class="text-h6 q-mb-md">帳號資訊</div>
             <div v-if="isLoggedIn" class="column q-gutter-y-sm">
-              <div><strong>帳號名稱:</strong> {{ userName }}</div>
-              <div><strong>Email:</strong> {{ userEmail }}</div>
+              <div><strong>名稱:</strong> {{ userAccount }}</div>
+              <div><strong>Email:</strong> {{ email }}</div>
               <q-btn
                 color="negative"
                 label="登出"
@@ -18,6 +18,12 @@
                 color="negative"
                 label="清除所有資料"
                 @click="confirmClear"
+                class="full-width q-mt-md"
+              />
+              <q-btn
+                color="primary"
+                label="匯入資料"
+                @click="importData"
                 class="full-width q-mt-md"
               />
               <q-btn
@@ -141,7 +147,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const classOptions = [
   101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
@@ -182,12 +187,30 @@ export default {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
-    const userRef = doc(db, "User Data", "Userdata");
 
     const isLoggedIn = ref(false);
     const userName = ref("");
     const userEmail = ref("");
+
+    const userAccount = computed(() => store.getters.getUserAccount);
+    const password = computed(() => store.getters.getPassword);
+    const email = computed(() => store.getters.getEmail);
+    const userRef = ref(null)
+
+    const favoriteRestaurants = computed(() => store.getters.getFavoriteRestaurants);
+
+    const pinnedNews = computed(() => store.getters.getPinnedNews);
+    const lastClearedTime = computed(() => store.getters.getLastClearedTime);
+
+    const events = computed(() => store.getters.getEvents);
+    const eventCategories = computed(() => store.getters.getEventCategories);
+    const todos = computed(() => store.getters.getTodos);
+    const todoCategories = computed(() => store.getters.getTodoCategories);
+    const currentView = computed(() => store.getters.getCurrentView);
+
+    const stationList = computed(() => store.getters.getStationList);
+
+    const scheduleData = computed(() => store.getters.getScheduleData);
 
     // Theme color
     const themeColor = ref("#1976D2"); // Default to blue
@@ -257,31 +280,84 @@ export default {
       confirmClassChangeDialog.value = false;
     };
 
-    onMounted(() => {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          isLoggedIn.value = true;
-          userName.value = user.displayName || "";
-          userEmail.value = user.email || "";
-          fetchUserData(user.uid);
-        } else {
-          isLoggedIn.value = false;
-          userName.value = "";
-          userEmail.value = "";
-        }
-      });
-    });
+    const importData = async () => {
+      try{
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+            authDomain: "ck-app-database.firebaseapp.com",
+            projectId: "ck-app-database",
+            storageBucket: "ck-app-database.appspot.com",
+            messagingSenderId: "253500838094",
+            appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+            measurementId: "G-T79H6D7WRT",
+          };
 
-    const fetchUserData = async (userId) => {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        Object.entries(userData).forEach(([key, value]) => {
-          localStorage.setItem(key, JSON.stringify(value));
-          store.commit(`SET_${key.toUpperCase()}`, value);
+          console.log(userAccount.value);
+
+          const app = initializeApp(firebaseConfig);
+          const db = getFirestore(app);
+
+          userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+          const docSnap = await getDoc(userRef.value);
+          const userData = docSnap.data()[userAccount.value];
+          console.log(userData)
+          const favoriteRestaurants= userData["Food"]["favoriteRestaurants"];
+
+          const pinnedNews = userData["News"]["pinnedNews"];
+          const lastClearedTime = userData["News"]["lastClearedTime"]
+            ? userData["News"]["lastClearedTime"].toDate()
+            : null;
+          const showSchool = userData["Settings"]["showSchoolNews"];
+
+          const classes = userData["Schedule"]["userClass"];
+          const schedules = userData["Schedule"]["ScheduleData"];
+          const showSchedule = userData["Settings"]["showSchedule"];
+
+          const events = userData["Todo"]["events"].map((event) => ({
+            ...event,
+            startDate: event.startDate.toDate(),
+            endDate: event.endDate.toDate(),
+          }));
+          const eventCategories = userData["Todo"]["eventCategories"];
+          const todos = userData["Todo"]["todos"].map((event) => ({
+            ...event,
+            date: event.date ? event.date.toDate() : null,
+          }));
+          const currentView = userData["Todo"]["currentView"];
+          const todoCategories = userData["Todo"]["todoCategories"];
+          const showTodo = userData["Settings"]["showTodo"];
+
+          const StationList = userData["Youbike"]["stationList"];
+
+          store.dispatch("loadRestaurants", favoriteRestaurants);
+          store.dispatch("loadNews", pinnedNews, lastClearedTime, showSchool);
+          store.dispatch("loadingSchedule", schedules, classes, showSchedule);
+          store.dispatch("loadTodo", todos, todoCategories, events, eventCategories, currentView, showTodo);
+          store.dispatch("loadStation", StationList);
+          $q.notify({
+            message: "成功匯入資料",
+            color: "positive",
+            position: "bottom",
+            timeout: 2000,
+          });
+      }
+      catch (error) {
+        console.error("Error saving data to Firebase:", error);
+        $q.notify({
+          message: "資料匯入時發生錯誤",
+          color: "negative",
+          position: "bottom",
+          timeout: 2000,
         });
       }
-    };
+
+    }
+
+    onMounted(() => {
+      console.log(email.value)
+      isLoggedIn.value = (userAccount.value != "Default")
+    });
+
 
     const saveData = async () => {
       if (!isLoggedIn.value) {
@@ -294,17 +370,53 @@ export default {
         return;
       }
 
-      const userId = auth.currentUser.uid;
-      const userData = {};
-
-      // Collect all data from localStorage
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        userData[key] = JSON.parse(localStorage.getItem(key));
-      }
 
       try {
-        await setDoc(doc(db, "users", userId), userData);
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+          authDomain: "ck-app-database.firebaseapp.com",
+          projectId: "ck-app-database",
+          storageBucket: "ck-app-database.appspot.com",
+          messagingSenderId: "253500838094",
+          appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+          measurementId: "G-T79H6D7WRT",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+        const newUserData = {
+          Email: email.value,
+          Password: password.value,
+          Schedule: {
+            ScheduleData: scheduleData.value,
+            userClass: userClass.value,
+          },
+          Youbike: {stationList: stationList.value},
+          News: {
+            pinnedNews: pinnedNews.value,
+            lastClearedTime: lastClearedTime.value,
+          },
+          Food: {
+            favoriteRestaurants: favoriteRestaurants.value,
+            userRatings: {},
+          },
+          Todo: {
+            events: events.value,
+            eventCategories: eventCategories.value,
+            todos: todos.value,
+            currentView: currentView.value,
+            todoCategories: todoCategories.value,
+          },
+          Settings: {
+            showSchedule: showSchedule.value,
+            showTodo: showTodo.value,
+            showSchoolNews: showSchoolNews.value,
+          },
+        };
+        const updatePath = `${userAccount.value}`;
+        await updateDoc(userRef.value, { [updatePath]: newUserData });
         $q.notify({
           message: "資料已成功備份到 Firebase",
           color: "positive",
@@ -324,16 +436,15 @@ export default {
 
     const logout = async () => {
       try {
-        await auth.signOut();
-        store.dispatch("clearUserData");
-        localStorage.clear();
+        store.dispatch("setUserAccount", "Default");
+        // localStorage.clear();
         $q.notify({
           message: "已成功登出",
           color: "positive",
           position: "bottom",
           timeout: 2000,
         });
-        router.push("/login");
+        router.push("/");
       } catch (error) {
         console.error("Error signing out:", error);
         $q.notify({
@@ -367,10 +478,13 @@ export default {
       themeColors,
       isLoggedIn,
       userName,
-      userEmail,
       saveData,
       logout,
       goToLoginPage,
+      userAccount,
+      email,
+      password,
+      importData
     };
   },
 };

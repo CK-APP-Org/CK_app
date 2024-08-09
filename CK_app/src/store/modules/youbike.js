@@ -32,6 +32,9 @@ export default {
         city: stationData.city,
       };
     },
+    LOAD_STATIONS(state, stations) {
+      state.stationList = stations
+    }
   },
   actions: {
     updateStationNickname({ commit }, payload) {
@@ -44,6 +47,9 @@ export default {
     addStation({ commit }, payload) {
       commit("ADD_STATION", payload);
     },
+    loadStation({commit}, stations) {
+      commit("LOAD_STATIONS", stations);
+    }
   },
   getters: {
     getStationList: (state) => state.stationList,

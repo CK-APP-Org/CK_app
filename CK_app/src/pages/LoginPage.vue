@@ -2,18 +2,18 @@
   <q-page class="flex flex-center">
     <q-card style="width: 300px">
       <q-card-section>
-        <div class="text-h6">{{ isLogin ? "Login" : "Register" }}</div>
+        <div class="text-h6">{{ isLogin ? "CK APP登入" : "CK APP註冊" }}</div>
       </q-card-section>
 
       <q-card-section>
         <q-form @submit="onSubmit">
           <q-input
-            v-model="userName"
-            label="Account Name"
+            v-model="accountName"
+            label="帳號名稱"
             :rules="
               !isLogin
                 ? [
-                    (val) => !!val || 'Account name is required',
+                    (val) => !!val || '帳號名稱為必填',
                     (val) =>
                       /^[a-zA-Z0-9_]+$/.test(val) ||
                       '只能輸入英文字母、數字或底線',
@@ -29,12 +29,12 @@
 
           <q-input
             v-model="password"
-            label="Password"
+            label="密碼"
             :type="showPassword ? 'text' : 'password'"
             :rules="
               !isLogin
                 ? [
-                    (val) => !!val || 'Password is required',
+                    (val) => !!val || '密碼為必填',
                     (val) =>
                       /^[a-zA-Z0-9_]+$/.test(val) ||
                       '只能輸入英文字母、數字或底線',
@@ -58,13 +58,23 @@
           <q-input
             v-if="!isLogin"
             v-model="email"
-            label="Email (optional)"
+            label="Email"
             type="email"
-          />
+            :rules="[
+              (val) => !!val || 'Email為必填',
+              (val) =>
+                /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(val) ||
+                'Email格式不正確',
+            ]"
+          >
+            <template v-slot:hint>
+              請輸入有效的Email，以便忘記帳密時可驗證身分
+            </template>
+          </q-input>
 
           <div class="q-mt-md">
             <q-btn
-              :label="isLogin ? 'Login' : 'Register'"
+              :label="isLogin ? '登入' : '註冊'"
               type="submit"
               color="primary"
             />
@@ -84,16 +94,8 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
-import { useQuasar } from "quasar";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
 import {
   getFirestore,
   doc,
@@ -102,12 +104,25 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { useQuasar } from "quasar";
+import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
     const store = useStore();
-    const router = useRouter();
     const $q = useQuasar();
+    const router = useRouter();
+
+    const isLogin = ref(true);
+    const accountName = ref("");
+    const password = ref("");
+    const email = ref("");
+    const showPassword = ref(false);
+    const classSchedule = ref(null);
+
+    const userAccount = computed(() => store.getters.getUserAccount);
+
     const firebaseConfig = {
       apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
       authDomain: "ck-app-database.firebaseapp.com",
@@ -120,50 +135,146 @@ export default {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
+    const userRef = doc(db, "User Data", "Userdata");
 
-    const isLogin = ref(true);
-    const email = ref("");
-    const password = ref("");
-    const userName = ref("");
-    const showPassword = ref(false);
+
+
 
     const onSubmit = async () => {
+      const username = accountName.value;
+
+      // Show processing notification
+      const processingNotif = $q.notify({
+        message: isLogin.value ? "登入中..." : "註冊中...",
+        color: "info",
+        position: "bottom",
+        timeout: 0,
+      });
+
       try {
+        const docSnap = await getDoc(userRef);
+        const userData = docSnap.data();
+
         if (isLogin.value) {
-          // Login
-          await signInWithEmailAndPassword(auth, email.value, password.value);
-          await fetchUserData(auth.currentUser.uid);
+          if (userData && userData[username]) {
+            if (userData[username].Password === password.value) {
+              const userEmail = userData[username]["Email"]
+              console.log(userEmail.value)
+              processingNotif(); // Dismiss the processing notification
+              console.log("Login successful");
+              store.dispatch("setUserAccount", username);
+              store.dispatch("setUserEmail", userEmail);
+              store.dispatch("setUserPassword", password.value);
+              $q.notify({
+                message: "登入成功，請前往設定備份資料",
+                color: "positive",
+                position: "bottom",
+                timeout: 2000,
+              });
+              console.log(userAccount.value);
+              router.push("/settings");
+            } else {
+              processingNotif(); // Dismiss the processing notification
+              $q.notify({
+                message: "密碼錯誤，請重試",
+                color: "negative",
+                position: "bottom",
+                timeout: 2000,
+              });
+            }
+          } else {
+            processingNotif(); // Dismiss the processing notification
+            $q.notify({
+              message: "查無帳號，請先註冊",
+              color: "negative",
+              position: "bottom",
+              timeout: 2000,
+            });
+          }
         } else {
-          // Register
-          const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            email.value,
-            password.value
-          );
-          await updateProfile(userCredential.user, {
-            displayName: userName.value,
-          });
-          await saveUserData(userCredential.user.uid);
+          if (userData && userData[username]) {
+            processingNotif(); // Dismiss the processing notification
+            $q.notify({
+              message: "帳號重複，請使用其他帳號名稱",
+              color: "negative",
+              position: "bottom",
+              timeout: 2000,
+            });
+          } else {
+            const newUserData = {
+              Email: userEmail.value,
+              Password: password.value,
+              Schedule: {
+                ScheduleData: classSchedule.value,
+                userClass: 101,
+              },
+              Youbike: {
+                stationList: {
+                  "YouBike2%2E0_泉州寧波西街口": {
+                    nickname: "泉州寧波西街口(建中側門)",
+                    city: "臺北市",
+                    order: new Date("2024-01-01T00:00:00").getTime(),
+                  },
+                  "YouBike2%2E0_捷運中正紀念堂站(2號出口)": {
+                    nickname: "中正紀念堂站(2號出口)",
+                    city: "臺北市",
+                    order: new Date("2024-01-01T00:01:00").getTime(),
+                  },
+                  "YouBike2%2E0_郵政博物館": {
+                    nickname: "郵政博物館",
+                    city: "臺北市",
+                    order: new Date("2024-01-01T00:02:00").getTime(),
+                  },
+                  "YouBike2%2E0_植物園": {
+                    nickname: "台北植物園",
+                    city: "臺北市",
+                    order: new Date("2024-01-01T00:03:00").getTime(),
+                  },
+                },
+              },
+              News: {
+                pinnedNews: [],
+                lastClearedTime: null,
+                displayNewsWidget: true,
+              },
+              Food: {
+                favoriteRestaurants: [],
+              },
+              Todo: {
+                events: [],
+                eventCategories: [{ name: "Default", color: "#ADADAD" }],
+                displayTodoWidget: true,
+                todos: [],
+                currentView: "calendar",
+                todoCategories: [],
+              },
+              Settings: {
+                showSchedule: true,
+                showTodo: true,
+                showSchoolNews: true,
+              },
+            };
+            await setDoc(userRef, { [username]: newUserData }, { merge: true });
+            processingNotif(); // Dismiss the processing notification
+            store.dispatch("setUserAccount", userAccount);
+            store.dispatch("setUserEmail", email.value);
+            store.dispatch("setUserPassword", password.value);
+            $q.notify({
+              message: "已建立帳號",
+              color: "positive",
+              position: "bottom",
+              timeout: 2000,
+            });
+            router.push("/");
+            // Show the class selection dialog instead of redirecting
+          }
         }
-
-        store.dispatch("setUserData", {
-          userName: auth.currentUser.displayName,
-          userEmail: auth.currentUser.email,
-        });
-
-        $q.notify({
-          message: isLogin.value ? "登入成功" : "註冊成功",
-          color: "positive",
-          position: "bottom",
-          timeout: 2000,
-        });
-
-        router.push("/");
       } catch (error) {
-        console.error("Error:", error);
+        processingNotif(); // Dismiss the processing notification
+        console.error("Error processing request:", error);
         $q.notify({
           message: isLogin.value ? "登入失敗" : "註冊失敗",
+          caption: "請稍後再試",
           color: "negative",
           position: "bottom",
           timeout: 2000,
@@ -171,33 +282,15 @@ export default {
       }
     };
 
-    const fetchUserData = async (userId) => {
-      const userDoc = await getDoc(doc(db, "users", userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        Object.entries(userData).forEach(([key, value]) => {
-          localStorage.setItem(key, JSON.stringify(value));
-          store.commit(`SET_${key.toUpperCase()}`, value);
-        });
-      }
-    };
-
-    const saveUserData = async (userId) => {
-      const userData = {};
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        userData[key] = JSON.parse(localStorage.getItem(key));
-      }
-      await setDoc(doc(db, "users", userId), userData);
-    };
 
     return {
       isLogin,
-      email,
+      accountName,
       password,
-      userName,
+      email,
       showPassword,
       onSubmit,
+      userAccount,
     };
   },
 };

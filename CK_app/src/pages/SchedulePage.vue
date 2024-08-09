@@ -270,7 +270,6 @@ export default {
     const regenerateSchedule = async () => {
       try {
         await store.dispatch("loadSchedule");
-        scheduleData.value = store.getters.getScheduleData;
         $q.notify({
           message: "已重新匯入課表",
           color: "positive",
@@ -307,9 +306,6 @@ export default {
     };
 
     onMounted(async () => {
-      loading.value = true;
-      await store.dispatch("loadSchedule");
-      scheduleData.value = store.getters.getScheduleData;
       loading.value = false;
     });
 
@@ -346,7 +342,6 @@ export default {
 
       const rowIndex = scheduleData.value.indexOf(row);
       await store.dispatch("updateSchedule", { rowIndex, colName, newValue });
-      scheduleData.value = store.getters.getScheduleData;
 
       $q.notify({
         message: "已儲存更改",
@@ -364,7 +359,6 @@ export default {
     const updateUserClass = async () => {
       await store.dispatch("setUserClass", selectedClass.value);
       await store.dispatch("loadSchedule");
-      scheduleData.value = store.getters.getScheduleData;
       confirmClassChangeDialog.value = false;
       $q.notify({
         message: `已成功更改班級為 ${selectedClass.value}`,

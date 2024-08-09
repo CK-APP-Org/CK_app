@@ -22,6 +22,11 @@ export default {
     SET_SHOW_SCHEDULE(state, value) {
       state.displayScheduleWidget = value;
     },
+    LOADING_SCHEDULE(state, schedule, userclass, display) {
+      state.schedule = schedule;
+      state.userClass = userclass;
+      state.displayScheduleWidget = display
+    },
   },
   actions: {
     updateSchedule({ commit }, payload) {
@@ -31,14 +36,8 @@ export default {
       commit("SET_USER_CLASS", newClass);
       localStorage.setItem("userClass", newClass);
     },
-    async loadSchedule({ commit, state }) {
-      try {
-        const response = await axios.get(SCHEDULE_URL);
-        const classSchedule = response.data[state.userClass]["schedule"];
-        commit("SET_SCHEDULE_DATA", classSchedule);
-      } catch (error) {
-        console.error("Failed to load schedule:", error);
-      }
+    loadingSchedule({commit}, schedule, userclass, display) {
+      commit("LOADING_SCHEDULE", schedule, userclass, display);
     },
     async loadSchedule({ commit, state }) {
       try {

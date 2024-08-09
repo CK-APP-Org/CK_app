@@ -79,6 +79,14 @@ export default {
         (c) => c.name !== categoryName
       );
     },
+    LOAD_TODO(state, todos, todocat, events, eventcat, page, display) {
+      state.todoCategories = todocat,
+      state.todos = todos,
+      state.events = events
+      state.eventCategories = eventcat,
+      state.currentView = page,
+      state.displayTodoWidget = display
+    }
   },
   actions: {
     setEvents({ commit }, events) {
@@ -127,6 +135,9 @@ export default {
     deleteTodoCategory({ commit }, categoryName) {
       commit("DELETE_TODO_CATEGORY", categoryName);
     },
+    loadTodo({commit}, todos, todocat, events, eventcat, page, display) {
+      commit("LOAD_TODO", todos, todocat, events, eventcat, page, display);
+    }
   },
   getters: {
     getEvents: (state) => state.events,

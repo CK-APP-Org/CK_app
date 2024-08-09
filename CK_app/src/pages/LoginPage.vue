@@ -137,9 +137,6 @@ export default {
     const db = getFirestore(app);
     const userRef = doc(db, "User Data", "Userdata");
 
-
-
-
     const onSubmit = async () => {
       const username = accountName.value;
 
@@ -158,11 +155,11 @@ export default {
         if (isLogin.value) {
           if (userData && userData[username]) {
             if (userData[username].Password === password.value) {
-              const userEmail = userData[username]["Email"]
-              console.log(userEmail.value)
+              const userEmail = userData[username]["Email"];
+              console.log(userEmail.value);
               processingNotif(); // Dismiss the processing notification
               console.log("Login successful");
-              store.dispatch("setUserAccount", username);
+              store.dispatch("setUserAccount", username.value);
               store.dispatch("setUserEmail", userEmail);
               store.dispatch("setUserPassword", password.value);
               $q.notify({
@@ -202,7 +199,7 @@ export default {
             });
           } else {
             const newUserData = {
-              Email: userEmail.value,
+              Email: email.value,
               Password: password.value,
               Schedule: {
                 ScheduleData: classSchedule.value,
@@ -256,7 +253,7 @@ export default {
             };
             await setDoc(userRef, { [username]: newUserData }, { merge: true });
             processingNotif(); // Dismiss the processing notification
-            store.dispatch("setUserAccount", userAccount);
+            store.dispatch("setUserAccount", username.value);
             store.dispatch("setUserEmail", email.value);
             store.dispatch("setUserPassword", password.value);
             $q.notify({
@@ -281,7 +278,6 @@ export default {
         });
       }
     };
-
 
     return {
       isLogin,

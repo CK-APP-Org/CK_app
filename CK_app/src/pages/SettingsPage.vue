@@ -193,11 +193,14 @@ export default {
     const userEmail = ref("");
 
     const userAccount = computed(() => store.getters.getUserAccount);
+    console.log("484", userAccount);
     const password = computed(() => store.getters.getPassword);
     const email = computed(() => store.getters.getEmail);
-    const userRef = ref(null)
+    const userRef = ref(null);
 
-    const favoriteRestaurants = computed(() => store.getters.getFavoriteRestaurants);
+    const favoriteRestaurants = computed(
+      () => store.getters.getFavoriteRestaurants
+    );
 
     const pinnedNews = computed(() => store.getters.getPinnedNews);
     const lastClearedTime = computed(() => store.getters.getLastClearedTime);
@@ -281,67 +284,74 @@ export default {
     };
 
     const importData = async () => {
-      try{
+      try {
         const firebaseConfig = {
-            apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
-            authDomain: "ck-app-database.firebaseapp.com",
-            projectId: "ck-app-database",
-            storageBucket: "ck-app-database.appspot.com",
-            messagingSenderId: "253500838094",
-            appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-            measurementId: "G-T79H6D7WRT",
-          };
+          apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+          authDomain: "ck-app-database.firebaseapp.com",
+          projectId: "ck-app-database",
+          storageBucket: "ck-app-database.appspot.com",
+          messagingSenderId: "253500838094",
+          appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+          measurementId: "G-T79H6D7WRT",
+        };
 
-          console.log(userAccount.value);
+        console.log(userAccount.value);
 
-          const app = initializeApp(firebaseConfig);
-          const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-          userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
-          const docSnap = await getDoc(userRef.value);
-          const userData = docSnap.data()[userAccount.value];
-          console.log(userData)
-          const favoriteRestaurants= userData["Food"]["favoriteRestaurants"];
+        userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+        const docSnap = await getDoc(userRef.value);
+        const userData = docSnap.data()[userAccount.value];
+        console.log(userData);
+        const favoriteRestaurants = userData["Food"]["favoriteRestaurants"];
 
-          const pinnedNews = userData["News"]["pinnedNews"];
-          const lastClearedTime = userData["News"]["lastClearedTime"]
-            ? userData["News"]["lastClearedTime"].toDate()
-            : null;
-          const showSchool = userData["Settings"]["showSchoolNews"];
+        const pinnedNews = userData["News"]["pinnedNews"];
+        const lastClearedTime = userData["News"]["lastClearedTime"]
+          ? userData["News"]["lastClearedTime"].toDate()
+          : null;
+        const showSchool = userData["Settings"]["showSchoolNews"];
 
-          const classes = userData["Schedule"]["userClass"];
-          const schedules = userData["Schedule"]["ScheduleData"];
-          const showSchedule = userData["Settings"]["showSchedule"];
+        const classes = userData["Schedule"]["userClass"];
+        const schedules = userData["Schedule"]["ScheduleData"];
+        const showSchedule = userData["Settings"]["showSchedule"];
 
-          const events = userData["Todo"]["events"].map((event) => ({
-            ...event,
-            startDate: event.startDate.toDate(),
-            endDate: event.endDate.toDate(),
-          }));
-          const eventCategories = userData["Todo"]["eventCategories"];
-          const todos = userData["Todo"]["todos"].map((event) => ({
-            ...event,
-            date: event.date ? event.date.toDate() : null,
-          }));
-          const currentView = userData["Todo"]["currentView"];
-          const todoCategories = userData["Todo"]["todoCategories"];
-          const showTodo = userData["Settings"]["showTodo"];
+        const events = userData["Todo"]["events"].map((event) => ({
+          ...event,
+          startDate: event.startDate.toDate(),
+          endDate: event.endDate.toDate(),
+        }));
+        const eventCategories = userData["Todo"]["eventCategories"];
+        const todos = userData["Todo"]["todos"].map((event) => ({
+          ...event,
+          date: event.date ? event.date.toDate() : null,
+        }));
+        const currentView = userData["Todo"]["currentView"];
+        const todoCategories = userData["Todo"]["todoCategories"];
+        const showTodo = userData["Settings"]["showTodo"];
 
-          const StationList = userData["Youbike"]["stationList"];
+        const StationList = userData["Youbike"]["stationList"];
 
-          store.dispatch("loadRestaurants", favoriteRestaurants);
-          store.dispatch("loadNews", pinnedNews, lastClearedTime, showSchool);
-          store.dispatch("loadingSchedule", schedules, classes, showSchedule);
-          store.dispatch("loadTodo", todos, todoCategories, events, eventCategories, currentView, showTodo);
-          store.dispatch("loadStation", StationList);
-          $q.notify({
-            message: "成功匯入資料",
-            color: "positive",
-            position: "bottom",
-            timeout: 2000,
-          });
-      }
-      catch (error) {
+        store.dispatch("loadRestaurants", favoriteRestaurants);
+        store.dispatch("loadNews", pinnedNews, lastClearedTime, showSchool);
+        store.dispatch("loadingSchedule", schedules, classes, showSchedule);
+        store.dispatch(
+          "loadTodo",
+          todos,
+          todoCategories,
+          events,
+          eventCategories,
+          currentView,
+          showTodo
+        );
+        store.dispatch("loadStation", StationList);
+        $q.notify({
+          message: "成功匯入資料",
+          color: "positive",
+          position: "bottom",
+          timeout: 2000,
+        });
+      } catch (error) {
         console.error("Error saving data to Firebase:", error);
         $q.notify({
           message: "資料匯入時發生錯誤",
@@ -350,14 +360,12 @@ export default {
           timeout: 2000,
         });
       }
-
-    }
+    };
 
     onMounted(() => {
-      console.log(email.value)
-      isLoggedIn.value = (userAccount.value != "Default")
+      console.log(email.value);
+      isLoggedIn.value = userAccount.value != "Default";
     });
-
 
     const saveData = async () => {
       if (!isLoggedIn.value) {
@@ -369,7 +377,6 @@ export default {
         });
         return;
       }
-
 
       try {
         const firebaseConfig = {
@@ -384,6 +391,7 @@ export default {
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        console.log(scheduleData.value);
 
         userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
         const newUserData = {
@@ -393,7 +401,7 @@ export default {
             ScheduleData: scheduleData.value,
             userClass: userClass.value,
           },
-          Youbike: {stationList: stationList.value},
+          Youbike: { stationList: stationList.value },
           News: {
             pinnedNews: pinnedNews.value,
             lastClearedTime: lastClearedTime.value,
@@ -415,6 +423,8 @@ export default {
             showSchoolNews: showSchoolNews.value,
           },
         };
+        console.log("123");
+        console.log("userAccount: ", userAccount.value);
         const updatePath = `${userAccount.value}`;
         await updateDoc(userRef.value, { [updatePath]: newUserData });
         $q.notify({
@@ -484,7 +494,7 @@ export default {
       userAccount,
       email,
       password,
-      importData
+      importData,
     };
   },
 };

@@ -2,15 +2,37 @@
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-4">
-        <q-select
-          filled
-          @update:model-value="confirmClassChange"
-          :options="classOptions"
-          v-model="selectedClass"
-          label="選擇班級(用於課表資料匯入)"
-          class="q-mb-md"
-        />
-        <!--
+        <q-card class="q-mb-md">
+          <q-card-section>
+            <div class="text-h6 q-mb-md">帳號資訊</div>
+            <div class="column q-gutter-y-sm">
+              <div><strong>帳號名稱:</strong> Account</div>
+              <div><strong>Email:</strong> Email</div>
+              <q-btn
+                color="negative"
+                label="清除所有資料"
+                @click="confirmClear"
+                class="full-width q-mt-md"
+              />
+              <q-btn
+                color="primary"
+                label="備份資料"
+                @click="saveData"
+                class="full-width q-mt-md"
+              />
+            </div>
+          </q-card-section>
+        </q-card>
+        <div class="col-12 col-sm-6 col-md-4">
+          <q-select
+            filled
+            @update:model-value="confirmClassChange"
+            :options="classOptions"
+            v-model="selectedClass"
+            label="選擇班級(用於課表資料匯入)"
+            class="q-mb-md"
+          />
+          <!--
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">主題顏色設定</div>
@@ -37,23 +59,17 @@
           </q-card-section>
         </q-card>
         -->
-        <q-card class="q-mb-md">
-          <q-card-section>
-            <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
-            <div class="column q-gutter-y-sm">
-              <q-checkbox v-model="showSchedule" label="顯示課表" />
-              <q-checkbox v-model="showTodo" label="顯示待辦事項" />
-              <q-checkbox v-model="showSchoolNews" label="顯示學校新聞" />
-            </div>
-          </q-card-section>
-        </q-card>
-
-        <q-btn
-          color="primary"
-          label="清除所有資料"
-          @click="confirmClear"
-          class="full-width q-mb-md"
-        />
+          <q-card class="q-mb-md">
+            <q-card-section>
+              <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
+              <div class="column q-gutter-y-sm">
+                <q-checkbox v-model="showSchedule" label="顯示課表" />
+                <q-checkbox v-model="showTodo" label="顯示待辦事項" />
+                <q-checkbox v-model="showSchoolNews" label="顯示學校新聞" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
     </div>
 

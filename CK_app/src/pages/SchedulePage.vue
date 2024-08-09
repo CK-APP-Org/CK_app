@@ -1,5 +1,9 @@
 <template>
   <div class="q-pa-md">
+    <div class="custom-banner q-mb-md">
+      <q-icon name="info" color="info" size="sm" class="q-mr-sm" />
+      點擊課表格子可自訂科目、顏色和備註
+    </div>
     <q-table
       flat
       bordered
@@ -477,5 +481,15 @@ export default {
 .q-item__label.text-italic {
   font-style: italic;
   color: #666;
+}
+
+.custom-banner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
 }
 </style>

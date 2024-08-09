@@ -1,14 +1,12 @@
 <template>
   <div class="app-container">
     <!-- New Banner Component -->
-    <!--
     <q-banner class="bg-primary text-white q-mb-md" rounded>
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md" />
       </template>
-      最新公告：今天下午在禮堂有全校集
+      CKAPP第二版隆重推出
     </q-banner>
-    -->
 
     <!-- <div class="header">
       <h5 class="font-weight-bold">歡迎使用 CK APP</h5>
@@ -25,7 +23,7 @@
               flat
               dense
               round
-              icon="edit"
+              icon="arrow_forward_ios"
               color="primary"
               size="0.8em"
               href="/#/schedule"
@@ -50,7 +48,7 @@
               flat
               dense
               round
-              icon="edit"
+              icon="arrow_forward_ios"
               color="primary"
               size="0.8em"
               href="/#/todo"
@@ -88,7 +86,7 @@
               flat
               dense
               round
-              icon="edit"
+              icon="arrow_forward_ios"
               color="primary"
               size="0.8em"
               href="/#/news"
@@ -358,7 +356,7 @@ export default {
 }
 
 .icon-btn ::v-deep .text-content {
-  font-size: 0.9em;
+  font-size: 1.1em;
   line-height: 1.2;
   color: #4a4a4a;
 }

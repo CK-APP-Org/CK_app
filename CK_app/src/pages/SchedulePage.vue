@@ -333,22 +333,8 @@ export default {
     };
 
     const saveCell = async (row, colName, newValue) => {
-      $q.notify({
-        message: "儲存中",
-        color: "yellow-7",
-        position: "bottom",
-        timeout: 2000,
-      });
-
       const rowIndex = scheduleData.value.indexOf(row);
       await store.dispatch("updateSchedule", { rowIndex, colName, newValue });
-
-      $q.notify({
-        message: "已儲存更改",
-        color: "positive",
-        position: "bottom",
-        timeout: 2000,
-      });
     };
 
     const confirmClassChange = (newClass) => {

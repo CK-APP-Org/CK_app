@@ -22,10 +22,10 @@ export default {
     SET_SHOW_SCHEDULE(state, value) {
       state.displayScheduleWidget = value;
     },
-    LOADING_SCHEDULE(state, schedule, userclass, display) {
-      state.schedule = schedule;
-      state.userClass = userclass;
-      state.displayScheduleWidget = display
+    LOADING_SCHEDULE(state, { schedules, classes, showSchedule }) {
+      state.scheduleData = schedules;
+      state.userClass = classes;
+      state.displayScheduleWidget = showSchedule;
     },
   },
   actions: {
@@ -36,8 +36,8 @@ export default {
       commit("SET_USER_CLASS", newClass);
       localStorage.setItem("userClass", newClass);
     },
-    loadingSchedule({commit}, schedule, userclass, display) {
-      commit("LOADING_SCHEDULE", schedule, userclass, display);
+    loadingSchedule({ commit }, { schedules, classes, showSchedule }) {
+      commit("LOADING_SCHEDULE", { schedules, classes, showSchedule });
     },
     async loadSchedule({ commit, state }) {
       try {

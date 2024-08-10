@@ -252,12 +252,14 @@ export default {
 
     const clearAllData = () => {
       store.dispatch("clearALL");
+      store.dispatch("loadSchedule");
       $q.notify({
         message: `已刪除所有資料`,
         color: "positive",
         position: "bottom",
         timeout: 2000,
       });
+      router.push("/")
     };
 
     const confirmClassChange = (newClass) => {
@@ -303,7 +305,7 @@ export default {
         userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
         const docSnap = await getDoc(userRef.value);
         const userData = docSnap.data()[userAccount.value];
-        console.log(userData);
+        console.log(userData["Food"]["favoriteRestaurants"]);
         const favoriteRestaurants = userData["Food"]["favoriteRestaurants"];
 
         const pinnedNews = userData["News"]["pinnedNews"];
@@ -331,19 +333,35 @@ export default {
         const showTodo = userData["Settings"]["showTodo"];
 
         const StationList = userData["Youbike"]["stationList"];
-
+        console.log(schedules)
+        if (schedules === null) {
+          $q.notify({
+            message: "您尚未備份過",
+            color: "warning",
+            position: "bottom",
+            timeout: 2000,
+          });
+          return; // Exit the function early
+        }
         store.dispatch("loadRestaurants", favoriteRestaurants);
-        store.dispatch("loadNews", pinnedNews, lastClearedTime, showSchool);
-        store.dispatch("loadingSchedule", schedules, classes, showSchedule);
-        store.dispatch(
-          "loadTodo",
-          todos,
-          todoCategories,
-          events,
-          eventCategories,
-          currentView,
-          showTodo
-        );
+        store.dispatch("loadNews", {
+          pinned: pinnedNews,
+          cleared: lastClearedTime,
+          display: showSchool
+        });
+        store.dispatch("loadingSchedule", {
+          schedules: schedules,
+          classes: classes,
+          showSchedule: showSchedule
+        });
+        store.dispatch("loadTodo", {
+          todos: todos,
+          todoCategories: todoCategories,
+          events: events,
+          eventCategories: eventCategories,
+          currentView: currentView,
+          displayTodoWidget: showTodo
+        });
         store.dispatch("loadStation", StationList);
         $q.notify({
           message: "成功匯入資料",

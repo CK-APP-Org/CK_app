@@ -20,23 +20,26 @@ const storeWatcherPlugin = (store) => {
   );
 };
 
+const modules = {
+  youbike: youbikeModule,
+  news: newsModule,
+  schedule: scheduleModule,
+  todo: todoModule,
+  food: foodModule,
+  account: accountModule,
+};
+
 export default createStore({
   plugins: [storeWatcherPlugin, localStoragePlugin],
-  modules: {
-    youbike: youbikeModule,
-    news: newsModule,
-    schedule: scheduleModule,
-    todo: todoModule,
-    food: foodModule,
-    account: accountModule,
-  },
+  modules,
   mutations: {
     CLEAR_DATA(state) {
+      // Clear localStorage
       localStorage.removeItem("store");
 
       // Reset module states
-      Object.keys(this._modules.root._children).forEach((moduleName) => {
-        const moduleState = this._modules.root._children[moduleName].state;
+      Object.keys(modules).forEach((moduleName) => {
+        const moduleState = modules[moduleName].state;
         if (typeof moduleState === "function") {
           state[moduleName] = moduleState();
         } else {

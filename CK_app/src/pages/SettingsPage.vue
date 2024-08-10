@@ -498,55 +498,71 @@ export default {
         return;
       }
 
+      // Show loading notification
+      const loadingNotif = $q.notify({
+        message: "備份中...",
+        color: "info",
+        position: "bottom",
+        timeout: 0,
+      });
+
       try {
-        const firebaseConfig = {
-          apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
-          authDomain: "ck-app-database.firebaseapp.com",
-          projectId: "ck-app-database",
-          storageBucket: "ck-app-database.appspot.com",
-          messagingSenderId: "253500838094",
-          appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
-          measurementId: "G-T79H6D7WRT",
-        };
+        // Wrap the Firebase operation in a Promise with a timeout
+        await Promise.race([
+          (async () => {
+            const firebaseConfig = {
+              apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
+              authDomain: "ck-app-database.firebaseapp.com",
+              projectId: "ck-app-database",
+              storageBucket: "ck-app-database.appspot.com",
+              messagingSenderId: "253500838094",
+              appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
+              measurementId: "G-T79H6D7WRT",
+            };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        console.log(scheduleData.value);
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-        userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
-        const newUserData = {
-          Email: email.value,
-          Password: password.value,
-          Schedule: {
-            ScheduleData: scheduleData.value,
-            userClass: userClass.value,
-          },
-          Youbike: { stationList: stationList.value },
-          News: {
-            pinnedNews: pinnedNews.value,
-            lastClearedTime: lastClearedTime.value,
-          },
-          Food: {
-            favoriteRestaurants: favoriteRestaurants.value,
-            userRatings: {},
-          },
-          Todo: {
-            events: events.value,
-            eventCategories: eventCategories.value,
-            todos: todos.value,
-            currentView: currentView.value,
-            todoCategories: todoCategories.value,
-          },
-          Settings: {
-            showSchedule: showSchedule.value,
-            showTodo: showTodo.value,
-            showSchoolNews: showSchoolNews.value,
-          },
-        };
-        console.log("123");
-        console.log("userAccount: ", userAccount.value);
-        const updatePath = `${userAccount.value}`;
-        await updateDoc(userRef.value, { [updatePath]: newUserData });
+            userRef.value = doc(db, "User Data", "Userdata");
+            const newUserData = {
+              Email: email.value,
+              Password: password.value,
+              Schedule: {
+                ScheduleData: scheduleData.value,
+                userClass: userClass.value,
+              },
+              Youbike: { stationList: stationList.value },
+              News: {
+                pinnedNews: pinnedNews.value,
+                lastClearedTime: lastClearedTime.value,
+              },
+              Food: {
+                favoriteRestaurants: favoriteRestaurants.value,
+                userRatings: {},
+              },
+              Todo: {
+                events: events.value,
+                eventCategories: eventCategories.value,
+                todos: todos.value,
+                currentView: currentView.value,
+                todoCategories: todoCategories.value,
+              },
+              Settings: {
+                showSchedule: showSchedule.value,
+                showTodo: showTodo.value,
+                showSchoolNews: showSchoolNews.value,
+              },
+            };
+
+            const updatePath = `${userAccount.value}`;
+            await updateDoc(userRef.value, { [updatePath]: newUserData });
+          })(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000)) // 30 seconds timeout
+        ]);
+
+        // Dismiss loading notification
+        loadingNotif();
+
         $q.notify({
           message: "資料已成功備份到資料庫",
           color: "positive",
@@ -555,8 +571,20 @@ export default {
         });
       } catch (error) {
         console.error("Error saving data to Firebase:", error);
+
+        // Dismiss loading notification
+        loadingNotif();
+
+        // Determine the error message
+        let errorMessage = "備份資料時發生錯誤";
+        if (error.message === "Timeout") {
+          errorMessage = "備份超時，請檢查您的網路連接並重試";
+        } else if (error.name === 'NetworkError' || error.message.includes('network') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+          errorMessage = "網路連接失敗，請檢查您的網路連接並重試";
+        }
+
         $q.notify({
-          message: "備份資料時發生錯誤",
+          message: errorMessage,
           color: "negative",
           position: "bottom",
           timeout: 2000,

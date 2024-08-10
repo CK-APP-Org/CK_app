@@ -227,9 +227,30 @@
               :icon="youbikeIcon"
             >
               <l-popup>
-                <div class="text-bold">{{ station.sna.substr(11) }}</div>
-                <div>可借車輛: {{ station.sbi }}</div>
-                <div>可還車輛: {{ station.bemp }}</div>
+                <div class="text-bold">
+                  {{ station.sna.substr(11) }}
+                </div>
+                <div
+                  v-if="
+                    districtOptionsTPC.some(
+                      (option) => option.label === station.sarea
+                    )
+                  "
+                >
+                  可借車輛: {{ station.available_rent_bikes }}
+                </div>
+                <div v-else>可借車輛: {{ station.sbi }}</div>
+
+                <div
+                  v-if="
+                    districtOptionsTPC.some(
+                      (option) => option.label === station.sarea
+                    )
+                  "
+                >
+                  可還車輛: {{ station.available_return_bikes }}
+                </div>
+                <div v-else>可還車輛: {{ station.bemp }}</div>
               </l-popup>
             </l-marker>
           </l-map>

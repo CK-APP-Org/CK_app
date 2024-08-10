@@ -45,29 +45,108 @@
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           ></l-tile-layer>
           <l-marker
-            v-for="marker in markers"
-            :key="marker.name"
-            :lat-lng="marker.position"
-            :icon="getMarkerIcon(marker)"
-            @click="showSidebar(marker)"
+            :lat-lng="[25.030181, 121.51412]"
+            :icon="
+              getMarkerIcon({
+                name: '林家乾麵(林乾)',
+                openingHours: {
+                  monday: '休息',
+                  tuesday: '06:00-14:00,16:30-19:30',
+                  wednesday: '06:00-14:00,16:30-19:30',
+                  thursday: '06:00-14:00,16:30-19:30',
+                  friday: '06:00-14:00,16:30-19:30',
+                  saturday: '06:00-14:00',
+                  sunday: '06:00-14:00',
+                },
+              })
+            "
+            @click="
+              showSidebar({
+                name: '林家乾麵(林乾)',
+                position: [25.030181, 121.51412],
+                openingHours: {
+                  monday: '休息',
+                  tuesday: '06:00-14:00,16:30-19:30',
+                  wednesday: '06:00-14:00,16:30-19:30',
+                  thursday: '06:00-14:00,16:30-19:30',
+                  friday: '06:00-14:00,16:30-19:30',
+                  saturday: '06:00-14:00',
+                  sunday: '06:00-14:00',
+                },
+              })
+            "
           >
-            <l-popup :options="{ offset: new Point(0, -10) }">
-              <div class="text-h6">{{ marker.name }}</div>
-              <div class="today-hours">
-                今日營業&nbsp;
-                <template
-                  v-for="(section, index) in marker.openingHours[
-                    getCurrentDay()
-                  ].split(',')"
-                  :key="index"
-                >
-                  <span v-if="index === 0">{{ section.trim() }}</span>
-                  <div v-else class="additional-hours-popup">
-                    {{ section.trim() }}
-                  </div>
-                </template>
-              </div>
-            </l-popup>
+            <l-popup>林家乾麵(林乾)</l-popup>
+          </l-marker>
+
+          <l-marker
+            :lat-lng="[25.030418688051526, 121.51399964581553]"
+            :icon="
+              getMarkerIcon({
+                name: '建中側門漢堡餐車',
+                openingHours: {
+                  monday: '05:30-10:30',
+                  tuesday: '05:30-10:30',
+                  wednesday: '05:30-10:30',
+                  thursday: '05:30-10:30',
+                  friday: '05:30-10:30',
+                  saturday: '05:30-10:30',
+                  sunday: '05:30-10:30',
+                },
+              })
+            "
+            @click="
+              showSidebar({
+                name: '建中側門漢堡餐車',
+                position: [25.030418688051526, 121.51399964581553],
+                openingHours: {
+                  monday: '05:30-10:30',
+                  tuesday: '05:30-10:30',
+                  wednesday: '05:30-10:30',
+                  thursday: '05:30-10:30',
+                  friday: '05:30-10:30',
+                  saturday: '05:30-10:30',
+                  sunday: '05:30-10:30',
+                },
+              })
+            "
+          >
+            <l-popup>建中側門漢堡餐車</l-popup>
+          </l-marker>
+
+          <l-marker
+            :lat-lng="[25.030385879007643, 121.51413375618512]"
+            :icon="
+              getMarkerIcon({
+                name: '建中側抓',
+                openingHours: {
+                  monday: '15:00-19:30',
+                  tuesday: '15:00-19:30',
+                  wednesday: '15:00-19:30',
+                  thursday: '15:00-19:30',
+                  friday: '15:00-19:30',
+                  saturday: '15:00-23:30',
+                  sunday: '休息',
+                },
+              })
+            "
+            @click="
+              showSidebar({
+                name: '建中側抓',
+                position: [25.030385879007643, 121.51413375618512],
+                openingHours: {
+                  monday: '15:00-19:30',
+                  tuesday: '15:00-19:30',
+                  wednesday: '15:00-19:30',
+                  thursday: '15:00-19:30',
+                  friday: '15:00-19:30',
+                  saturday: '15:00-23:30',
+                  sunday: '休息',
+                },
+              })
+            "
+          >
+            <l-popup>建中側抓</l-popup>
           </l-marker>
         </l-map>
 
@@ -202,9 +281,12 @@
                     />
                   </q-item-section>
                   <q-item-section side>
-                    <q-item-label>{{
-                      getRestaurantStatus(restaurant)
-                    }}</q-item-label>
+                    <q-btn
+                      label="詳細資訊"
+                      color="primary"
+                      flat
+                      @click="showSidebarFromList(restaurant)"
+                    />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -300,15 +382,6 @@ const getMarkerIcon = (marker) => {
   }
 
   return closedIcon;
-};
-
-const getRestaurantStatus = (restaurant) => {
-  const icon = getMarkerIcon(restaurant);
-  if (icon === openIcon) return "正在營業";
-  if (icon === closedIcon) return "已打烊";
-  if (icon === openVarIcon) return "即將打烊";
-  if (icon === closedVarIcon) return "即將開業";
-  return "未知狀態";
 };
 
 const isWithinMinutes = (time1, time2, minutes) => {

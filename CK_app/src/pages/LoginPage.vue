@@ -163,13 +163,16 @@ export default {
               store.dispatch("setUserEmail", userEmail);
               store.dispatch("setUserPassword", password.value);
               $q.notify({
-                message: "登入成功，請前往設定備份資料",
+                message: "登入成功",
                 color: "positive",
                 position: "bottom",
                 timeout: 2000,
               });
               console.log(userAccount.value);
-              router.push("/settings");
+              router.push({
+                path: "/settings",
+                query: { justLoggedIn: "true" },
+              });
             } else {
               processingNotif(); // Dismiss the processing notification
               $q.notify({
@@ -262,8 +265,7 @@ export default {
               position: "bottom",
               timeout: 2000,
             });
-            router.push("/");
-            // Show the class selection dialog instead of redirecting
+            router.push({ path: "/settings", query: { newAccount: "true" } });
           }
         }
       } catch (error) {

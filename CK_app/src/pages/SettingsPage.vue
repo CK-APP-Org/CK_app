@@ -34,11 +34,19 @@
               />
             </div>
             <div v-else class="column q-gutter-y-sm">
-              <p>您尚未登入</p>
+              <p>
+                您尚未登入。若欲備份您的資料或匯入已備份之資料，請點擊登入/註冊按鈕。
+              </p>
               <q-btn
                 color="primary"
                 label="登入/註冊"
                 @click="goToLoginPage"
+                class="full-width q-mt-md"
+              />
+              <q-btn
+                color="negative"
+                label="清除所有資料"
+                @click="confirmClear"
                 class="full-width q-mt-md"
               />
             </div>
@@ -97,7 +105,7 @@
     <q-dialog v-model="confirmDialog">
       <q-card>
         <q-card-section class="row items-center">
-          <span class="q-ml-sm">確定重置所有資料?注意，此動作無法復原</span>
+          <span class="q-ml-sm">確定清除所有本地資料?注意，此動作無法復原</span>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -131,6 +139,69 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showBackupDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">註冊成功！歡迎您的加入</div>
+        </q-card-section>
+
+        <q-card-section>
+          現在您可以備份您的帳號資料了。這將幫助您在更換設備或重新安裝CK
+          APP時恢復您的資料。
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="稍後再說" v-close-popup />
+          <q-btn
+            flat
+            label="立即備份"
+            color="primary"
+            @click="initiateBackup"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showImportDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">歡迎回來，{{ userAccount }}！</div>
+        </q-card-section>
+
+        <q-card-section>
+          您現在可以匯入之前備份的帳號資料。這將恢復您先前保存的所有設定和資訊。
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="稍後再說" v-close-popup />
+          <q-btn
+            flat
+            label="立即匯入"
+            color="primary"
+            @click="initiateImport"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showImportWarningDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">警告！</div>
+        </q-card-section>
+
+        <q-card-section>
+          此操作將使用您最近備份的資料替換當前的本地資料。您的本地資料將會被刪除。是否確定要繼續？
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn flat label="確定" color="negative" @click="confirmImport" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -138,7 +209,7 @@
 import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import {
   getFirestore,
   doc,
@@ -175,6 +246,8 @@ export default {
     const selectedClass = ref(userClass.value);
 
     const router = useRouter();
+    const route = useRoute();
+
     const firebaseConfig = {
       apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
       authDomain: "ck-app-database.firebaseapp.com",
@@ -259,7 +332,7 @@ export default {
         position: "bottom",
         timeout: 2000,
       });
-      router.push("/")
+      router.push("/");
     };
 
     const confirmClassChange = (newClass) => {
@@ -285,7 +358,12 @@ export default {
       confirmClassChangeDialog.value = false;
     };
 
-    const importData = async () => {
+    const importData = () => {
+      showImportWarningDialog.value = true;
+    };
+
+    const confirmImport = async () => {
+      showImportWarningDialog.value = false;
       try {
         const firebaseConfig = {
           apiKey: "AIzaSyAfHEWoaKuz8fiMKojoTEeJWMUzJDgiuVU",
@@ -333,7 +411,7 @@ export default {
         const showTodo = userData["Settings"]["showTodo"];
 
         const StationList = userData["Youbike"]["stationList"];
-        console.log(schedules)
+        console.log(schedules);
         if (schedules === null) {
           $q.notify({
             message: "您尚未備份過",
@@ -347,12 +425,12 @@ export default {
         store.dispatch("loadNews", {
           pinned: pinnedNews,
           cleared: lastClearedTime,
-          display: showSchool
+          display: showSchool,
         });
         store.dispatch("loadingSchedule", {
           schedules: schedules,
           classes: classes,
-          showSchedule: showSchedule
+          showSchedule: showSchedule,
         });
         store.dispatch("loadTodo", {
           todos: todos,
@@ -360,7 +438,7 @@ export default {
           events: events,
           eventCategories: eventCategories,
           currentView: currentView,
-          displayTodoWidget: showTodo
+          displayTodoWidget: showTodo,
         });
         store.dispatch("loadStation", StationList);
         $q.notify({
@@ -380,9 +458,33 @@ export default {
       }
     };
 
+    const showBackupDialog = ref(false);
+
+    const initiateBackup = () => {
+      // Call your existing saveData function here
+      saveData();
+    };
+
+    const showImportDialog = ref(false);
+
+    const initiateImport = () => {
+      importData();
+      showImportDialog.value = false;
+    };
+
+    const showImportWarningDialog = ref(false);
+
     onMounted(() => {
       console.log(email.value);
       isLoggedIn.value = userAccount.value != "Default";
+
+      if (route.query.justLoggedIn === "true") {
+        showImportDialog.value = true;
+      }
+
+      if (route.query.newAccount === "true") {
+        showBackupDialog.value = true;
+      }
     });
 
     const saveData = async () => {
@@ -446,7 +548,7 @@ export default {
         const updatePath = `${userAccount.value}`;
         await updateDoc(userRef.value, { [updatePath]: newUserData });
         $q.notify({
-          message: "資料已成功備份到 Firebase",
+          message: "資料已成功備份到資料庫",
           color: "positive",
           position: "bottom",
           timeout: 2000,
@@ -513,6 +615,12 @@ export default {
       email,
       password,
       importData,
+      showBackupDialog,
+      initiateBackup,
+      showImportDialog,
+      initiateImport,
+      showImportWarningDialog,
+      confirmImport,
     };
   },
 };

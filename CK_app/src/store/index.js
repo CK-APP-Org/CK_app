@@ -34,20 +34,26 @@ export default createStore({
   modules,
   mutations: {
     CLEAR_DATA(state) {
-      // Clear localStorage
-      localStorage.removeItem("store");
-
+      delete state.userClass;
+      delete state.lastClearedTime;
       // Reset module states
       Object.keys(modules).forEach((moduleName) => {
         const moduleState = modules[moduleName].state;
         if (typeof moduleState === "function") {
-          state[moduleName] = moduleState();
+          // Get the default state
+          const defaultState = moduleState();
+          // Merge the current state with the default state
+          state[moduleName] = { ...defaultState, ...state[moduleName] };
+          // Now overwrite with the default state to reset everything
+          state[moduleName] = { ...defaultState };
         } else {
+          // For non-function states, simply reset to the initial state
           state[moduleName] = { ...moduleState };
         }
       });
 
       console.log("Data cleared from state and localStorage");
+      console.log(JSON.parse(localStorage.getItem("store")));
     },
   },
   actions: {

@@ -221,7 +221,8 @@ export default {
       const currentHour = now.getHours();
       // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
-        ["一", "二", "三", "四", "五", "六", "七"][currentHour - 9] || "課後";
+        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
+        "課後";
       if (
         currentPeriod < 1 ||
         currentPeriod > 7 ||

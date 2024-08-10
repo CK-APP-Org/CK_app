@@ -901,7 +901,7 @@ export default {
 
       this.resetEventForm();
       this.showEventDialog = false;
-      this.showDayEventsDialog = true;
+      this.showDayEventsDialog = false;
 
       // Refresh the selected day events
       this.updateSelectedDayEvents();

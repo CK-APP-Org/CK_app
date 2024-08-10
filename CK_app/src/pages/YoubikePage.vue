@@ -79,7 +79,7 @@
           <q-btn
             icon="search"
             color="primary"
-            label="尋找最近的五個站點"
+            label="尋找最近的九個站點"
             @click="findNearestStations"
           />
         </div>
@@ -122,7 +122,7 @@
             <q-btn
               icon="search"
               color="primary"
-              label="尋找最近的五個站點"
+              label="尋找最近的九個站點"
               @click="findNearestStationsFromDialog"
             />
           </div>
@@ -239,6 +239,29 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showLocationPickerDialog" full-width>
+      <q-card style="width: 300px">
+        <q-card-section>
+          <div class="text-h6">選擇您的位置</div>
+        </q-card-section>
+        <q-card-section>
+          <l-map
+            style="height: 300px; width: 100%"
+            :zoom="13"
+            :center="mapCenter"
+            @click="handleLocationSelected"
+          >
+            <l-tile-layer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></l-tile-layer>
+          </l-map>
+        </q-card-section>
+        <q-card-section>
+          <div class="text-center">點擊地圖上的位置來選擇您的位置</div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -313,31 +336,31 @@ export default defineComponent({
         { label: "臺大公館校區", value: "臺大公館校區" },
       ],
       districtOptionsNTC: [
+        { label: "板橋區", value: "板橋區" },
+        { label: "三重區", value: "三重區" },
+        { label: "中和區", value: "中和區" },
+        { label: "永和區", value: "永和區" },
+        { label: "蘆洲區", value: "蘆洲區" },
+        { label: "新莊區", value: "新莊區" },
+        { label: "新店區", value: "新店區" },
+        { label: "土城區", value: "土城區" },
+        { label: "樹林區", value: "樹林區" },
+        { label: "五股區", value: "五股區" },
+        { label: "泰山區", value: "泰山區" },
+        { label: "汐止區", value: "汐止區" },
+        { label: "深坑區", value: "深坑區" },
+        { label: "石碇區", value: "石碇區" },
+        { label: "三峽區", value: "三峽區" },
+        { label: "淡水區", value: "淡水區" },
         { label: "八里區", value: "八里區" },
         { label: "三芝區", value: "三芝區" },
-        { label: "三重區", value: "三重區" },
-        { label: "三峽區", value: "三峽區" },
-        { label: "土城區", value: "土城區" },
-        { label: "中和區", value: "中和區" },
-        { label: "五股區", value: "五股區" },
-        { label: "永和區", value: "永和區" },
         { label: "石門區", value: "石門區" },
-        { label: "石碇區", value: "石碇區" },
-        { label: "汐止區", value: "汐止區" },
         { label: "金山區", value: "金山區" },
         { label: "林口區", value: "林口區" },
         { label: "坪林區", value: "坪林區" },
-        { label: "板橋區", value: "板橋區" },
-        { label: "泰山區", value: "泰山區" },
-        { label: "淡水區", value: "淡水區" },
-        { label: "深坑區", value: "深坑區" },
         { label: "萬里區", value: "萬里區" },
         { label: "瑞芳區", value: "瑞芳區" },
-        { label: "新店區", value: "新店區" },
-        { label: "新莊區", value: "新莊區" },
-        { label: "樹林區", value: "樹林區" },
         { label: "雙溪區", value: "雙溪區" },
-        { label: "蘆洲區", value: "蘆洲區" },
         { label: "鶯歌區", value: "鶯歌區" },
       ],
       stationOptions: [],
@@ -362,6 +385,7 @@ export default defineComponent({
         iconAnchor: [12, 41],
       }),
       circleRadius: 0,
+      showLocationPickerDialog: false,
     };
   },
   //根據選擇的城市設定行政區的選項
@@ -650,52 +674,39 @@ export default defineComponent({
       return "green";
     },
 
-    async findNearestStations() {
-      try {
-        const position = await this.getCurrentPosition();
-        const { latitude: userLat, longitude: userLng } = position.coords;
-
-        this.userPosition = [userLat, userLng];
-        this.mapCenter = [userLat, userLng];
-
-        const allStations = await this.fetchAllStationsData();
-
-        const stationsWithDistances = allStations.map((station) => ({
-          ...station,
-          distance: this.calculateDistance(
-            userLat,
-            userLng,
-            station.lat,
-            station.lng
-          ),
-        }));
-
-        stationsWithDistances.sort((a, b) => a.distance - b.distance);
-
-        this.nearestStations = stationsWithDistances.slice(0, 5);
-
-        this.circleRadius = this.nearestStations[4].distance * 1100;
-
-        this.showNearestStationsDialog = true;
-      } catch (error) {
-        console.error("Error finding nearest stations:", error);
-        this.$q.notify({
-          message: "無法搜尋最近站點",
-          color: "negative",
-          position: "bottom",
-          timeout: 2000,
-        });
-      }
+    findNearestStations() {
+      this.showLocationPickerDialog = true;
     },
 
-    getCurrentPosition() {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-          reject(new Error("Geolocation is not supported by this browser."));
-        } else {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        }
-      });
+    async handleLocationSelected({ latlng }) {
+      console.log("Click event latlng:", latlng);
+      const userLat = latlng.lat;
+      const userLng = latlng.lng;
+      console.log("User position:", userLat, userLng);
+
+      this.userPosition = [userLat, userLng];
+      this.mapCenter = [userLat, userLng];
+
+      const allStations = await this.fetchAllStationsData();
+
+      const stationsWithDistances = allStations.map((station) => ({
+        ...station,
+        distance: this.calculateDistance(
+          userLat,
+          userLng,
+          station.lat,
+          station.lng
+        ),
+      }));
+
+      stationsWithDistances.sort((a, b) => a.distance - b.distance);
+
+      this.nearestStations = stationsWithDistances.slice(0, 9);
+
+      this.circleRadius = this.nearestStations[8].distance * 1100;
+
+      this.showLocationPickerDialog = false;
+      this.showNearestStationsDialog = true;
     },
 
     async fetchAllStationsData() {

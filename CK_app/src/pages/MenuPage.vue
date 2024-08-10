@@ -105,6 +105,7 @@ export default {
       const day = this.selectedDay;
       const weekStart = this.currentWeekStart;
       const timestamp = new Date().getTime(); // Add a timestamp to prevent caching
+      //console.log(`${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`);
       return `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
     },
   },
@@ -124,7 +125,7 @@ export default {
       const day = now.getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
       if (day === 0 || day === 6) {
         // Saturday or Sunday
-        return 1; // Show next Monday's menu
+        return 5; // Show next Monday's menu
       }
       return day;
     },

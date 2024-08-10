@@ -1,18 +1,14 @@
 <template>
   <div>
     <q-page class="flex column relative-position">
-      <!-- Loading overlay - Update this section -->
-      <div
-        v-if="isLoading || !imagesLoaded"
-        class="loading-overlay flex flex-center"
-      >
+      <!-- Loading overlay -->
+      <div v-if="isLoading" class="loading-overlay flex flex-center">
         <q-spinner size="70px" color="primary" />
-        <div class="q-mt-sm text-primary">
-          {{ isLoading ? "讀取資料中..." : "載入圖示中..." }}
-        </div>
+        <div class="q-mt-sm text-primary">讀取資料中...</div>
       </div>
 
       <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
+
       <div v-else>
         <div class="map-controls-1 q-pa-md">
           <q-btn
@@ -109,9 +105,11 @@
                     </div>
                   </template>
                 </div>
+                <!--
                 <div class="text-h6">
                   建中優惠: {{ selectedMarker.discount }}
                 </div>
+                -->
               </div>
             </div>
           </div>
@@ -228,71 +226,16 @@
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import { onMounted, computed, ref } from "vue";
-import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
 import L from "leaflet";
+import restaurantData from "../data/restaurantData.json";
 
 const mapRef = ref(null);
 const hideClosedRestaurants = ref(false);
 const showLegend = ref(false);
 const mapOptions = {
   zoomControl: false,
-};
-
-const initialMarkers = ref([]);
-
-const setupInitialMarkers = () => {
-  const center = [25.031204, 121.515966];
-  const numMarkers = 10; // You can adjust this number
-  const radius = 0.002; // Adjust this to spread markers around
-
-  for (let i = 0; i < numMarkers; i++) {
-    const angle = (i / numMarkers) * 2 * Math.PI;
-    const lat = center[0] + radius * Math.cos(angle);
-    const lng = center[1] + radius * Math.sin(angle);
-
-    initialMarkers.value.push({
-      position: [lat, lng],
-      name: "載入中",
-      openingHours: { [getCurrentDay()]: "載入中" },
-    });
-  }
-};
-
-const imagesLoaded = ref(false);
-const preloadImages = () => {
-  const iconUrls = [
-    "https://imgur.com/jZN5Ph6.png",
-    "https://imgur.com/de9dxzv.png",
-    "https://imgur.com/hizjEaj.png",
-    "https://imgur.com/upabpUD.png",
-    "https://imgur.com/2bk3D5t.png",
-    "https://imgur.com/0ZsD2ff.png",
-    "https://imgur.com/qKgJSmB.png",
-  ];
-
-  let loadedCount = 0;
-  const totalImages = iconUrls.length;
-
-  return new Promise((resolve) => {
-    iconUrls.forEach((url) => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          resolve();
-        }
-      };
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          resolve();
-        }
-      };
-      img.src = url;
-    });
-  });
 };
 
 const favoriteRestaurants = computed(
@@ -302,19 +245,31 @@ const favoriteRestaurants = computed(
 const showOnlyFavorites = ref(false);
 const showRestaurantList = ref(false);
 
-const openIcon = ref(null);
-const closedIcon = ref(null);
-const openVarIcon = ref(null);
-const closedVarIcon = ref(null);
+const openIcon = new Icon({
+  iconUrl: "https://imgur.com/jZN5Ph6.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const closedIcon = new Icon({
+  iconUrl: "https://imgur.com/de9dxzv.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const openVarIcon = new Icon({
+  iconUrl: "https://imgur.com/hizjEaj.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const closedVarIcon = new Icon({
+  iconUrl: "https://imgur.com/upabpUD.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
 const getMarkerIcon = (marker) => {
-  if (marker.name === "載入中") {
-    return new Icon({
-      iconUrl: "https://imgur.com/2bk3D5t.png", // Use a loading icon URL
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-    });
-  }
   const now = new Date();
   const day = now
     .toLocaleDateString("en-US", { weekday: "long" })
@@ -326,7 +281,7 @@ const getMarkerIcon = (marker) => {
   });
 
   const todayHours = marker.openingHours[day];
-  if (todayHours === "休息") return closedIcon.value;
+  if (todayHours === "休息") return closedIcon;
 
   const hourRanges = todayHours.split(",");
   for (const range of hourRanges) {
@@ -334,20 +289,20 @@ const getMarkerIcon = (marker) => {
 
     // Check if closing in 30 minutes
     if (isWithinMinutes(time, close, 30) && time < close) {
-      return openVarIcon.value;
+      return openVarIcon;
     }
 
     // Check if opening in 30 minutes
     if (isWithinMinutes(open, time, 30) && time < open) {
-      return closedVarIcon.value;
+      return closedVarIcon;
     }
 
     if (time >= open && time < close) {
-      return openIcon.value;
+      return openIcon;
     }
   }
 
-  return closedIcon.value;
+  return closedIcon;
 };
 
 const isWithinMinutes = (time1, time2, minutes) => {
@@ -430,7 +385,6 @@ const isFavorite = (restaurant) => {
   return favoriteRestaurants.value.some((r) => r.name === restaurant.name);
 };
 
-const restaurantData = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
 
@@ -438,26 +392,18 @@ const fetchRestaurantData = async () => {
   try {
     isLoading.value = true;
     error.value = null;
-    const response = await axios.get(
-      "https://raw.githubusercontent.com/CK-APP-Org/Data/main/restaurantData.json"
-    );
-    restaurantData.value = response.data;
+    // Use the imported data directly
+    restaurantData.value = restaurantData;
   } catch (err) {
-    console.error("Error fetching restaurant data:", err);
+    console.error("Error loading restaurant data:", err);
     error.value = "Failed to load restaurant data. Please try again later.";
   } finally {
     isLoading.value = false;
   }
 };
 
-const markers = computed(() => {
-  if (!imagesLoaded.value) return [];
-
-  if (restaurantData.value.length === 0) {
-    return initialMarkers.value;
-  }
-
-  return restaurantData.value
+const markers = computed(() =>
+  restaurantData.value
     .map((marker) => ({
       ...marker,
       isOpen: isOpen(marker.openingHours),
@@ -466,8 +412,8 @@ const markers = computed(() => {
       (marker) =>
         (!hideClosedRestaurants.value || marker.isOpen) &&
         (!showOnlyFavorites.value || isFavorite(marker))
-    );
-});
+    )
+);
 
 const sidebarOpen = ref(false);
 const selectedMarker = ref(null);
@@ -504,37 +450,15 @@ const showSidebarFromList = (restaurant) => {
   }
 };
 
-onMounted(async () => {
-  await preloadImages();
-  imagesLoaded.value = true;
-  setupInitialMarkers();
-
-  // Define custom icons here
-  openIcon.value = new Icon({
-    iconUrl: "https://imgur.com/jZN5Ph6.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
+onMounted(() => {
+  fetchRestaurantData();
+  delete Icon.Default.prototype._getIconUrl;
+  Icon.Default.mergeOptions({
+    iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
+      .href,
+    iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
+    shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
   });
-
-  closedIcon.value = new Icon({
-    iconUrl: "https://imgur.com/de9dxzv.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-  });
-
-  openVarIcon.value = new Icon({
-    iconUrl: "https://imgur.com/hizjEaj.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-  });
-
-  closedVarIcon.value = new Icon({
-    iconUrl: "https://imgur.com/upabpUD.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-  });
-
-  await fetchRestaurantData();
 });
 </script>
 

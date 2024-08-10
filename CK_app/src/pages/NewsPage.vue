@@ -75,17 +75,24 @@
     >
       <template v-slot:top>
         <div class="row items-center full-width q-px-sm">
-          <div class="col-2">
+          <div class="col-3">
             <!-- Empty space to balance the layout -->
           </div>
-          <div class="col-8 text-center">
+          <div class="col-6 text-center">
             <div class="text-h6">未讀訊息</div>
           </div>
-          <div class="col-2 text-right">
+          <div class="col-3 text-right">
             <q-btn
               color="negative"
               icon="delete"
               @click="showDeleteDialog = true"
+              dense
+              class="q-mr-sm"
+            />
+            <q-btn
+              color="green"
+              icon="restore"
+              @click="showRecoverDialog = true"
               dense
             />
           </div>
@@ -158,6 +165,18 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showRecoverDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">確認恢復所有訊息?</div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="取消" @click="showRecoverDialog = false" />
+          <q-btn flat label="確認" @click="revertDeletedNews" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -175,6 +194,7 @@ export default {
     const isLoading = ref(true);
     const news = ref([]);
     const showDeleteDialog = ref(false);
+    const showRecoverDialog = ref(false);
     const columns = [
       {
         name: "pin",
@@ -253,7 +273,8 @@ export default {
             }))
             .filter(
               (item) =>
-                !lastClearedTime || item.pubDate > new Date(lastClearedTime)
+                !lastClearedTime ||
+                new Date(item.pubDate) > new Date(lastClearedTime)
             );
           allNews = allNews.concat(newsData);
         });
@@ -282,6 +303,13 @@ export default {
       showDeleteDialog.value = false;
     };
 
+    const revertDeletedNews = () => {
+      const oldDate = new Date("2010-01-01").toISOString();
+      store.dispatch("setLastClearedTime", oldDate);
+      showRecoverDialog.value = false;
+      fetchNews(); // Refetch news to show the restored items
+    };
+
     onMounted(() => {
       console.log(JSON.parse(localStorage.getItem("store")));
       register("zh_TW", zh_TW);
@@ -299,6 +327,8 @@ export default {
       unpinRow,
       showDeleteDialog,
       deleteAllNews,
+      revertDeletedNews,
+      showRecoverDialog,
     };
   },
 };

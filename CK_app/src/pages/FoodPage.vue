@@ -52,6 +52,7 @@
             v-for="marker in markers"
             :key="marker.name"
             :lat-lng="marker.position"
+            :icon="getMarkerIcon(marker)"
             @click="showSidebar(marker)"
           >
             <l-popup :options="{ offset: new Point(0, -10) }">
@@ -281,6 +282,30 @@ const favoriteRestaurants = computed(
 const showOnlyFavorites = ref(false);
 const showRestaurantList = ref(false);
 
+const openIcon = new Icon({
+  iconUrl: "https://imgur.com/jZN5Ph6.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const closedIcon = new Icon({
+  iconUrl: "https://imgur.com/de9dxzv.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const openVarIcon = new Icon({
+  iconUrl: "https://imgur.com/hizjEaj.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const closedVarIcon = new Icon({
+  iconUrl: "https://imgur.com/upabpUD.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
 const getMarkerIcon = (marker) => {
   const now = new Date();
   const day = now
@@ -418,7 +443,13 @@ const fetchRestaurantData = async () => {
 };
 
 const markers = computed(() => {
-  if (!imagesLoaded.value) return [];
+  if (
+    !imagesLoaded.value ||
+    isLoading.value ||
+    restaurantData.value.length === 0
+  ) {
+    return [];
+  }
 
   return restaurantData.value
     .map((marker) => ({
@@ -471,6 +502,14 @@ onMounted(async () => {
   await fetchRestaurantData();
   await preloadImages();
   imagesLoaded.value = true;
+
+  delete Icon.Default.prototype._getIconUrl;
+  Icon.Default.mergeOptions({
+    iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
+      .href,
+    iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
+    shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
+  });
 });
 </script>
 

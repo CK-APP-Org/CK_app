@@ -159,7 +159,7 @@ export default {
       {
         name: "News",
         icon: "newspaper",
-        title: "校網追蹤，及時更新",
+        title: "校網追蹤，即時更新",
         description:
           "追蹤校網的所有公告，自由已讀或釘選，不再漏接訊息或被不重要的訊息干擾",
       },

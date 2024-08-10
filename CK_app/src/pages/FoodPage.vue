@@ -52,7 +52,7 @@
             v-for="marker in markers"
             :key="marker.name"
             :lat-lng="marker.position"
-            :icon="getMarkerIcon(marker)"
+            :icon="openIcon"
             @click="showSidebar(marker)"
           >
             <l-popup :options="{ offset: new Point(0, -10) }">
@@ -477,14 +477,6 @@ onMounted(async () => {
   await fetchRestaurantData();
   await preloadImages();
   imagesLoaded.value = true;
-
-  delete Icon.Default.prototype._getIconUrl;
-  Icon.Default.mergeOptions({
-    iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
-      .href,
-    iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
-    shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
-  });
 
   // Define custom icons here
   openIcon.value = new Icon({

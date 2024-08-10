@@ -105,7 +105,7 @@ export default {
       const day = this.selectedDay;
       const weekStart = this.currentWeekStart;
       const timestamp = new Date().getTime(); // Add a timestamp to prevent caching
-      //console.log(`${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`);
+      console.log(`${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`);
       return `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
     },
   },
@@ -116,7 +116,7 @@ export default {
     getWeekStartDate() {
       const now = new Date();
       const dayOfWeek = now.getDay();
-      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is sunday
+      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -5 : 1);
       const monday = new Date(now.setDate(diff));
       return monday.toISOString().split("T")[0]; // Format: YYYY-MM-DD
     },

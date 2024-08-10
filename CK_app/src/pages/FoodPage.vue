@@ -1,14 +1,18 @@
 <template>
   <div>
     <q-page class="flex column relative-position">
-      <!-- Loading overlay -->
-      <div v-if="isLoading" class="loading-overlay flex flex-center">
+      <!-- Loading overlay - Update this section -->
+      <div
+        v-if="isLoading || !imagesLoaded"
+        class="loading-overlay flex flex-center"
+      >
         <q-spinner size="70px" color="primary" />
-        <div class="q-mt-sm text-primary">讀取資料中...</div>
+        <div class="q-mt-sm text-primary">
+          {{ isLoading ? "讀取資料中..." : "載入圖示中..." }}
+        </div>
       </div>
 
       <div v-else-if="error" class="error-message q-pa-md">{{ error }}</div>
-
       <div v-else>
         <div class="map-controls-1 q-pa-md">
           <q-btn
@@ -236,6 +240,41 @@ const mapOptions = {
   zoomControl: false,
 };
 
+const imagesLoaded = ref(false);
+const preloadImages = () => {
+  const iconUrls = [
+    "https://imgur.com/jZN5Ph6.png",
+    "https://imgur.com/de9dxzv.png",
+    "https://imgur.com/hizjEaj.png",
+    "https://imgur.com/upabpUD.png",
+    "https://imgur.com/2bk3D5t.png",
+    "https://imgur.com/0ZsD2ff.png",
+    "https://imgur.com/qKgJSmB.png",
+  ];
+
+  let loadedCount = 0;
+  const totalImages = iconUrls.length;
+
+  return new Promise((resolve) => {
+    iconUrls.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          resolve();
+        }
+      };
+      img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          resolve();
+        }
+      };
+      img.src = url;
+    });
+  });
+};
+
 const favoriteRestaurants = computed(
   () => store.getters.getFavoriteRestaurants
 );
@@ -403,8 +442,10 @@ const fetchRestaurantData = async () => {
   }
 };
 
-const markers = computed(() =>
-  restaurantData.value
+const markers = computed(() => {
+  if (!imagesLoaded.value) return [];
+
+  return restaurantData.value
     .map((marker) => ({
       ...marker,
       isOpen: isOpen(marker.openingHours),
@@ -413,8 +454,8 @@ const markers = computed(() =>
       (marker) =>
         (!hideClosedRestaurants.value || marker.isOpen) &&
         (!showOnlyFavorites.value || isFavorite(marker))
-    )
-);
+    );
+});
 
 const sidebarOpen = ref(false);
 const selectedMarker = ref(null);
@@ -451,8 +492,11 @@ const showSidebarFromList = (restaurant) => {
   }
 };
 
-onMounted(() => {
-  fetchRestaurantData();
+onMounted(async () => {
+  await fetchRestaurantData();
+  await preloadImages();
+  imagesLoaded.value = true;
+
   delete Icon.Default.prototype._getIconUrl;
   Icon.Default.mergeOptions({
     iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)

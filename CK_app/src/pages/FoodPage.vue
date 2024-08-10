@@ -52,7 +52,7 @@
             v-for="marker in markers"
             :key="marker.name"
             :lat-lng="marker.position"
-            :icon="openIcon"
+            :icon="getMarkerIcon(marker)"
             @click="showSidebar(marker)"
           >
             <l-popup :options="{ offset: new Point(0, -10) }">
@@ -240,6 +240,26 @@ const mapOptions = {
   zoomControl: false,
 };
 
+const initialMarkers = ref([]);
+
+const setupInitialMarkers = () => {
+  const center = [25.031204, 121.515966];
+  const numMarkers = 10; // You can adjust this number
+  const radius = 0.002; // Adjust this to spread markers around
+
+  for (let i = 0; i < numMarkers; i++) {
+    const angle = (i / numMarkers) * 2 * Math.PI;
+    const lat = center[0] + radius * Math.cos(angle);
+    const lng = center[1] + radius * Math.sin(angle);
+
+    initialMarkers.value.push({
+      position: [lat, lng],
+      name: "載入中",
+      openingHours: { [getCurrentDay()]: "載入中" },
+    });
+  }
+};
+
 const imagesLoaded = ref(false);
 const preloadImages = () => {
   const iconUrls = [
@@ -288,6 +308,13 @@ const openVarIcon = ref(null);
 const closedVarIcon = ref(null);
 
 const getMarkerIcon = (marker) => {
+  if (marker.name === "載入中") {
+    return new Icon({
+      iconUrl: "https://imgur.com/2bk3D5t.png", // Use a loading icon URL
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+    });
+  }
   const now = new Date();
   const day = now
     .toLocaleDateString("en-US", { weekday: "long" })
@@ -426,6 +453,10 @@ const fetchRestaurantData = async () => {
 const markers = computed(() => {
   if (!imagesLoaded.value) return [];
 
+  if (restaurantData.value.length === 0) {
+    return initialMarkers.value;
+  }
+
   return restaurantData.value
     .map((marker) => ({
       ...marker,
@@ -474,9 +505,9 @@ const showSidebarFromList = (restaurant) => {
 };
 
 onMounted(async () => {
-  await fetchRestaurantData();
   await preloadImages();
   imagesLoaded.value = true;
+  setupInitialMarkers();
 
   // Define custom icons here
   openIcon.value = new Icon({
@@ -502,6 +533,8 @@ onMounted(async () => {
     iconSize: [25, 41],
     iconAnchor: [12, 41],
   });
+
+  await fetchRestaurantData();
 });
 </script>
 

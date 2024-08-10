@@ -50,9 +50,7 @@
             :icon="getMarkerIcon('林家乾麵(林乾)')"
             @click="showSidebar('林家乾麵(林乾)', [25.030181, 121.51412])"
           >
-            <l-popup :options="{ offset: new Point(0, -10) }"
-              ><div class="text-h6">林家乾麵(林乾)</div></l-popup
-            >
+            <l-popup><div class="text-h6">林家乾麵(林乾)</div></l-popup>
           </l-marker>
 
           <l-marker
@@ -65,9 +63,7 @@
               )
             "
           >
-            <l-popup :options="{ offset: new Point(0, -10) }"
-              ><div class="text-h6">建中側門漢堡餐車</div></l-popup
-            >
+            <l-popup><div class="text-h6">建中側門漢堡餐車</div></l-popup>
           </l-marker>
 
           <l-marker
@@ -77,9 +73,7 @@
               showSidebar('建中側抓', [25.030385879007643, 121.51413375618512])
             "
           >
-            <l-popup :options="{ offset: new Point(0, -10) }"
-              ><div class="text-h6">建中側抓</div></l-popup
-            >
+            <l-popup><div class="text-h6">建中側抓</div></l-popup>
           </l-marker>
         </l-map>
 

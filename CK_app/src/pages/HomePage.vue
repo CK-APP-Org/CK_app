@@ -5,7 +5,7 @@
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md" />
       </template>
-      CKAPP第二版隆重推出
+      CK APP第二版隆重推出！
     </q-banner>
 
     <!-- <div class="header">

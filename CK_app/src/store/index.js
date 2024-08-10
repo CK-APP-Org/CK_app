@@ -9,7 +9,7 @@ import { localStoragePlugin } from "./localStoragePlugin";
 
 const storeWatcherPlugin = (store) => {
   store.watch(
-    (state) => state.schedule.scheduleData,
+    (state) => state,
     (newValue) => {
       console.log(
         "Store scheduleData changed:",
@@ -30,20 +30,9 @@ export default createStore({
     food: foodModule,
     account: accountModule,
   },
-  state: () => ({
-    userClass: "217",
-    lastClearedTime: null,
-  }),
   mutations: {
     CLEAR_DATA(state) {
       localStorage.removeItem("store");
-
-      // Reset the root state
-      Object.keys(state).forEach((key) => {
-        if (key !== "userClass" && key !== "lastClearedTime") {
-          state[key] = undefined;
-        }
-      });
 
       // Reset module states
       Object.keys(this._modules.root._children).forEach((moduleName) => {
@@ -54,10 +43,6 @@ export default createStore({
           state[moduleName] = { ...moduleState };
         }
       });
-
-      // Reset root state properties
-      state.userClass = "217";
-      state.lastClearedTime = null;
 
       console.log("Data cleared from state and localStorage");
     },

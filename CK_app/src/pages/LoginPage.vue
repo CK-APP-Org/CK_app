@@ -159,7 +159,7 @@ export default {
               console.log(userEmail.value);
               processingNotif(); // Dismiss the processing notification
               console.log("Login successful");
-              store.dispatch("setUserAccount", username.value);
+              store.dispatch("setUserAccount", username);
               store.dispatch("setUserEmail", userEmail);
               store.dispatch("setUserPassword", password.value);
               $q.notify({
@@ -253,7 +253,7 @@ export default {
             };
             await setDoc(userRef, { [username]: newUserData }, { merge: true });
             processingNotif(); // Dismiss the processing notification
-            store.dispatch("setUserAccount", username.value);
+            store.dispatch("setUserAccount", username);
             store.dispatch("setUserEmail", email.value);
             store.dispatch("setUserPassword", password.value);
             $q.notify({

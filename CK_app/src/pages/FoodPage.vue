@@ -202,12 +202,9 @@
                     />
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn
-                      label="詳細資訊"
-                      color="primary"
-                      flat
-                      @click="showSidebarFromList(restaurant)"
-                    />
+                    <q-item-label>{{
+                      getRestaurantStatus(restaurant)
+                    }}</q-item-label>
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -303,6 +300,15 @@ const getMarkerIcon = (marker) => {
   }
 
   return closedIcon;
+};
+
+const getRestaurantStatus = (restaurant) => {
+  const icon = getMarkerIcon(restaurant);
+  if (icon === openIcon) return "正在營業";
+  if (icon === closedIcon) return "已打烊";
+  if (icon === openVarIcon) return "即將打烊";
+  if (icon === closedVarIcon) return "即將開業";
+  return "未知狀態";
 };
 
 const isWithinMinutes = (time1, time2, minutes) => {

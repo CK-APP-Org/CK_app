@@ -26,24 +26,22 @@
         </div>
 
         <div class="map-controls-2 q-pa-md">
-          <q-btn
-            color="primary"
-            icon="info"
-            @click="showLegend = true"
-            class="q-mr-sm"
-          />
+          <q-btn color="primary" icon="info" @click="showLegend = true" />
         </div>
 
         <l-map
           ref="mapRef"
           style="height: 90vh; width: 100%"
           :zoom="16"
-          :center="[25.031204, 121.515966]"
+          :center="[25.031204, 121.515496]"
           :options="mapOptions"
         >
           <l-tile-layer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           ></l-tile-layer>
+          <l-marker :lat-lng="[25.03079, 121.51227]" :icon="ckIcon">
+            <l-popup><div class="text-h6">建中</div></l-popup>
+          </l-marker>
           <l-marker
             v-for="marker in markers"
             :key="marker.name"
@@ -175,45 +173,50 @@
           </q-card>
         </q-dialog>
         <q-dialog v-model="showRestaurantList" full-width>
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">餐廳列表</div>
-            </q-card-section>
-            <q-card-section class="q-pa-none">
-              <q-list separator>
-                <q-item v-for="restaurant in markers" :key="restaurant.name">
-                  <q-item-section>
-                    <q-item-label>{{ restaurant.name }}</q-item-label>
-                    <q-item-label caption>
-                      今日營業: {{ restaurant.openingHours[getCurrentDay()] }}
-                    </q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-btn
-                      :icon="
-                        isFavorite(restaurant) ? 'favorite' : 'favorite_border'
-                      "
-                      flat
-                      round
-                      color="red"
-                      @click="toggleFavorite(restaurant)"
-                    />
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-btn
-                      label="詳細資訊"
-                      color="primary"
-                      flat
-                      @click="showSidebarFromList(restaurant)"
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
-            <q-card-actions align="right">
-              <q-btn flat label="關閉" color="primary" v-close-popup />
-            </q-card-actions>
-          </q-card>
+          <q-layout view="Lhh lpR fff" container class="bg-white">
+            <q-header elevated class="bg-primary text-white">
+              <q-toolbar>
+                <q-toolbar-title>餐廳列表</q-toolbar-title>
+                <q-btn flat round dense icon="close" v-close-popup />
+              </q-toolbar>
+            </q-header>
+
+            <q-page-container>
+              <q-page class="q-pa-md">
+                <q-list separator>
+                  <q-item v-for="restaurant in markers" :key="restaurant.name">
+                    <q-item-section>
+                      <q-item-label>{{ restaurant.name }}</q-item-label>
+                      <q-item-label caption>
+                        今日營業: {{ restaurant.openingHours[getCurrentDay()] }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-btn
+                        :icon="
+                          isFavorite(restaurant)
+                            ? 'favorite'
+                            : 'favorite_border'
+                        "
+                        flat
+                        round
+                        color="red"
+                        @click="toggleFavorite(restaurant)"
+                      />
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-btn
+                        label="詳細資訊"
+                        color="primary"
+                        flat
+                        @click="showSidebarFromList(restaurant)"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-page>
+            </q-page-container>
+          </q-layout>
         </q-dialog>
       </div>
     </q-page>
@@ -265,6 +268,12 @@ const closedVarIcon = new Icon({
   iconUrl: "https://imgur.com/upabpUD.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
+});
+
+const ckIcon = new Icon({
+  iconUrl: "https://imgur.com/pN46NOS.png",
+  iconSize: [41, 41],
+  iconAnchor: [20, 20],
 });
 
 const getMarkerIcon = (marker) => {

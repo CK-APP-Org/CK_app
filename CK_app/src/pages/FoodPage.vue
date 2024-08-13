@@ -27,6 +27,13 @@
 
         <div class="map-controls-2 q-pa-md">
           <q-btn color="primary" icon="info" @click="showLegend = true" />
+          <q-btn
+            color="primary"
+            label="隨機選擇餐廳"
+            outline
+            @click="selectRandomRestaurant"
+            class="q-ml-sm"
+          />
         </div>
 
         <l-map
@@ -231,6 +238,8 @@ import axios from "axios";
 import { Icon, Point } from "leaflet";
 import store from "../store/index";
 import L from "leaflet";
+import { useQuasar } from "quasar";
+const $q = useQuasar();
 
 const mapRef = ref(null);
 const hideClosedRestaurants = ref(false);
@@ -458,6 +467,40 @@ const showSidebarFromList = (restaurant) => {
       }
     });
   }
+};
+
+const selectRandomRestaurant = () => {
+  const openRestaurants = markers.value.filter((marker) => marker.isOpen);
+  if (openRestaurants.length === 0) {
+    $q.notify({
+      color: "negative",
+      message: "目前沒有營業中的餐廳",
+      icon: "warning",
+    });
+    return;
+  }
+
+  const randomRestaurant =
+    openRestaurants[Math.floor(Math.random() * openRestaurants.length)];
+  showSidebar(randomRestaurant);
+
+  if (mapRef.value) {
+    mapRef.value.leafletObject.setView(randomRestaurant.position, 18);
+    mapRef.value.leafletObject.eachLayer((layer) => {
+      if (
+        layer instanceof L.Marker &&
+        layer.getLatLng().equals(randomRestaurant.position)
+      ) {
+        layer.openPopup();
+      }
+    });
+  }
+
+  $q.notify({
+    color: "positive",
+    message: `已為您選擇: ${randomRestaurant.name}`,
+    icon: "restaurant",
+  });
 };
 
 onMounted(() => {

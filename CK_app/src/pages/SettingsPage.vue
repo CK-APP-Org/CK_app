@@ -101,7 +101,7 @@
 
           <q-card class="q-mb-md">
             <q-card-section>
-              <div class="text-h6 q-mb-md">自定義選單</div>
+              <div class="text-h6 q-mb-md">自訂工具列</div>
               <q-list dense bordered separator>
                 <q-item
                   v-for="(item, index) in menuItems"

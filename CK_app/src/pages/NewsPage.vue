@@ -181,7 +181,7 @@
     <q-dialog v-model="showRecoverDialog">
       <q-card>
         <q-card-section>
-          <div class="text-h6">確認恢復所有訊息?</div>
+          <div class="text-h6">確認恢復所有已讀訊息?</div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="取消" @click="showRecoverDialog = false" />

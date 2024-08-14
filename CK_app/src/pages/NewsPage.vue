@@ -75,11 +75,23 @@
     >
       <template v-slot:top>
         <div class="row items-center full-width q-px-sm">
-          <div class="col-3">
-            <!-- Empty space to balance the layout -->
+          <div class="col-3 text-left">
+            <div>
+              <q-btn
+                color="primary"
+                icon="refresh"
+                @click="refreshNews"
+                dense
+                class="q-mb-xs"
+              />
+            </div>
           </div>
           <div class="col-6 text-center">
             <div class="text-h6">未讀訊息</div>
+            <div class="text-caption">
+              <q-icon name="update" class="q-mr-xs" />
+              <span>{{ formatTimeAgo(lastFetchTime) }}</span>
+            </div>
           </div>
           <div class="col-3 text-right">
             <q-btn
@@ -182,17 +194,26 @@
 
 <script>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+//import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
 import store from "../store/index";
+import newsService from "../services/newsService";
 
 export default {
   name: "NewsPage",
   setup() {
     const pinnedNews = computed(() => store.getters.getPinnedNews);
-    const isLoading = ref(true);
-    const news = ref([]);
+    const isLoading = ref(false);
+    const news = computed(() => {
+      const fetchedNews = store.getters.getFetchedNews;
+      const lastClearedTime = store.getters.getLastClearedTime;
+      return fetchedNews.filter(
+        (item) =>
+          !lastClearedTime || new Date(item.pubDate) > new Date(lastClearedTime)
+      );
+    });
+    const lastFetchTime = computed(() => store.getters.getLastFetchTime);
     const showDeleteDialog = ref(false);
     const showRecoverDialog = ref(false);
     const columns = [
@@ -310,10 +331,27 @@ export default {
       fetchNews(); // Refetch news to show the restored items
     };
 
+    const refreshNews = async (manualRefresh = false) => {
+      if (manualRefresh) {
+        isLoading.value = true;
+      }
+      await newsService.fetchNews();
+      lastFetchTime.value = new Date();
+      isLoading.value = false;
+    };
+
     onMounted(() => {
-      console.log(JSON.parse(localStorage.getItem("store")));
       register("zh_TW", zh_TW);
-      fetchNews();
+      if (news.value.length === 0) {
+        isLoading.value = true;
+        refreshNews().then(() => {
+          isLoading.value = false;
+          lastFetchTime.value = new Date(); // Update lastFetchTime here
+        });
+      } else {
+        // If news is already loaded, set lastFetchTime to current time
+        lastFetchTime.value = new Date();
+      }
     });
 
     return {
@@ -329,6 +367,8 @@ export default {
       deleteAllNews,
       revertDeletedNews,
       showRecoverDialog,
+      refreshNews,
+      lastFetchTime,
     };
   },
 };

@@ -174,6 +174,10 @@
               </div>
             </q-card-section>
 
+            <q-card-section class="q-pt-none">
+              <div>註：營業時間僅供參考，此頁面無法反映店家真實營業資訊。</div>
+            </q-card-section>
+
             <q-card-actions align="right">
               <q-btn flat label="關閉" color="primary" v-close-popup />
             </q-card-actions>
@@ -600,8 +604,8 @@ onMounted(() => {
 
 .map-controls-2 {
   position: absolute;
-  bottom: 50px;
-  right: 8px;
+  bottom: 57px;
+  right: 4px;
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;

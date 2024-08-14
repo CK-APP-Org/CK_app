@@ -98,6 +98,51 @@
               </div>
             </q-card-section>
           </q-card>
+
+          <q-card class="q-mb-md">
+            <q-card-section>
+              <div class="text-h6 q-mb-md">自定義選單</div>
+              <q-list dense bordered separator>
+                <q-item
+                  v-for="(item, index) in menuItems"
+                  :key="index"
+                  class="custom-menu-item"
+                >
+                  <q-item-section avatar>
+                    <q-icon :name="item.icon" />
+                  </q-item-section>
+                  <q-item-section>{{ item.label }}</q-item-section>
+                  <q-item-section side class="items-center">
+                    <div class="row items-center">
+                      <q-toggle
+                        v-if="!item.fixed"
+                        v-model="item.visible"
+                        :disable="item.fixed"
+                      />
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="arrow_upward"
+                        @click="moveItem(index, -1)"
+                        :disable="index === 0"
+                        class="q-mr-sm"
+                      />
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="arrow_downward"
+                        @click="moveItem(index, 1)"
+                        :disable="index === menuItems.length - 1"
+                        class="q-mr-sm"
+                      />
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
         </div>
       </div>
     </div>
@@ -474,6 +519,22 @@ export default {
 
     const showImportWarningDialog = ref(false);
 
+    const toggleVisibility = (index, newValue) => {
+      store.dispatch("toggleMenuItemVisibility", { index, newValue });
+    };
+
+    const menuItems = computed({
+      get: () => store.getters.getMenuItems,
+      set: (newItems) => store.dispatch("updateMenuItems", newItems),
+    });
+
+    const moveItem = (index, direction) => {
+      const newItems = [...menuItems.value];
+      const item = newItems.splice(index, 1)[0];
+      newItems.splice(index + direction, 0, item);
+      store.dispatch("updateMenuItems", newItems);
+    };
+
     onMounted(() => {
       console.log(email.value);
       isLoggedIn.value = userAccount.value != "Default";
@@ -557,7 +618,9 @@ export default {
             const updatePath = `${userAccount.value}`;
             await updateDoc(userRef.value, { [updatePath]: newUserData });
           })(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000)) // 30 seconds timeout
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 10000)
+          ), // 30 seconds timeout
         ]);
 
         // Dismiss loading notification
@@ -579,7 +642,11 @@ export default {
         let errorMessage = "備份資料時發生錯誤";
         if (error.message === "Timeout") {
           errorMessage = "備份超時，請檢查您的網路連接並重試";
-        } else if (error.name === 'NetworkError' || error.message.includes('network') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+        } else if (
+          error.name === "NetworkError" ||
+          error.message.includes("network") ||
+          error.message.includes("ERR_NAME_NOT_RESOLVED")
+        ) {
           errorMessage = "網路連接失敗，請檢查您的網路連接並重試";
         }
 
@@ -649,7 +716,22 @@ export default {
       initiateImport,
       showImportWarningDialog,
       confirmImport,
+      menuItems,
+      toggleVisibility,
+      moveItem,
     };
   },
 };
 </script>
+
+<style scoped>
+.custom-menu-item {
+  padding: 8px 16px;
+}
+.custom-menu-item .q-item__section--side {
+  padding-right: 0;
+}
+.custom-menu-item .q-item__section--avatar {
+  min-width: 40px;
+}
+</style>

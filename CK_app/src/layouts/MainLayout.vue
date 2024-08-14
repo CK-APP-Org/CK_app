@@ -70,7 +70,7 @@
     <q-footer class="" v-if="!isHomePage">
       <q-tabs>
         <q-route-tab
-          v-for="item in menuItems"
+          v-for="item in visibleMenuItems"
           :key="item.link"
           :to="item.link"
           :icon="item.icon"
@@ -83,61 +83,26 @@
 </template>
 
 <script>
-export default {
+import { defineComponent, computed } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
+
+export default defineComponent({
   name: "MainLayout",
-  data() {
+
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+
+    const visibleMenuItems = computed(() => store.getters.getVisibleMenuItems);
+    const isHomePage = computed(() => route.path === "/");
+
     return {
-      drawer: false,
-      menuItems: [
-        {
-          label: "首頁",
-          icon: "home",
-          link: "/",
-        },
-        {
-          label: "課表",
-          icon: "book",
-          link: "/schedule",
-        },
-        {
-          label: "行事曆",
-          icon: "calendar_month",
-          link: "/todo",
-        },
-        {
-          label: "YouBike",
-          icon: "directions_bike",
-          link: "/Youbike",
-        },
-        {
-          label: "熱食部",
-          icon: "restaurant_menu",
-          link: "/menu",
-        },
-        {
-          label: "美食",
-          icon: "fastfood",
-          link: "/food",
-        },
-        {
-          label: "校網",
-          icon: "newspaper",
-          link: "/news",
-        },
-      ],
+      visibleMenuItems,
+      isHomePage,
     };
   },
-  computed: {
-    isHomePage() {
-      return this.$route.path === "/";
-    },
-  },
-  methods: {
-    toggleDrawer() {
-      this.drawer = !this.drawer;
-    },
-  },
-};
+});
 </script>
 
 <style>

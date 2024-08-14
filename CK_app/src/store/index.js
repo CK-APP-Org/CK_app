@@ -5,6 +5,7 @@ import scheduleModule from "./modules/schedule";
 import todoModule from "./modules/todo";
 import foodModule from "./modules/food";
 import accountModule from "./modules/account";
+import settingsModule from "./modules/settings";
 import { localStoragePlugin } from "./localStoragePlugin";
 
 const storeWatcherPlugin = (store) => {
@@ -27,6 +28,7 @@ const modules = {
   todo: todoModule,
   food: foodModule,
   account: accountModule,
+  settings: settingsModule,
 };
 
 export default createStore({

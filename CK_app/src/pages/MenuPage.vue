@@ -16,7 +16,7 @@
     </div>
     -->
 
-    <div class="day-selector q-mt-md">
+    <div class="day-selector q-md">
       <div class="row q-col-gutter-sm justify-center">
         <div v-for="day in days" :key="day.value" class="col-auto">
           <q-btn
@@ -32,8 +32,18 @@
       </div>
     </div>
 
-    <div class="menu-image-section q-mt-md">
-      <img :src="getCurrentMenuImage" class="menu-image" />
+    <div class="menu-container q-mt-md">
+      <div class="menu-image-section">
+        <q-spinner v-if="isLoading" color="primary" size="3em" />
+        <img
+          v-show="!isLoading"
+          :src="getCurrentMenuImage.url"
+          :key="getCurrentMenuImage.key"
+          class="menu-image"
+          @load="isLoading = false"
+          @error="isLoading = false"
+        />
+      </div>
     </div>
 
     <q-dialog v-model="showDialog">
@@ -71,6 +81,7 @@ export default {
         { label: "星期四", shortLabel: "四", value: 4 },
         { label: "星期五", shortLabel: "五", value: 5 },
       ],
+      isLoading: true,
     };
   },
   computed: {
@@ -104,14 +115,16 @@ export default {
     getCurrentMenuImage() {
       const day = this.selectedDay;
       const weekStart = this.currentWeekStart;
-      const timestamp = new Date().getTime(); // Add a timestamp to prevent caching
-      console.log(`${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`);
-      return `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
+      const timestamp = new Date().getTime();
+      const url = `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
+      console.log(url);
+      return { url, key: `${weekStart}_${day}` };
     },
   },
   methods: {
     selectDay(day) {
       this.selectedDay = day;
+      this.isLoading = true;
     },
     getWeekStartDate() {
       const now = new Date();
@@ -157,14 +170,27 @@ export default {
   width: 60px;
   height: 37px;
 }
+
+.menu-container {
+  width: 100%;
+  height: 620px; /* Set this to match your maximum image height */
+  position: relative;
+}
+
 .menu-image-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
-  padding: 0;
+  align-items: center;
 }
+
 .menu-image {
-  width: 100%;
-  max-height: 620px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
 }
 </style>

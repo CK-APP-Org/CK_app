@@ -36,9 +36,12 @@
       <q-card-section>
         <div class="text-h5 text-primary q-mb-md">關於這個APP</div>
         <p class="q-mb-sm">
-          CK APP是一款革命性的建中校園應用程式，它不僅是一個工具，更是每位建中生的得力助手、貼心夥伴和充滿智慧的嚮導</p>
+          由兩位建中高三生於2024年所開發，CK
+          APP旨在幫助所有建中生解決生活中遇到的大小困難。
+        </p>
         <p>
-          CK APP旨在減輕學生們的壓力負擔，讓每位建中人能從容駕馭學習生涯。CK APP將繁瑣的日常事務簡化為指尖輕觸的便利，使學習生活更加高效和愉快。讓我們一起用CK APP開創更輕鬆的校園生活，探索未來的無限可能！
+          我們歡迎使用者提供任何建議，若能精進CK
+          APP以提升所有建中生的福祉，將是我們的一大榮幸。
         </p>
       </q-card-section>
     </q-card>
@@ -47,11 +50,18 @@
       <q-card-section class="row items-center">
         <div class="text-h5 text-primary">聯絡我們</div>
         <q-space />
+        <q-btn color="primary" icon="mail" @click="openEmailDialog = true" />
         <q-btn
-          color="primary"
-          icon="mail"
-          label="Gmail"
-          @click="openGmailCompose"
+          class="q-ml-sm"
+          color="purple"
+          icon="photo_camera"
+          @click="openInstagram"
+        />
+        <q-btn
+          class="q-ml-sm"
+          color="blue"
+          icon="language"
+          @click="openOfficialWebsite"
         />
       </q-card-section>
     </q-card>
@@ -100,6 +110,20 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="openEmailDialog">
+      <q-card style="min-width: 300px">
+        <q-card-section>
+          <div class="text-h6">Email 地址</div>
+        </q-card-section>
+        <q-card-section>
+          <p>ckappofficial@gmail.com</p>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -110,6 +134,7 @@ export default {
   setup() {
     const slide = ref("Intro");
     const openVersionInfo = ref(false);
+    const openEmailDialog = ref(false);
     const futureFeatures = ref([
       "熱食部/早餐部擁擠程度",
       "北捷/公車即時資訊",
@@ -165,21 +190,25 @@ export default {
       },
     ];
 
-    const openGmailCompose = () => {
-      const email = "ckappofficial@gmail.com";
-      const subject = "Questions and Recommendations regarding CK_APP";
-      const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-        email
-      )}&su=${encodeURIComponent(subject)}`;
-      window.open(gmailComposeUrl, "_blank");
+    const openInstagram = () => {
+      window.open(
+        "https://www.instagram.com/ckappofficial?igsh=MXRtczJxZW90bjA4Nw==",
+        "_blank"
+      );
+    };
+
+    const openOfficialWebsite = () => {
+      window.open("https://sites.google.com/view/ck-app-org", "_blank");
     };
 
     return {
       slide,
       carouselSlides,
-      openGmailCompose,
       openVersionInfo,
       futureFeatures,
+      openEmailDialog,
+      openInstagram,
+      openOfficialWebsite,
     };
   },
 };

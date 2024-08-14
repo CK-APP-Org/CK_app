@@ -38,10 +38,10 @@ export default {
       });
 
       allNews.sort((a, b) => b.pubDate - a.pubDate);
-      console.log(allNews); //For Claude: this line does work
 
       store.dispatch("setFetchedNews", allNews);
       store.dispatch("setLastFetchTime", new Date());
+      console.log("News fetched");
     } catch (error) {
       console.error("Error fetching news:", error);
     }

@@ -822,7 +822,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 .header {
   font-weight: Bold;
   color: #03328d;

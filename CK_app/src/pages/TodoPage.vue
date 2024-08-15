@@ -560,11 +560,65 @@
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import store from "../store/index";
+import ICAL from 'ical.js';
+import { useQuasar } from "quasar";
 
 export default {
   setup() {
+    const $q = useQuasar();
+    const schoolEvents = ref([])
+    onMounted(() => {
+      fetchAndParseSchoolEvents();
+    });
+    const fetchAndParseSchoolEvents = async () => {
+      try {
+        const response = await fetch("https://raw.githubusercontent.com/CK-APP-Org/Data/main/ckCalendar.ics");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const icsData = await response.text();
+
+        const jcalData = ICAL.parse(icsData);
+        const comp = new ICAL.Component(jcalData);
+        const vevents = comp.getAllSubcomponents("vevent");
+        vevents.forEach(vevent => {
+          const event = new ICAL.Event(vevent);
+
+          const newEvent = {
+            id: event.uid,
+            title: event.summary,
+            startDate: event.startDate.toJSDate(),
+            endDate: event.endDate.toJSDate(),
+            category: { name: '學校事務', color: '#4285F4' }, // You can choose any color
+          };
+          schoolEvents.value.push(newEvent)
+        }),
+        // schoolEvent = vevents.map((vevent) => {
+        //   const event = new ICAL.Event(vevent);
+        //   return {
+        //     id: event.uid,
+        //     title: event.summary,
+        //     startDate: event.startDate.toJSDate(),
+        //     endDate: event.endDate.toJSDate(),
+        //     category: { name: "學校事務", color: "#4285F4" },
+        //   };
+        // });
+        console.log(schoolEvents.value)
+
+        $q.notify({
+          type: "positive",
+          message: "School events loaded successfully",
+        });
+      } catch (error) {
+        console.error("Error fetching or parsing ICS file:", error);
+        $q.notify({
+          type: "negative",
+          message: "Failed to load school events",
+        });
+      }
+    };
     const events = computed(() => store.getters.getEvents);
     const eventCategories = computed(() => store.getters.getEventCategories);
     const todos = computed(() => store.getters.getTodos);
@@ -572,7 +626,7 @@ export default {
       get: () => store.getters.getCurrentView,
       set: (value) => store.dispatch("updateCurrentView", value),
     });
-    return { events, eventCategories, todos, currentView };
+    return { events, eventCategories, todos, currentView, schoolEvents};
   },
   data() {
     return {
@@ -653,7 +707,7 @@ export default {
       }
 
       return calendarDays.map((day) => {
-        const dayEvents = this.events
+        const dayEvents = [...this.events, ...this.schoolEvents]
           .filter((event) => {
             const eventStart = new Date(event.startDate);
             const eventEnd = new Date(event.endDate);
@@ -808,7 +862,7 @@ export default {
       this.selectedDate = day.date;
 
       // Filter events for the selected day
-      this.selectedDayEvents = this.events.filter((event) => {
+      this.selectedDayEvents = [...this.events, ...this.schoolEvents].filter((event) => {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
         return day.date >= eventStart && day.date <= eventEnd;
@@ -840,6 +894,14 @@ export default {
       return `${date.getMonth() + 1}/${date.getDate()} (${dayOfWeek})`;
     },
     editEvent(event) {
+      if (event.category && event.category.name === "學校事務") {
+        // Show a notification that school events can't be edited
+        this.$q.notify({
+          type: "warning",
+          message: "School events cannot be edited.",
+        });
+        return;
+      }
       this.editingEvent = { ...event };
       this.eventTitle = event.title;
       this.eventStartDate = this.formatDateForInput(event.startDate);

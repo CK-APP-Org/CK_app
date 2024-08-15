@@ -218,7 +218,7 @@
               :fillOpacity="0.05"
             ></l-circle>
             <l-marker :lat-lng="userPosition" :icon="userIcon">
-              <l-popup>Your Location</l-popup>
+              <l-popup>您的位置</l-popup>
             </l-marker>
             <l-marker
               v-for="station in nearestStations"
@@ -398,12 +398,12 @@ export default defineComponent({
       youbikeIcon: new Icon({
         iconUrl: "https://imgur.com/jZN5Ph6.png",
         iconSize: [25, 41],
-        iconAnchor: [12, 41],
+        iconAnchor: [12, 30],
       }),
       userIcon: new Icon({
         iconUrl: "https://imgur.com/de9dxzv.png",
         iconSize: [25, 41],
-        iconAnchor: [12, 41],
+        iconAnchor: [12, 30],
       }),
       circleRadius: 0,
       showLocationPickerDialog: false,

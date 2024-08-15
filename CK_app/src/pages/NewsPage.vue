@@ -194,7 +194,7 @@
 
 <script>
 import { ref, onMounted, computed } from "vue";
-//import axios from "axios";
+import axios from "axios";
 import { format, register } from "timeago.js";
 import zh_TW from "timeago.js/lib/lang/zh_TW";
 import store from "../store/index";
@@ -208,9 +208,12 @@ export default {
     const news = computed(() => {
       const fetchedNews = store.getters.getFetchedNews;
       const lastClearedTime = store.getters.getLastClearedTime;
+      const pinnedTitles = pinnedNews.value.map((item) => item.title);
       return fetchedNews.filter(
         (item) =>
-          !lastClearedTime || new Date(item.pubDate) > new Date(lastClearedTime)
+          (!lastClearedTime ||
+            new Date(item.pubDate) > new Date(lastClearedTime)) &&
+          !pinnedTitles.includes(item.title)
       );
     });
     const lastFetchTime = computed(() => store.getters.getLastFetchTime);
@@ -248,13 +251,16 @@ export default {
     const pinRow = (row) => {
       const index = news.value.findIndex((item) => item.title === row.title);
       if (index !== -1) {
-        store.dispatch("pinNews", news.value.splice(index, 1)[0]);
+        const pinnedItem = news.value.splice(index, 1)[0];
+        store.dispatch("pinNews", pinnedItem);
       }
     };
 
     const unpinRow = (row) => {
       store.dispatch("unpinNews", row.title);
-      news.value.push(row);
+      if (!news.value.some((item) => item.title === row.title)) {
+        news.value.push(row);
+      }
     };
 
     const pagination = ref({

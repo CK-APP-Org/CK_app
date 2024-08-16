@@ -149,6 +149,7 @@ export default {
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
+        { name: "北捷", icon: "directions_subway", link: "/metro" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
       ],

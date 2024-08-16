@@ -1,6 +1,11 @@
 <template>
   <q-page class="q-pa-md">
-    <h4 class="text-h4 text-center q-mb-md">{{ stationName }}</h4>
+    <h4 class="text-h4 text-center q-mb-md">
+      {{ stationName }}
+      <span v-for="line in lineOfStation" :key="line" class="station-line-icon">
+        <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
+      </span>
+    </h4>
     <div v-if="loading" class="text-center">
       <q-spinner color="primary" size="3em" />
       <p>載入中...</p>
@@ -30,14 +35,21 @@
           <q-item-section side>
             <q-item-label
               class="text-h6 text-weight-bold text-primary countdown-display"
+              :class="{ 'non-operational': train.CountDown === '營運時間已過' }"
             >
               <span v-if="train.CountDown === '列車進站'">{{
                 train.CountDown
               }}</span>
+              <span
+                v-else-if="train.CountDown === '營運時間已過'"
+                class="non-operational-text"
+              >
+                {{ train.CountDown }}
+              </span>
               <span v-else>
                 {{ formatCountDown(train.CountDown).minutes
-                }}<span class="small-unit">分</span
-                >{{ formatCountDown(train.CountDown).seconds
+                }}<span class="small-unit">分</span>
+                {{ formatCountDown(train.CountDown).seconds
                 }}<span class="small-unit">秒</span>
               </span>
             </q-item-label>
@@ -61,7 +73,23 @@ export default {
     const trackInfo = ref(null);
     const loading = ref(true);
     const error = ref(null);
-    const stationName = ref("中正紀念堂站");
+    const stationName = ref("中正紀念堂");
+
+    const lineOfStation = computed(() => {
+      return stationLines[stationName.value] || [];
+    });
+
+    const getLineIcon = (line) => {
+      const iconPlaceholders = {
+        BR: "https://imgur.com/X5gxkdJ.png",
+        R: "https://imgur.com/OKqw2RD.png",
+        G: "https://imgur.com/cOXYDOL.png",
+        O: "https://imgur.com/RLPyHZO.png",
+        BL: "https://imgur.com/zNzZdpj.png",
+        Y: "https://imgur.com/9ZVjixb.png",
+      };
+      return iconPlaceholders[line] || "";
+    };
 
     const filteredTrackInfo = computed(() => {
       if (!trackInfo.value) return [];
@@ -72,7 +100,7 @@ export default {
 
         const parsedInfo = JSON.parse(jsonPart[0]);
         return parsedInfo.filter(
-          (info) => info.StationName === stationName.value
+          (info) => info.StationName === stationName.value.concat("站")
         );
       } catch (error) {
         console.error("Error parsing trackInfo:", error);
@@ -82,7 +110,8 @@ export default {
     console.log("filteredTrackInfo", filteredTrackInfo);
 
     const formatCountDown = (countDown) => {
-      if (countDown === "列車進站") return countDown;
+      if (countDown === "列車進站" || countDown === "營運時間已過")
+        return countDown;
 
       const [minutes, seconds] = countDown.split(":").map(Number);
 
@@ -147,7 +176,7 @@ export default {
       const currentLines = stationLines[currentStation] || [];
 
       // Special case for 忠孝復興站 to 南港展覽館
-      if (currentStation === "忠孝復興站" && destination === "南港展覽館") {
+      if (currentStation === "忠孝復興" && destination === "南港展覽館") {
         return trainNumber === "" ? metroLines["BR"] : metroLines["BL"];
       }
 
@@ -195,6 +224,8 @@ export default {
       stationName,
       formatCountDown,
       getLineColor,
+      lineOfStation,
+      getLineIcon,
     };
   },
 };
@@ -207,6 +238,24 @@ export default {
 }
 .small-unit {
   font-size: 0.7em;
+  vertical-align: middle;
+}
+.non-operational {
+  font-weight: normal;
+}
+
+.non-operational-text {
+  font-style: italic;
+  color: #999;
+}
+.station-line-icon {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.line-icon {
+  width: 30px;
+  height: 30px;
   vertical-align: middle;
 }
 </style>

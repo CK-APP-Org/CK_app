@@ -9,6 +9,7 @@ export default {
       { label: "熱食部", icon: "restaurant_menu", link: "/menu", visible: true },
       { label: "美食", icon: "fastfood", link: "/food", visible: true },
       { label: "校網", icon: "newspaper", link: "/news", visible: true },
+      { label: "北捷", icon: "directions_subway", link: "/metro", visible: true },
     ],
   }),
   mutations: {

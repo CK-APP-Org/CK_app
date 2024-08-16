@@ -1,64 +1,79 @@
 <template>
   <q-page class="q-pa-md">
-    <h4 class="text-h4 text-center q-mb-md">
-      {{ stationName }}
-      <span v-for="line in lineOfStation" :key="line" class="station-line-icon">
-        <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
-      </span>
-    </h4>
-    <div v-if="loading" class="text-center">
-      <q-spinner color="primary" size="3em" />
-      <p>載入中...</p>
-    </div>
-    <div v-else-if="error" class="text-negative">
-      {{ error }}
-    </div>
-    <div v-else>
-      <q-list bordered separator>
-        <q-item v-for="train in filteredTrackInfo" :key="train.TrainNumber">
-          <q-item-section>
-            <q-item-label class="text-h6 text-weight-bold">
-              <q-icon name="arrow_forward" color="primary" size="1em" />
-              <span
-                :style="{
-                  color: getLineColor(
-                    train.DestinationName,
-                    stationName,
-                    train.TrainNumber
-                  ),
+    <div
+      v-for="station in stations"
+      :key="station"
+      class="station-section q-mb-xl"
+    >
+      <h4 class="text-h4 text-center q-mb-md">
+        {{ station }}
+        <span
+          v-for="line in getLineOfStation(station)"
+          :key="line"
+          class="station-line-icon"
+        >
+          <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
+        </span>
+      </h4>
+      <div v-if="loading[station]" class="text-center">
+        <q-spinner color="primary" size="3em" />
+        <p>載入中...</p>
+      </div>
+      <div v-else-if="error[station]" class="text-negative">
+        {{ error[station] }}
+      </div>
+      <div v-else>
+        <q-list bordered separator>
+          <q-item
+            v-for="train in getFilteredTrackInfo(station)"
+            :key="train.TrainNumber"
+          >
+            <q-item-section>
+              <q-item-label class="text-h6 text-weight-bold">
+                <q-icon name="arrow_forward" color="primary" size="1em" />
+                <span
+                  :style="{
+                    color: getLineColor(
+                      train.DestinationName,
+                      station,
+                      train.TrainNumber
+                    ),
+                  }"
+                >
+                  {{ train.DestinationName.slice(0, -1) }}
+                </span>
+              </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-item-label
+                class="text-h6 text-weight-bold text-primary countdown-display"
+                :class="{
+                  'non-operational': train.CountDown === '營運時間已過',
                 }"
               >
-                {{ train.DestinationName.slice(0, -1) }}
-              </span>
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-item-label
-              class="text-h6 text-weight-bold text-primary countdown-display"
-              :class="{ 'non-operational': train.CountDown === '營運時間已過' }"
-            >
-              <span v-if="train.CountDown === '列車進站'">{{
-                train.CountDown
-              }}</span>
-              <span
-                v-else-if="train.CountDown === '營運時間已過'"
-                class="non-operational-text"
-              >
-                {{ train.CountDown }}
-              </span>
-              <span v-else>
-                {{ formatCountDown(train.CountDown).minutes
-                }}<span class="small-unit">分</span>
-                {{ formatCountDown(train.CountDown).seconds
-                }}<span class="small-unit">秒</span>
-              </span>
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-icon name="train" color="primary" size="2em" />
-          </q-item-section>
-        </q-item>
-      </q-list>
+                <span v-if="train.CountDown === '列車進站'">{{
+                  train.CountDown
+                }}</span>
+                <span
+                  v-else-if="train.CountDown === '營運時間已過'"
+                  class="non-operational-text"
+                >
+                  {{ train.CountDown }}
+                </span>
+                <span v-else>
+                  {{ formatCountDown(train.CountDown).minutes
+                  }}<span class="small-unit">分</span>
+                  {{ formatCountDown(train.CountDown).seconds
+                  }}<span class="small-unit">秒</span>
+                </span>
+              </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-icon name="train" color="primary" size="2em" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </div>
     </div>
   </q-page>
 </template>
@@ -71,13 +86,13 @@ import { metroLines, stationLines } from "../data/metroData";
 export default {
   setup() {
     const trackInfo = ref(null);
-    const loading = ref(true);
-    const error = ref(null);
-    const stationName = ref("中正紀念堂");
+    const loading = ref({});
+    const error = ref({});
+    const stations = ref(["中正紀念堂", "台北車站", "忠孝復興"]); // Add more stations as needed
 
-    const lineOfStation = computed(() => {
-      return stationLines[stationName.value] || [];
-    });
+    const getLineOfStation = (station) => {
+      return stationLines[station] || [];
+    };
 
     const getLineIcon = (line) => {
       const iconPlaceholders = {
@@ -91,7 +106,7 @@ export default {
       return iconPlaceholders[line] || "";
     };
 
-    const filteredTrackInfo = computed(() => {
+    const getFilteredTrackInfo = (station) => {
       if (!trackInfo.value) return [];
 
       try {
@@ -99,29 +114,24 @@ export default {
         if (!jsonPart) return [];
 
         const parsedInfo = JSON.parse(jsonPart[0]);
-        return parsedInfo.filter(
-          (info) => info.StationName === stationName.value.concat("站")
-        );
+        return parsedInfo.filter((info) => {
+          const stationNameToMatch =
+            station === "台北車站" ? station : station.concat("站");
+          return info.StationName === stationNameToMatch;
+        });
       } catch (error) {
         console.error("Error parsing trackInfo:", error);
         return [];
       }
-    });
-    console.log("filteredTrackInfo", filteredTrackInfo);
+    };
 
     const formatCountDown = (countDown) => {
       if (countDown === "列車進站" || countDown === "營運時間已過")
         return countDown;
 
       const [minutes, seconds] = countDown.split(":").map(Number);
-
-      // Convert to total seconds
       let totalSeconds = minutes * 60 + seconds;
-
-      // Round to nearest 5 seconds
       totalSeconds = Math.round(totalSeconds / 5) * 5;
-
-      // Convert back to minutes and seconds
       const roundedMinutes = Math.floor(totalSeconds / 60);
       const roundedSeconds = totalSeconds % 60;
 
@@ -148,6 +158,11 @@ export default {
     </soap:Envelope>`;
 
       try {
+        stations.value.forEach((station) => {
+          loading.value[station] = true;
+          error.value[station] = null;
+        });
+
         const response = await axios.post(
           proxyUrl,
           {
@@ -161,12 +176,16 @@ export default {
           }
         );
         trackInfo.value = response.data;
-        loading.value = false;
+        stations.value.forEach((station) => {
+          loading.value[station] = false;
+        });
         console.log("Data fetched");
       } catch (error) {
         console.error("Error fetching track info:", error);
-        error.value = "無法獲取資料，請稍後再試。";
-        loading.value = false;
+        stations.value.forEach((station) => {
+          error.value[station] = "無法獲取資料，請稍後再試。";
+          loading.value[station] = false;
+        });
       }
     };
 
@@ -175,32 +194,28 @@ export default {
       const destLines = stationLines[destination] || [];
       const currentLines = stationLines[currentStation] || [];
 
-      // Special case for 忠孝復興站 to 南港展覽館
       if (currentStation === "忠孝復興" && destination === "南港展覽館") {
         return trainNumber === "" ? metroLines["BR"] : metroLines["BL"];
       }
 
-      // Find common lines between current station and destination
       const commonLines = destLines.filter((line) =>
         currentLines.includes(line)
       );
 
       if (commonLines.length > 0) {
-        // If there are common lines, use the first common line's color
         return metroLines[commonLines[0]];
       } else if (destLines.length > 0) {
-        // If no common lines, use the destination's first line color
         return metroLines[destLines[0]];
       }
 
-      return "inherit"; // Default color if no matching line is found
+      return "inherit";
     };
 
     let intervalId = null;
 
     const startFetchingData = () => {
       fetchTrackInfo();
-      intervalId = setInterval(fetchTrackInfo, 10000); // 10000 milliseconds = 10 seconds
+      intervalId = setInterval(fetchTrackInfo, 10000);
     };
 
     const stopFetchingData = () => {
@@ -218,14 +233,14 @@ export default {
     });
 
     return {
-      filteredTrackInfo,
+      stations,
       loading,
       error,
-      stationName,
       formatCountDown,
       getLineColor,
-      lineOfStation,
+      getLineOfStation,
       getLineIcon,
+      getFilteredTrackInfo,
     };
   },
 };
@@ -243,7 +258,6 @@ export default {
 .non-operational {
   font-weight: normal;
 }
-
 .non-operational-text {
   font-style: italic;
   color: #999;
@@ -252,10 +266,17 @@ export default {
   display: inline-block;
   margin-left: 5px;
 }
-
 .line-icon {
   width: 30px;
   height: 30px;
   vertical-align: middle;
+}
+.station-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+.station-section:last-child {
+  border-bottom: none;
 }
 </style>

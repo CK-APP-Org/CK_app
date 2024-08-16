@@ -15,7 +15,7 @@
           <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
         </span>
       </h4>
-      <div v-if="loading[station]" class="text-center">
+      <div v-if="initialLoading" class="text-center">
         <q-spinner color="primary" size="3em" />
         <p>載入中...</p>
       </div>
@@ -87,6 +87,7 @@ export default {
   setup() {
     const trackInfo = ref(null);
     const loading = ref({});
+    const initialLoading = ref(true);
     const error = ref({});
     const stations = ref(["中正紀念堂", "台北車站", "忠孝復興"]); // Add more stations as needed
 
@@ -146,22 +147,24 @@ export default {
         "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
       const apiUrl = "https://api.metro.taipei/metroapi/TrackInfo.asmx";
       const xmlData = `<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-    <getTrackInfo xmlns="http://tempuri.org/">
-    <userName>diegopeng0426@gmail.com</userName>
-    <passWord>Hn2pJ2511N</passWord>
-    </getTrackInfo>
-    </soap:Body>
-    </soap:Envelope>`;
+  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+  <getTrackInfo xmlns="http://tempuri.org/">
+  <userName>diegopeng0426@gmail.com</userName>
+  <passWord>Hn2pJ2511N</passWord>
+  </getTrackInfo>
+  </soap:Body>
+  </soap:Envelope>`;
 
       try {
-        stations.value.forEach((station) => {
-          loading.value[station] = true;
-          error.value[station] = null;
-        });
+        if (initialLoading.value) {
+          stations.value.forEach((station) => {
+            loading.value[station] = true;
+            error.value[station] = null;
+          });
+        }
 
         const response = await axios.post(
           proxyUrl,
@@ -176,16 +179,22 @@ export default {
           }
         );
         trackInfo.value = response.data;
-        stations.value.forEach((station) => {
-          loading.value[station] = false;
-        });
+        if (initialLoading.value) {
+          stations.value.forEach((station) => {
+            loading.value[station] = false;
+          });
+          initialLoading.value = false;
+        }
         console.log("Data fetched");
       } catch (error) {
         console.error("Error fetching track info:", error);
-        stations.value.forEach((station) => {
-          error.value[station] = "無法獲取資料，請稍後再試。";
-          loading.value[station] = false;
-        });
+        if (initialLoading.value) {
+          stations.value.forEach((station) => {
+            error.value[station] = "無法獲取資料，請稍後再試。";
+            loading.value[station] = false;
+          });
+          initialLoading.value = false;
+        }
       }
     };
 
@@ -235,6 +244,7 @@ export default {
     return {
       stations,
       loading,
+      initialLoading,
       error,
       formatCountDown,
       getLineColor,

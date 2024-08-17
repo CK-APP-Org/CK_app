@@ -589,7 +589,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 }
 .station-list-enter-active,
 .station-list-leave-active {
-  transition: all 0.75s cubic-bezier(0.55, 0, 0.1, 1);
+  transition: all 0.4s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
 .station-list-enter-from {
@@ -599,14 +599,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .station-list-leave-to {
   opacity: 0;
-  transform: translate(-30px, 0);
+  transform: translate(30px, 0);
 }
 
 .station-list-move {
-  transition: transform 0.75s;
-}
-
-.station-list-leave-active {
-  position: absolute;
+  transition: transform 0.4s;
 }
 </style>

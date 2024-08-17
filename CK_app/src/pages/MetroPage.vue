@@ -42,6 +42,18 @@
                 >
                   {{ train.DestinationName.slice(0, -1) }}
                 </span>
+                <span class="crowdedness-indicators q-ml-sm">
+                  <q-badge
+                    v-for="(level, index) in getTrainCrowdedness(
+                      train.TrainNumber
+                    )"
+                    :key="index"
+                    :color="getCrowdednessColor(level)"
+                    class="q-mr-xs"
+                  >
+                    {{ level }}
+                  </q-badge>
+                </span>
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -60,12 +72,13 @@
                 >
                   {{ train.CountDown }}
                 </span>
-                <span v-else>
-                  {{ formatCountDown(train.CountDown).minutes
-                  }}<span class="small-unit">分</span>
-                  {{ formatCountDown(train.CountDown).seconds
-                  }}<span class="small-unit">秒</span>
+                <span v-else-if="isValidCountDown(train.CountDown)">
+                  {{ formatCountDown(train.CountDown).minutes }}
+                  <span class="small-unit">分</span>
+                  {{ formatCountDown(train.CountDown).seconds }}
+                  <span class="small-unit">秒</span>
                 </span>
+                <span v-else>資料擷取中</span>
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -89,7 +102,15 @@ export default {
     const loading = ref({});
     const initialLoading = ref(true);
     const error = ref({});
-    const stations = ref(["中正紀念堂", "台北車站", "忠孝復興"]); // Add more stations as needed
+    const stations = ref([
+      "中正紀念堂",
+      "台北車站",
+      "忠孝復興",
+      "南港展覽館",
+      "民權西路",
+      "頭前庄",
+      "亞東醫院",
+    ]); // Add more stations as needed
 
     const getLineOfStation = (station) => {
       return stationLines[station] || [];
@@ -142,6 +163,14 @@ export default {
       };
     };
 
+    const isValidCountDown = (countDown) => {
+      return (
+        countDown === "列車進站" ||
+        countDown === "營運時間已過" ||
+        /^\d+:\d+$/.test(countDown)
+      );
+    };
+
     const fetchTrackInfo = async () => {
       const proxyUrl =
         "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
@@ -186,6 +215,7 @@ export default {
           initialLoading.value = false;
         }
         console.log("Data fetched");
+        //console.log(trackInfo);
       } catch (error) {
         console.error("Error fetching track info:", error);
         if (initialLoading.value) {
@@ -224,13 +254,91 @@ export default {
 
     const startFetchingData = () => {
       fetchTrackInfo();
-      intervalId = setInterval(fetchTrackInfo, 10000);
+      fetchCarWeight();
+      intervalId = setInterval(() => {
+        fetchTrackInfo();
+        fetchCarWeight();
+      }, 10000);
     };
 
     const stopFetchingData = () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
+    };
+
+    const carWeightData = ref(null);
+
+    const fetchCarWeight = async () => {
+      const proxyUrl =
+        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
+      const apiUrl = "https://api.metro.taipei/metroapi/CarWeight.asmx";
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Body>
+<getCarWeightByInfoEx xmlns="http://tempuri.org/">
+<userName>diegopeng0426@gmail.com</userName>
+<passWord>Hn2pJ2511N</passWord>
+</getCarWeightByInfoEx>
+</soap:Body>
+</soap:Envelope>`;
+
+      try {
+        const response = await axios.post(
+          proxyUrl,
+          {
+            url: apiUrl,
+            xmlData: xmlData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        carWeightData.value = response.data;
+        //console.log("Car Weight Data:", carWeightData.value);
+      } catch (error) {
+        console.error("Error fetching car weight data:", error);
+      }
+    };
+
+    const getTrainCrowdedness = (trainNumber) => {
+      if (!carWeightData.value) return [];
+
+      try {
+        const jsonPart = carWeightData.value.match(/\[.*\]/s);
+        if (!jsonPart) return [];
+
+        const parsedData = JSON.parse(jsonPart[0]);
+        const trainData = parsedData.find(
+          (train) => train.TrainNumber === trainNumber
+        );
+
+        if (!trainData) return [];
+
+        return [
+          trainData.Cart1L,
+          trainData.Cart2L,
+          trainData.Cart3L,
+          trainData.Cart4L,
+          trainData.Cart5L,
+          trainData.Cart6L,
+        ];
+      } catch (error) {
+        console.error("Error parsing carWeightData:", error);
+        return [];
+      }
+    };
+
+    const getCrowdednessColor = (level) => {
+      const intLevel = parseInt(level);
+      if (intLevel <= 1) return "light-green";
+      if (intLevel === 2) return "amber-5";
+      if (intLevel === 3) return "orange-6";
+      return "deep-orange-10";
     };
 
     onMounted(() => {
@@ -251,6 +359,10 @@ export default {
       getLineOfStation,
       getLineIcon,
       getFilteredTrackInfo,
+      carWeightData,
+      getTrainCrowdedness,
+      getCrowdednessColor,
+      isValidCountDown,
     };
   },
 };
@@ -288,5 +400,9 @@ export default {
 }
 .station-section:last-child {
   border-bottom: none;
+}
+.crowdedness-indicators {
+  display: inline-flex;
+  align-items: center;
 }
 </style>

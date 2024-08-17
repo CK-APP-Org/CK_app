@@ -1,11 +1,11 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md bg-grey-1">
     <div
       v-for="station in stations"
       :key="station"
-      class="station-section q-mb-xl"
+      class="station-section q-mb-xl q-pa-md bg-white rounded-borders"
     >
-      <h4 class="text-h4 text-center q-mb-md">
+      <h4 class="text-h4 text-weight-bold q-mb-md q-mt-sm station-header">
         {{ station }}
         <span
           v-for="line in getLineOfStation(station)"
@@ -51,14 +51,14 @@
                     :color="getCrowdednessColor(level)"
                     class="q-mr-xs"
                   >
-                    {{ level }}
+                    &ensp;
                   </q-badge>
                 </span>
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-item-label
-                class="text-h6 text-weight-bold text-primary countdown-display"
+                class="text-h6 text-weight-medium text-primary countdown-display"
                 :class="{
                   'non-operational': train.CountDown === '營運時間已過',
                 }"
@@ -81,12 +81,17 @@
                 <span v-else>資料擷取中</span>
               </q-item-label>
             </q-item-section>
-            <q-item-section side>
-              <q-icon name="train" color="primary" size="2em" />
-            </q-item-section>
           </q-item>
         </q-list>
       </div>
+    </div>
+    <div class="text-caption q-mt-md">
+      擁擠程度:
+      <q-badge color="light-green" class="q-mr-xs">&ensp;</q-badge> 低
+      <q-badge color="amber-5" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 中
+      <q-badge color="orange-6" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 高
+      <q-badge color="deep-orange-10" class="q-mr-xs q-ml-sm">&ensp;</q-badge>
+      極高
     </div>
   </q-page>
 </template>
@@ -103,13 +108,14 @@ export default {
     const initialLoading = ref(true);
     const error = ref({});
     const stations = ref([
-      "中正紀念堂",
-      "台北車站",
+      "圓山",
+      "府中",
       "忠孝復興",
       "南港展覽館",
       "民權西路",
       "頭前庄",
       "亞東醫院",
+      "淡水",
     ]); // Add more stations as needed
 
     const getLineOfStation = (station) => {
@@ -255,9 +261,11 @@ export default {
     const startFetchingData = () => {
       fetchTrackInfo();
       fetchCarWeight();
+      fetchCarWeightBR();
       intervalId = setInterval(() => {
         fetchTrackInfo();
         fetchCarWeight();
+        fetchCarWeightBR();
       }, 10000);
     };
 
@@ -341,6 +349,42 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       return "deep-orange-10";
     };
 
+    const fetchCarWeightBR = async () => {
+      const proxyUrl =
+        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
+      const apiUrl = "https://api.metro.taipei/metroapi/CarWeightBR.asmx";
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Body>
+<getCarWeightBRInfo xmlns="http://tempuri.org/">
+<userName>diegopeng0426@gmail.com</userName>
+<passWord>Hn2pJ2511N</passWord>
+</getCarWeightBRInfo>
+</soap:Body>
+</soap:Envelope>`;
+
+      try {
+        const response = await axios.post(
+          proxyUrl,
+          {
+            url: apiUrl,
+            xmlData: xmlData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Wenhu Line Car Weight Data:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching Wenhu Line car weight data:", error);
+      }
+    };
+
     onMounted(() => {
       startFetchingData();
     });
@@ -363,6 +407,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       getTrainCrowdedness,
       getCrowdednessColor,
       isValidCountDown,
+      fetchCarWeightBR,
     };
   },
 };
@@ -374,7 +419,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   align-items: center;
 }
 .small-unit {
-  font-size: 0.7em;
+  font-size: 0.8em;
   vertical-align: middle;
 }
 .non-operational {
@@ -389,17 +434,17 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   margin-left: 5px;
 }
 .line-icon {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   vertical-align: middle;
 }
 .station-section {
   margin-bottom: 2rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid #ddd;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
-.station-section:last-child {
-  border-bottom: none;
+.station-header {
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
 }
 .crowdedness-indicators {
   display: inline-flex;

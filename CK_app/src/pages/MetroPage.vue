@@ -99,24 +99,18 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
+import { useStore } from "vuex";
 import { metroLines, stationLines } from "../data/metroData";
 
 export default {
   setup() {
+    const store = useStore();
+    const stations = computed(() => store.state.metro.stationList);
+
     const trackInfo = ref(null);
     const loading = ref({});
     const initialLoading = ref(true);
     const error = ref({});
-    const stations = ref([
-      "圓山",
-      "府中",
-      "忠孝復興",
-      "南港展覽館",
-      "民權西路",
-      "頭前庄",
-      "亞東醫院",
-      "淡水",
-    ]); // Add more stations as needed
 
     const getLineOfStation = (station) => {
       return stationLines[station] || [];
@@ -378,7 +372,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
             },
           }
         );
-        console.log("Wenhu Line Car Weight Data:", response.data);
+        //console.log("Wenhu Line Car Weight Data:", response.data);
         return response.data;
       } catch (error) {
         console.error("Error fetching Wenhu Line car weight data:", error);

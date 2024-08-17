@@ -1,108 +1,110 @@
 <template>
   <q-page class="q-pa-md bg-grey-1">
-    <div
-      v-for="station in stations"
-      :key="station"
-      class="station-section q-mb-xl q-pa-md bg-white rounded-borders"
-    >
-      <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
-        <q-icon name="more_vert" />
-        <q-menu>
-          <q-list style="min-width: 100px">
-            <q-item clickable v-close-popup @click="deleteStation(station)">
-              <q-item-section>刪除此站</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
-      <h4 class="text-h4 text-weight-bold q-mb-md q-mt-sm station-header">
-        {{ station }}
-        <span
-          v-for="line in getLineOfStation(station)"
-          :key="line"
-          class="station-line-icon"
-        >
-          <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
-        </span>
-      </h4>
-      <div v-if="initialLoading" class="text-center">
-        <q-spinner color="primary" size="3em" />
-        <p>載入中...</p>
-      </div>
-      <div v-else-if="error[station]" class="text-negative">
-        {{ error[station] }}
-      </div>
-      <div v-else>
-        <q-list bordered separator>
-          <q-item
-            v-for="train in getFilteredTrackInfo(station)"
-            :key="train.TrainNumber"
+    <transition-group name="station-list" tag="div">
+      <div
+        v-for="station in stations"
+        :key="station"
+        class="station-section q-mb-xl q-pa-md bg-white rounded-borders"
+      >
+        <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
+          <q-icon name="more_vert" />
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup @click="deleteStation(station)">
+                <q-item-section>刪除此站</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+        <h4 class="text-h4 text-weight-bold q-mb-md q-mt-xs station-header">
+          {{ station }}
+          <span
+            v-for="line in getLineOfStation(station)"
+            :key="line"
+            class="station-line-icon"
           >
-            <q-item-section>
-              <q-item-label class="text-h6 text-weight-bold">
-                <q-icon name="arrow_forward" color="primary" size="1em" />
-                <span
-                  :style="{
-                    color: getLineColor(
-                      train.DestinationName,
-                      station,
-                      train.TrainNumber
-                    ),
+            <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
+          </span>
+        </h4>
+        <div v-if="initialLoading" class="text-center">
+          <q-spinner color="primary" size="3em" />
+          <p>載入中...</p>
+        </div>
+        <div v-else-if="error[station]" class="text-negative">
+          {{ error[station] }}
+        </div>
+        <div v-else>
+          <q-list bordered separator>
+            <q-item
+              v-for="train in getFilteredTrackInfo(station)"
+              :key="train.TrainNumber"
+            >
+              <q-item-section>
+                <q-item-label class="text-h6 text-weight-bold">
+                  <q-icon name="arrow_forward" color="primary" size="1em" />
+                  <span
+                    :style="{
+                      color: getLineColor(
+                        train.DestinationName,
+                        station,
+                        train.TrainNumber
+                      ),
+                    }"
+                  >
+                    {{ train.DestinationName.slice(0, -1) }}
+                  </span>
+                  <span class="crowdedness-indicators q-ml-sm">
+                    <q-badge
+                      v-for="(level, index) in getTrainCrowdedness(
+                        train.TrainNumber
+                      )"
+                      :key="index"
+                      :color="getCrowdednessColor(level)"
+                      class="q-mr-xs"
+                    >
+                      &ensp;
+                    </q-badge>
+                  </span>
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-item-label
+                  class="text-h6 text-weight-medium text-primary countdown-display"
+                  :class="{
+                    'non-operational': train.CountDown === '營運時間已過',
                   }"
                 >
-                  {{ train.DestinationName.slice(0, -1) }}
-                </span>
-                <span class="crowdedness-indicators q-ml-sm">
-                  <q-badge
-                    v-for="(level, index) in getTrainCrowdedness(
-                      train.TrainNumber
-                    )"
-                    :key="index"
-                    :color="getCrowdednessColor(level)"
-                    class="q-mr-xs"
+                  <span v-if="train.CountDown === '列車進站'">{{
+                    train.CountDown
+                  }}</span>
+                  <span
+                    v-else-if="train.CountDown === '營運時間已過'"
+                    class="non-operational-text"
                   >
-                    &ensp;
-                  </q-badge>
-                </span>
-              </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-item-label
-                class="text-h6 text-weight-medium text-primary countdown-display"
-                :class="{
-                  'non-operational': train.CountDown === '營運時間已過',
-                }"
-              >
-                <span v-if="train.CountDown === '列車進站'">{{
-                  train.CountDown
-                }}</span>
-                <span
-                  v-else-if="train.CountDown === '營運時間已過'"
-                  class="non-operational-text"
-                >
-                  {{ train.CountDown }}
-                </span>
-                <span v-else-if="isValidCountDown(train.CountDown)">
-                  {{ formatCountDown(train.CountDown).minutes }}
-                  <span class="small-unit">分</span>
-                  {{ formatCountDown(train.CountDown).seconds }}
-                  <span class="small-unit">秒</span>
-                </span>
-                <span v-else>資料擷取中</span>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+                    {{ train.CountDown }}
+                  </span>
+                  <span v-else-if="isValidCountDown(train.CountDown)">
+                    {{ formatCountDown(train.CountDown).minutes }}
+                    <span class="small-unit">分</span>
+                    {{ formatCountDown(train.CountDown).seconds }}
+                    <span class="small-unit">秒</span>
+                  </span>
+                  <span v-else>資料擷取中</span>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
       </div>
-    </div>
-    <div class="text-caption q-mt-md">
-      擁擠程度:
-      <q-badge color="light-green" class="q-mr-xs">&ensp;</q-badge> 低
-      <q-badge color="amber-5" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 中
-      <q-badge color="orange-6" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 高
-      <q-badge color="deep-orange-10" class="q-mr-xs q-ml-sm">&ensp;</q-badge>
-      極高
-    </div>
+      <div class="text-caption q-mt-md">
+        擁擠程度:
+        <q-badge color="light-green" class="q-mr-xs">&ensp;</q-badge> 低
+        <q-badge color="amber-5" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 中
+        <q-badge color="orange-6" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 高
+        <q-badge color="deep-orange-10" class="q-mr-xs q-ml-sm">&ensp;</q-badge>
+        極高
+      </div>
+    </transition-group>
     <div class="add-button-container">
       <button class="add-button" @click="showAddStation = true">+</button>
     </div>
@@ -123,6 +125,7 @@
                   :key="line"
                   @click="selectedLine = line"
                   class="line-button"
+                  :class="{ selected: selectedLine === line }"
                   flat
                   round
                 >
@@ -536,7 +539,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 }
 .station-section {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 .station-header {
@@ -549,6 +552,13 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 }
 .line-button {
   padding: 0;
+  transition: all 0.3s ease;
+}
+
+.line-button.selected {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 2px solid #1976d2;
+  transform: scale(1.1);
 }
 
 .add-button-container {
@@ -574,7 +584,29 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .menu-btn {
   position: absolute;
-  top: 25px;
-  right: 10px;
+  top: 20px;
+  right: 12px;
+}
+.station-list-enter-active,
+.station-list-leave-active {
+  transition: all 0.75s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.station-list-enter-from {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.station-list-leave-to {
+  opacity: 0;
+  transform: translate(-30px, 0);
+}
+
+.station-list-move {
+  transition: transform 0.75s;
+}
+
+.station-list-leave-active {
+  position: absolute;
 }
 </style>

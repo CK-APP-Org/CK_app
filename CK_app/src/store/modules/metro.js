@@ -12,12 +12,12 @@ export default {
     ],
   }),
   mutations: {
-    ADD_STATION(state, stationName) {
+    ADD_METRO_STATION(state, stationName) {
       if (!state.stationList.includes(stationName)) {
         state.stationList.push(stationName);
       }
     },
-    DELETE_STATION(state, stationName) {
+    DELETE_METRO_STATION(state, stationName) {
       const index = state.stationList.indexOf(stationName);
       if (index > -1) {
         state.stationList.splice(index, 1);
@@ -25,14 +25,14 @@ export default {
     },
   },
   actions: {
-    addStation({ commit }, stationName) {
-      commit("ADD_STATION", stationName);
+    addMetroStation({ commit }, stationName) {
+      commit("ADD_METRO_STATION", stationName);
     },
-    deleteStation({ commit }, stationName) {
-      commit("DELETE_STATION", stationName);
+    deleteMetroStation({ commit }, stationName) {
+      commit("DELETE_METRO_STATION", stationName);
     },
   },
   getters: {
-    getStationList: (state) => state.stationList,
+    getMetroStationList: (state) => state.stationList,
   },
 };

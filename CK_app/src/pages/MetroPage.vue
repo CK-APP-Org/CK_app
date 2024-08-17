@@ -5,6 +5,16 @@
       :key="station"
       class="station-section q-mb-xl q-pa-md bg-white rounded-borders"
     >
+      <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
+        <q-icon name="more_vert" />
+        <q-menu>
+          <q-list style="min-width: 100px">
+            <q-item clickable v-close-popup @click="deleteStation(station)">
+              <q-item-section>刪除此站</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
       <h4 class="text-h4 text-weight-bold q-mb-md q-mt-sm station-header">
         {{ station }}
         <span
@@ -93,6 +103,58 @@
       <q-badge color="deep-orange-10" class="q-mr-xs q-ml-sm">&ensp;</q-badge>
       極高
     </div>
+    <div class="add-button-container">
+      <button class="add-button" @click="showAddStation = true">+</button>
+    </div>
+
+    <q-dialog v-model="showAddStation">
+      <q-card class="q-pa-md" style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h5">新增車站</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-gutter-md">
+            <div>
+              <div class="text-h6 q-mb-sm">選擇路線:</div>
+              <div class="row q-gutter-xs">
+                <q-btn
+                  v-for="line in lines"
+                  :key="line"
+                  @click="selectedLine = line"
+                  class="line-button"
+                  flat
+                  round
+                >
+                  <q-avatar size="40px" class="line-icon">
+                    <img :src="getLineIcon(line)" :alt="line" />
+                  </q-avatar>
+                </q-btn>
+              </div>
+            </div>
+            <q-select
+              v-if="selectedLine"
+              filled
+              v-model="selectedStation"
+              :options="stationsForSelectedLine"
+              label="選擇車站"
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="新增"
+            color="primary"
+            @click="addStation"
+            :disabled="!selectedStation"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -105,7 +167,7 @@ import { metroLines, stationLines } from "../data/metroData";
 export default {
   setup() {
     const store = useStore();
-    const stations = computed(() => store.state.metro.stationList);
+    const stations = computed(() => store.getters.getMetroStationList);
 
     const trackInfo = ref(null);
     const loading = ref({});
@@ -379,6 +441,37 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       }
     };
 
+    const showAddStation = ref(false);
+    const lines = ["BR", "R", "G", "O", "BL", "Y"];
+    const selectedLine = ref(null);
+    const selectedStation = ref(null);
+
+    const stationsForSelectedLine = computed(() => {
+      if (!selectedLine.value) return [];
+      return Object.keys(stationLines).filter(
+        (station) =>
+          stationLines[station].includes(selectedLine.value) &&
+          !stations.value.includes(station)
+      );
+    });
+
+    const addStation = () => {
+      if (selectedStation.value) {
+        store.dispatch("addMetroStation", selectedStation.value);
+        cancelAddStation();
+      }
+    };
+
+    const cancelAddStation = () => {
+      showAddStation.value = false;
+      selectedLine.value = null;
+      selectedStation.value = null;
+    };
+
+    const deleteStation = (stationName) => {
+      store.dispatch("deleteMetroStation", stationName);
+    };
+
     onMounted(() => {
       startFetchingData();
     });
@@ -402,6 +495,15 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       getCrowdednessColor,
       isValidCountDown,
       fetchCarWeightBR,
+
+      showAddStation,
+      lines,
+      selectedLine,
+      selectedStation,
+      stationsForSelectedLine,
+      addStation,
+      cancelAddStation,
+      deleteStation,
     };
   },
 };
@@ -428,11 +530,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   margin-left: 5px;
 }
 .line-icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   vertical-align: middle;
 }
 .station-section {
+  position: relative;
   margin-bottom: 2rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
@@ -443,5 +546,35 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 .crowdedness-indicators {
   display: inline-flex;
   align-items: center;
+}
+.line-button {
+  padding: 0;
+}
+
+.add-button-container {
+  position: fixed;
+  bottom: 85px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.add-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #c10015;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-btn {
+  position: absolute;
+  top: 25px;
+  right: 10px;
 }
 </style>

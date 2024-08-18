@@ -1,88 +1,103 @@
 <template>
-  <q-page class="flex justify-center">
-    <div class="justify-center">
-      <q-card
-        inline
-        class="custom-card-margin"
-        style="height: 127px; width: 350px"
+  <q-page class="flex justify-center bg-grey-1" style="min-height: 600px">
+    <transition-group name="station-list" tag="div">
+      <div
         v-for="(station, key) in stations"
         :key="key"
+        class="station-wrapper"
       >
-        <q-card-section>
-          <!--站點名稱-->
-          <div class="header">
-            <span v-if="station.name in stationsNickname">
-              {{ stationsNickname[station.name] }}&nbsp;
-            </span>
-            <span v-else> {{ station.name.substr(11) }}&nbsp; </span>
-          </div>
+        <div class="justify-center">
+          <q-card
+            inline
+            class="custom-card-margin"
+            style="height: 127px; width: 350px"
+          >
+            <q-card-section>
+              <!--站點名稱-->
+              <div class="header">
+                <span v-if="station.name in stationsNickname">
+                  {{ stationsNickname[station.name] }}&nbsp;
+                </span>
+                <span v-else> {{ station.name.substr(11) }}&nbsp; </span>
+              </div>
 
-          <!-- Loading indicator -->
-          <div v-if="isLoading" class="flex flex-center" style="height: 80px">
-            <q-spinner color="primary" size="3em" />
-          </div>
-
-          <!-- Station information (only show when not loading) -->
-          <template v-else>
-            <!--資訊-->
-            <div class="text" v-if="station.available_rent_bikes !== null">
-              可借車輛:
-              <q-chip
-                :color="getChipColor(station.available_rent_bikes)"
-                text-color="white"
-                >{{ station.available_rent_bikes }}</q-chip
+              <!-- Loading indicator -->
+              <div
+                v-if="isLoading"
+                class="flex flex-center"
+                style="height: 80px"
               >
-            </div>
-            <div
-              class="row justify-between items-center text"
-              v-if="station.available_return_bikes !== null"
-            >
-              <div>
-                可停車位:
-                <q-chip
-                  :color="getChipColor(station.available_return_bikes)"
-                  text-color="white"
-                  >{{ station.available_return_bikes }}</q-chip
+                <q-spinner color="primary" size="3em" />
+              </div>
+
+              <!-- Station information (only show when not loading) -->
+              <template v-else>
+                <!--資訊-->
+                <div class="text" v-if="station.available_rent_bikes !== null">
+                  可借車輛:
+                  <q-chip
+                    :color="getChipColor(station.available_rent_bikes)"
+                    text-color="white"
+                    >{{ station.available_rent_bikes }}</q-chip
+                  >
+                </div>
+                <div
+                  class="row justify-between items-center text"
+                  v-if="station.available_return_bikes !== null"
                 >
-              </div>
-              <div v-if="station.infoTime !== null" class="update-time">
-                <q-icon name="update" size="sm" />
-                {{ timeAgo(station.infoTime) }}
-              </div>
-            </div>
-          </template>
-        </q-card-section>
-        <q-btn class="absolute-top-right menu-btn" color="primary" flat round>
-          <q-icon name="more_vert" />
-          <q-menu>
-            <q-list style="min-width: 100px">
-              <q-item
-                clickable
-                v-close-popup
-                @click="openEditNicknameDialog(station.name)"
-              >
-                <q-item-section>修改暱稱</q-item-section>
-              </q-item>
-              <q-item
-                clickable
-                v-close-popup
-                @click="openDeleteStationDialog(key)"
-              >
-                <q-item-section>刪除此站</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </q-card>
-      <div class="flex justify-center q-mt-md">
-        <div v-if="!isLoading" class="flex justify-center serach-btn">
-          <q-btn
-            icon="search"
-            color="primary"
-            label="尋找最近的九個站點"
-            @click="findNearestStations"
-          />
+                  <div>
+                    可停車位:
+                    <q-chip
+                      :color="getChipColor(station.available_return_bikes)"
+                      text-color="white"
+                      >{{ station.available_return_bikes }}</q-chip
+                    >
+                  </div>
+                  <div v-if="station.infoTime !== null" class="update-time">
+                    <q-icon name="update" size="sm" />
+                    {{ timeAgo(station.infoTime) }}
+                  </div>
+                </div>
+              </template>
+            </q-card-section>
+            <q-btn
+              class="absolute-top-right menu-btn"
+              color="primary"
+              flat
+              round
+            >
+              <q-icon name="more_vert" />
+              <q-menu>
+                <q-list style="min-width: 100px">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="openEditNicknameDialog(station.name)"
+                  >
+                    <q-item-section>修改暱稱</q-item-section>
+                  </q-item>
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="openDeleteStationDialog(key)"
+                  >
+                    <q-item-section>刪除此站</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-card>
         </div>
+      </div>
+    </transition-group>
+    <div class="flex justify-center">
+      <div v-if="!isLoading" class="flex justify-center search-btn">
+        <q-btn
+          icon="search"
+          color="primary"
+          label="尋找最近的九個站點"
+          @click="findNearestStations"
+        />
       </div>
     </div>
 
@@ -841,7 +856,7 @@ export default defineComponent({
   padding-top: 16px;
 }
 .custom-card-margin {
-  margin: 10px 16px;
+  margin: 10px 10px;
   background-color: rgb(239, 246, 254);
 }
 .delete-btn {
@@ -902,8 +917,28 @@ export default defineComponent({
   margin-left: 0.5em;
 }
 
-.serach-btn {
-  margin-top: 5px;
+.search-btn {
+  margin-top: 10px;
   margin-bottom: 20px;
+  height: 36px;
+}
+
+.station-list-enter-active,
+.station-list-leave-active {
+  transition: all 0.4s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.station-list-enter-from {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.station-list-leave-to {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.station-list-move {
+  transition: transform 0.4s;
 }
 </style>

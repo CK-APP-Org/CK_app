@@ -25,7 +25,6 @@
           </h4>
           <div v-if="initialLoading" class="text-center">
             <q-spinner color="primary" size="3em" />
-            <p>載入中...</p>
           </div>
           <div v-else-if="error[station]" class="text-negative">
             {{ error[station] }}
@@ -57,6 +56,7 @@
                         )"
                         :key="index"
                         :color="getCrowdednessColor(level)"
+                        :class="{ 'first-car': index === 0 }"
                         class="q-mr-xs"
                       >
                         &ensp;
@@ -606,5 +606,9 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .station-list-move {
   transition: transform 0.4s;
+}
+
+.first-car {
+  clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 </style>

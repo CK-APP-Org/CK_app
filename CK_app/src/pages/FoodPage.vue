@@ -142,7 +142,7 @@
             <q-card-section class="q-pt-none">
               <div class="legend-item">
                 <img
-                  src="https://imgur.com/jZN5Ph6.png"
+                  src="../../public/food/marker-icon-open.png"
                   alt="Open"
                   style="width: 25px; height: 41px"
                 />
@@ -150,7 +150,7 @@
               </div>
               <div class="legend-item">
                 <img
-                  src="https://imgur.com/de9dxzv.png"
+                  src="../../public/food/marker-icon-closed.png"
                   alt="Closed"
                   style="width: 25px; height: 41px"
                 />
@@ -158,7 +158,7 @@
               </div>
               <div class="legend-item">
                 <img
-                  src="https://imgur.com/hizjEaj.png"
+                  src="../../public/food/marker-icon-open-var.png"
                   alt="Closing Soon"
                   style="width: 25px; height: 41px"
                 />
@@ -166,7 +166,7 @@
               </div>
               <div class="legend-item">
                 <img
-                  src="https://imgur.com/upabpUD.png"
+                  src="../../public/food/marker-icon-closed-var.png"
                   alt="Opening Soon"
                   style="width: 25px; height: 41px"
                 />
@@ -260,31 +260,31 @@ const showOnlyFavorites = ref(false);
 const showRestaurantList = ref(false);
 
 const openIcon = new Icon({
-  iconUrl: "https://imgur.com/jZN5Ph6.png",
+  iconUrl: "../../public/food/marker-icon-open.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedIcon = new Icon({
-  iconUrl: "https://imgur.com/de9dxzv.png",
+  iconUrl: "../../public/food/marker-icon-closed.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const openVarIcon = new Icon({
-  iconUrl: "https://imgur.com/hizjEaj.png",
+  iconUrl: "../../public/food/marker-icon-open-var.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedVarIcon = new Icon({
-  iconUrl: "https://imgur.com/upabpUD.png",
+  iconUrl: "../../public/food/marker-icon-closed-var.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const ckIcon = new Icon({
-  iconUrl: "https://imgur.com/pN46NOS.png",
+  iconUrl: "../../public/food/CK_Logo.png",
   iconSize: [41, 41],
   iconAnchor: [20, 20],
 });

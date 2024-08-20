@@ -498,6 +498,7 @@ import { zhTW } from "date-fns/locale";
 import store from "../store/index";
 import { useStore } from "vuex";
 import { metroLineColors, stationLines } from "../data/metroData";
+import { useQuasar } from "quasar";
 
 import {
   LMap,
@@ -527,6 +528,7 @@ export default defineComponent({
     LCircle,
   },
   setup() {
+    const $q = useQuasar();
     const store = useStore();
     const showMenu = ref(false);
 
@@ -594,6 +596,7 @@ export default defineComponent({
     ];
     const stationOptions = ref([]);
     const showNearestStationsDialog = ref(false);
+    const nearestStations = ref(null);
     const userPosition = ref(null);
     const mapCenter = ref([25.031204, 121.515966]);
     const mapZoom = ref(15);
@@ -601,12 +604,12 @@ export default defineComponent({
       zoomControl: false,
     };
     const youbikeIcon = new Icon({
-      iconUrl: "https://imgur.com/jZN5Ph6.png",
+      iconUrl: "../../food/marker-icon-open.png",
       iconSize: [25, 41],
       iconAnchor: [12, 30],
     });
     const userIcon = new Icon({
-      iconUrl: "https://imgur.com/de9dxzv.png",
+      iconUrl: "../../food/marker-icon-closed.png",
       iconSize: [25, 41],
       iconAnchor: [12, 30],
     });
@@ -937,7 +940,7 @@ export default defineComponent({
     };
 
     const timeAgo = (time) => {
-      const parsedTime = this.parseTimestamp(time);
+      const parsedTime = parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
     };
 
@@ -948,7 +951,7 @@ export default defineComponent({
     };
 
     const findNearestStations = () => {
-      this.showLocationPickerDialog = true;
+      showLocationPickerDialog.value = true;
     };
 
     const handleLocationSelected = async ({ latlng }) => {
@@ -957,29 +960,24 @@ export default defineComponent({
       const userLng = latlng.lng;
       console.log("User position:", userLat, userLng);
 
-      this.userPosition = [userLat, userLng];
-      this.mapCenter = [userLat, userLng];
+      userPosition.value = [userLat, userLng];
+      mapCenter.value = [userLat, userLng];
 
-      const allStations = await this.fetchAllStationsData();
+      const allStations = await fetchAllStationsData();
 
       const stationsWithDistances = allStations.map((station) => ({
         ...station,
-        distance: this.calculateDistance(
-          userLat,
-          userLng,
-          station.lat,
-          station.lng
-        ),
+        distance: calculateDistance(userLat, userLng, station.lat, station.lng),
       }));
 
       stationsWithDistances.sort((a, b) => a.distance - b.distance);
 
-      this.nearestStations = stationsWithDistances.slice(0, 9);
+      nearestStations.value = stationsWithDistances.slice(0, 9);
 
-      this.circleRadius = this.nearestStations[8].distance * 1100;
+      circleRadius.value = nearestStations.value[8].distance * 1100;
 
-      this.showLocationPickerDialog = false;
-      this.showNearestStationsDialog = true;
+      showLocationPickerDialog.value = false;
+      showNearestStationsDialog.value = true;
     };
 
     const fetchAllStationsData = async () => {
@@ -1018,12 +1016,12 @@ export default defineComponent({
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371;
-      const dLat = this.deg2rad(lat2 - lat1);
-      const dLon = this.deg2rad(lon2 - lon1);
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(this.deg2rad(lat1)) *
-          Math.cos(this.deg2rad(lat2)) *
+        Math.cos(deg2rad(lat1)) *
+          Math.cos(deg2rad(lat2)) *
           Math.sin(dLon / 2) *
           Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
@@ -1042,29 +1040,29 @@ export default defineComponent({
         city: station.city,
       };
 
-      this.stations[newStationName] = new Station(newStationName);
-      this.$store.dispatch("addStation", {
+      stations[newStationName] = new Station(newStationName);
+      store.dispatch("addStation", {
         stationName: newStationName,
         stationData: newStationData,
       });
 
-      this.$q.notify({
+      $q.notify({
         message: "站點已新增至您的清單",
         color: "positive",
         position: "bottom",
         timeout: 2000,
       });
 
-      this.fetchYoubikeData();
+      fetchYoubikeData();
     };
 
     const isStationInList = (stationName) => {
-      return Object.keys(this.stations).includes(stationName);
+      return Object.keys(stations).includes(stationName);
     };
 
     const findNearestStationsFromDialog = () => {
-      this.showAddYoubikeStationDialog = false;
-      this.findNearestStations();
+      showAddYoubikeStationDialog.value = false;
+      findNearestStations();
     };
 
     //Metro Methods
@@ -1384,6 +1382,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       districtOptionsNTC,
       stationOptions,
       showNearestStationsDialog,
+      nearestStations,
       userPosition,
       mapCenter,
       mapZoom,

@@ -6,7 +6,7 @@
   <q-layout view="hHh lpR fFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
+        <!-- <q-btn
           flat
           dense
           round
@@ -21,7 +21,7 @@
           icon="settings"
           href="/#/settings"
           class="absolute-right q-mr-md"
-        />
+        /> -->
         <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -89,40 +89,40 @@ export default {
       drawer: false,
       menuItems: [
         {
-          label: "首頁",
-          icon: "home",
+          label: "此網頁提供暫時的校園周圍餐廳查詢服務，造成不便，敬請見諒",
+          icon: "fastfood",
           link: "/",
         },
-        {
-          label: "課表",
-          icon: "book",
-          link: "/schedule",
-        },
-        {
-          label: "行事曆",
-          icon: "calendar_month",
-          link: "/todo",
-        },
-        {
-          label: "Youbike",
-          icon: "directions_bike",
-          link: "/Youbike",
-        },
-        {
-          label: "熱食部",
-          icon: "restaurant_menu",
-          link: "/menu",
-        },
-        {
-          label: "美食",
-          icon: "fastfood",
-          link: "/food",
-        },
-        {
-          label: "校網",
-          icon: "newspaper",
-          link: "/news",
-        },
+        // {
+        //   label: "課表",
+        //   icon: "book",
+        //   link: "/schedule",
+        // },
+        // {
+        //   label: "行事曆",
+        //   icon: "calendar_month",
+        //   link: "/todo",
+        // },
+        // {
+        //   label: "Youbike",
+        //   icon: "directions_bike",
+        //   link: "/Youbike",
+        // },
+        // {
+        //   label: "熱食部",
+        //   icon: "restaurant_menu",
+        //   link: "/menu",
+        // },
+        // {
+        //   label: "美食",
+        //   icon: "fastfood",
+        //   link: "/food",
+        // },
+        // {
+        //   label: "校網",
+        //   icon: "newspaper",
+        //   link: "/news",
+        // },
         // {
         //   label: "美食",
         //   icon: "info",
@@ -133,7 +133,7 @@ export default {
   },
   computed: {
     isHomePage() {
-      return this.$route.path === "/";
+      return this.$route.path === "/aaa";
     },
   },
   methods: {

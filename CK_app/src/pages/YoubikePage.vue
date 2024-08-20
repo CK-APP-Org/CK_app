@@ -1,5 +1,6 @@
 <template>
   <q-page class="bg-grey-1 q-pa-sm">
+    <!-- Youbike Section -->
     <div class="row q-col-gutter-sm">
       <div v-for="(station, key) in stations" :key="key" class="col-6">
         <q-card class="station-card">
@@ -35,11 +36,15 @@
             </div>
 
             <!-- Loading indicator -->
-            <div v-if="isLoading" class="flex flex-center" style="height: 33px">
+            <div
+              v-if="isLoading && isInitialLoad"
+              class="flex flex-center"
+              style="height: 33px"
+            >
               <q-spinner color="primary" size="2.5em" />
             </div>
 
-            <!-- Station information (only show when not loading) -->
+            <!-- Station information (always show when not initial loading) -->
             <template v-else>
               <div class="row q-mt-xs items-center">
                 <div class="col-6">
@@ -71,30 +76,173 @@
       </div>
     </div>
 
-    <!--
-    <div class="flex justify-center q-mt-md">
-      <q-btn
-        icon="search"
-        color="primary"
-        label="尋找最近的九個站點"
-        @click="findNearestStations"
-        class="find-nearest-btn"
-      />
+    <!-- Metro Section -->
+    <div class="q-mt-md">
+      <transition-group name="station-list" tag="div">
+        <div
+          v-for="station in metroStations"
+          :key="station"
+          class="station-wrapper"
+        >
+          <div class="station-section q-mb-xl q-pa-md bg-white rounded-borders">
+            <q-btn
+              class="absolute-top-right menu-btn"
+              color="primary"
+              flat
+              round
+            >
+              <q-icon name="more_vert" />
+              <q-menu>
+                <q-list style="min-width: 100px">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="deleteMetroStation(station)"
+                  >
+                    <q-item-section>刪除此站</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+            <h4 class="text-h4 text-weight-bold q-mb-md q-mt-xs station-header">
+              {{ station }}
+              <span
+                v-for="line in getLineOfStation(station)"
+                :key="line"
+                class="station-line-icon"
+              >
+                <img :src="getLineIcon(line)" :alt="line" class="line-icon" />
+              </span>
+            </h4>
+            <div v-if="metroInitialLoading" class="text-center">
+              <q-spinner color="primary" size="3em" />
+            </div>
+            <div v-else-if="metroError[station]" class="text-negative">
+              {{ metroError[station] }}
+            </div>
+            <div v-else>
+              <q-list bordered separator>
+                <q-item
+                  v-for="train in getFilteredTrackInfo(station)"
+                  :key="train.TrainNumber"
+                >
+                  <q-item-section>
+                    <q-item-label class="text-h6 text-weight-bold">
+                      <div>
+                        <q-icon
+                          name="arrow_forward"
+                          color="primary"
+                          size="1em"
+                        />
+                        <span
+                          :style="{
+                            color: getLineColor(
+                              train.DestinationName,
+                              station,
+                              train.TrainNumber
+                            ),
+                          }"
+                        >
+                          {{ train.DestinationName.slice(0, -1) }}
+                        </span>
+                      </div>
+                      <span
+                        v-if="train.TrainNumber"
+                        class="crowdedness-indicators q-ml-sm"
+                      >
+                        <q-badge
+                          v-for="(level, index) in getTrainCrowdedness(
+                            train.TrainNumber
+                          )"
+                          :key="index"
+                          :color="getCrowdednessColor(level)"
+                          :class="{ 'first-car': index === 0 }"
+                          class="q-mr-xs"
+                        >
+                          &ensp;
+                        </q-badge>
+                      </span>
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-item-label
+                      class="text-h6 text-weight-medium text-primary countdown-display"
+                      :class="{
+                        'non-operational': train.CountDown === '營運時間已過',
+                      }"
+                    >
+                      <span v-if="train.CountDown === '列車進站'">{{
+                        train.CountDown
+                      }}</span>
+                      <span
+                        v-else-if="train.CountDown === '營運時間已過'"
+                        class="non-operational-text"
+                      >
+                        {{ train.CountDown }}
+                      </span>
+                      <span v-else-if="isValidCountDown(train.CountDown)">
+                        {{ formatCountDown(train.CountDown).minutes }}
+                        <span class="small-unit">分</span>
+                        {{ formatCountDown(train.CountDown).seconds }}
+                        <span class="small-unit">秒</span>
+                      </span>
+                      <span v-else>資料擷取中</span>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+          </div>
+        </div>
+        <div :key="'legend'" class="text-caption q-mt-md">
+          <div class="text-caption q-mt-md">
+            擁擠程度:
+            <q-badge color="light-green" class="q-mr-xs">&ensp;</q-badge> 低
+            <q-badge color="amber-5" class="q-mr-xs q-ml-sm">&ensp;</q-badge> 中
+            <q-badge color="orange-6" class="q-mr-xs q-ml-sm">&ensp;</q-badge>
+            高
+            <q-badge color="deep-orange-10" class="q-mr-xs q-ml-sm"
+              >&ensp;</q-badge
+            >
+            極高
+          </div>
+        </div>
+      </transition-group>
     </div>
+
+    <div class="add-button-container">
+      <button class="add-button" @click="toggleMenu">+</button>
+      <div v-if="showMenu" class="add-menu">
+        <button class="menu-item" @click="openAddYoubikeStationDialog">
+          <q-icon name="directions_bike" />&ensp;Youbike
+        </button>
+        <button class="menu-item" @click="openAddMetroStationDialog">
+          <q-icon name="directions_subway" />&ensp;北捷
+        </button>
+      </div>
+    </div>
+
+    <!--
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn-dropdown color="red-9" icon="add" size="md">
+        <q-list>
+          <q-item
+            clickable
+            v-close-popup
+            @click="showAddYoubikeStationDialog = true"
+          >
+            <q-item-section>Add Youbike Station</q-item-section>
+          </q-item>
+          <q-item clickable v-close-popup @click="showAddMetroStation = true">
+            <q-item-section>Add Metro Station</q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+    </q-page-sticky>
     -->
 
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn
-        fab
-        icon="add"
-        color="red-9"
-        size="sm"
-        @click="showAddStationDialog = true"
-      />
-    </q-page-sticky>
-
     <!--對話框(新增站點)-->
-    <q-dialog v-model="showAddStationDialog" full-width>
+    <q-dialog v-model="showAddYoubikeStationDialog" full-width>
       <q-card>
         <q-card-section>
           <div class="text-h6">選擇新增之站點</div>
@@ -130,8 +278,12 @@
           </div>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="取消" @click="showAddStationDialog = false" />
-          <q-btn flat label="確認" @click="addStation" />
+          <q-btn
+            flat
+            label="取消"
+            @click="showAddYoubikeStationDialog = false"
+          />
+          <q-btn flat label="確認" @click="addYoubikeStation" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -285,15 +437,67 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showAddMetroStation">
+      <q-card class="q-pa-md" style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h5">新增車站</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-gutter-md">
+            <div>
+              <div class="text-h6 q-mb-sm">選擇路線:</div>
+              <div class="row q-gutter-xs">
+                <q-btn
+                  v-for="line in metroLines"
+                  :key="line"
+                  @click="selectedMetroLine = line"
+                  class="line-button"
+                  :class="{ selected: selectedMetroLine === line }"
+                  flat
+                  round
+                >
+                  <q-avatar size="40px" class="line-icon">
+                    <img :src="getLineIcon(line)" :alt="line" />
+                  </q-avatar>
+                </q-btn>
+              </div>
+            </div>
+            <q-select
+              v-if="selectedMetroLine"
+              filled
+              v-model="selectedMetroStation"
+              :options="stationsForSelectedMetroLine"
+              label="選擇車站"
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn
+            flat
+            label="新增"
+            color="primary"
+            @click="addMetroStation"
+            :disabled="!selectedMetroStation"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
-import { defineComponent, computed } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import { formatDistanceToNow, parseISO, parse } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import store from "../store/index";
+import { useStore } from "vuex";
+import { metroLineColors, stationLines } from "../data/metroData";
 
 import {
   LMap,
@@ -323,187 +527,223 @@ export default defineComponent({
     LCircle,
   },
   setup() {
-    const StationList = computed(() => store.getters.getStationList);
-    return { StationList };
-  },
-  data() {
-    return {
-      stations: {},
-      stationsNickname: {},
-      showAddStationDialog: false,
-      showEditNicknameDialog: false,
-      showDeleteStationDialog: false,
-      selectedStationForEdit: null,
-      newNickname: "",
-      selectedStationForDelete: null,
-      selectedCity: null,
-      selectedDistrict: null,
-      selectedStation: null,
-      cityOptions: [
-        { label: "臺北市", value: "臺北市" },
-        { label: "新北市", value: "新北市" },
-      ],
-      districtOptionsTPC: [
-        { label: "大安區", value: "大安區" },
-        { label: "中正區", value: "中正區" },
-        { label: "萬華區", value: "萬華區" },
-        { label: "信義區", value: "信義區" },
-        { label: "南港區", value: "南港區" },
-        { label: "文山區", value: "文山區" },
-        { label: "大同區", value: "大同區" },
-        { label: "中山區", value: "中山區" },
-        { label: "松山區", value: "松山區" },
-        { label: "內湖區", value: "內湖區" },
-        { label: "士林區", value: "士林區" },
-        { label: "北投區", value: "北投區" },
-        { label: "臺大公館校區", value: "臺大公館校區" },
-      ],
-      districtOptionsNTC: [
-        { label: "板橋區", value: "板橋區" },
-        { label: "三重區", value: "三重區" },
-        { label: "中和區", value: "中和區" },
-        { label: "永和區", value: "永和區" },
-        { label: "蘆洲區", value: "蘆洲區" },
-        { label: "新莊區", value: "新莊區" },
-        { label: "新店區", value: "新店區" },
-        { label: "土城區", value: "土城區" },
-        { label: "樹林區", value: "樹林區" },
-        { label: "五股區", value: "五股區" },
-        { label: "泰山區", value: "泰山區" },
-        { label: "汐止區", value: "汐止區" },
-        { label: "深坑區", value: "深坑區" },
-        { label: "石碇區", value: "石碇區" },
-        { label: "三峽區", value: "三峽區" },
-        { label: "淡水區", value: "淡水區" },
-        { label: "八里區", value: "八里區" },
-        { label: "三芝區", value: "三芝區" },
-        { label: "石門區", value: "石門區" },
-        { label: "金山區", value: "金山區" },
-        { label: "林口區", value: "林口區" },
-        { label: "坪林區", value: "坪林區" },
-        { label: "萬里區", value: "萬里區" },
-        { label: "瑞芳區", value: "瑞芳區" },
-        { label: "雙溪區", value: "雙溪區" },
-        { label: "鶯歌區", value: "鶯歌區" },
-      ],
-      stationOptions: [],
-      isLoading: true,
+    const store = useStore();
+    const showMenu = ref(false);
 
-      nearestStations: [],
-      showNearestStationsDialog: false,
-      userPosition: null,
-      mapCenter: [25.031204, 121.515966],
-      mapZoom: 15,
-      mapOptions: {
-        zoomControl: false,
-      },
-      youbikeIcon: new Icon({
-        iconUrl: "https://imgur.com/jZN5Ph6.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 30],
-      }),
-      userIcon: new Icon({
-        iconUrl: "https://imgur.com/de9dxzv.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 30],
-      }),
-      circleRadius: 0,
-      showLocationPickerDialog: false,
+    //YouBike data
+    const StationList = computed(() => store.getters.getStationList);
+    const stations = ref({});
+    const stationsNickname = ref({});
+    const isInitialLoad = ref(true);
+    const isLoading = ref(true);
+    const showAddYoubikeStationDialog = ref(false);
+    const showEditNicknameDialog = ref(false);
+    const showDeleteStationDialog = ref(false);
+    const selectedStationForEdit = ref(null);
+    const newNickname = ref("");
+    const selectedStationForDelete = ref(null);
+    const selectedCity = ref(null);
+    const selectedDistrict = ref(null);
+    const selectedStation = ref(null);
+    const cityOptions = [
+      { label: "臺北市", value: "臺北市" },
+      { label: "新北市", value: "新北市" },
+    ];
+    const districtOptionsTPC = [
+      { label: "大安區", value: "大安區" },
+      { label: "中正區", value: "中正區" },
+      { label: "萬華區", value: "萬華區" },
+      { label: "信義區", value: "信義區" },
+      { label: "南港區", value: "南港區" },
+      { label: "文山區", value: "文山區" },
+      { label: "大同區", value: "大同區" },
+      { label: "中山區", value: "中山區" },
+      { label: "松山區", value: "松山區" },
+      { label: "內湖區", value: "內湖區" },
+      { label: "士林區", value: "士林區" },
+      { label: "北投區", value: "北投區" },
+      { label: "臺大公館校區", value: "臺大公館校區" },
+    ];
+    const districtOptionsNTC = [
+      { label: "板橋區", value: "板橋區" },
+      { label: "三重區", value: "三重區" },
+      { label: "中和區", value: "中和區" },
+      { label: "永和區", value: "永和區" },
+      { label: "蘆洲區", value: "蘆洲區" },
+      { label: "新莊區", value: "新莊區" },
+      { label: "新店區", value: "新店區" },
+      { label: "土城區", value: "土城區" },
+      { label: "樹林區", value: "樹林區" },
+      { label: "五股區", value: "五股區" },
+      { label: "泰山區", value: "泰山區" },
+      { label: "汐止區", value: "汐止區" },
+      { label: "深坑區", value: "深坑區" },
+      { label: "石碇區", value: "石碇區" },
+      { label: "三峽區", value: "三峽區" },
+      { label: "淡水區", value: "淡水區" },
+      { label: "八里區", value: "八里區" },
+      { label: "三芝區", value: "三芝區" },
+      { label: "石門區", value: "石門區" },
+      { label: "金山區", value: "金山區" },
+      { label: "林口區", value: "林口區" },
+      { label: "坪林區", value: "坪林區" },
+      { label: "萬里區", value: "萬里區" },
+      { label: "瑞芳區", value: "瑞芳區" },
+      { label: "雙溪區", value: "雙溪區" },
+      { label: "鶯歌區", value: "鶯歌區" },
+    ];
+    const stationOptions = ref([]);
+    const showNearestStationsDialog = ref(false);
+    const userPosition = ref(null);
+    const mapCenter = ref([25.031204, 121.515966]);
+    const mapZoom = ref(15);
+    const mapOptions = {
+      zoomControl: false,
     };
-  },
-  //根據選擇的城市設定行政區的選項
-  computed: {
-    districtOptions() {
-      if (this.selectedCity) {
-        if (this.selectedCity["value"] === "臺北市") {
-          return this.districtOptionsTPC;
-        } else if (this.selectedCity["value"] === "新北市") {
-          return this.districtOptionsNTC;
-        }
+    const youbikeIcon = new Icon({
+      iconUrl: "https://imgur.com/jZN5Ph6.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 30],
+    });
+    const userIcon = new Icon({
+      iconUrl: "https://imgur.com/de9dxzv.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 30],
+    });
+    const circleRadius = ref(0);
+    const showLocationPickerDialog = ref(false);
+
+    // Metro data
+    const metroStations = computed(() => store.getters.getMetroStationList);
+    const trackInfo = ref(null);
+    const metroLoading = ref({});
+    const metroInitialLoading = ref(true);
+
+    const metroError = ref({});
+    const carWeightData = ref(null);
+    const showAddMetroStation = ref(false);
+    const metroLines = ["BR", "R", "G", "O", "BL", "Y"];
+    const selectedMetroLine = ref(null);
+    const selectedMetroStation = ref(null);
+
+    // Computed properties
+    const districtOptions = computed(() => {
+      if (selectedCity.value) {
+        return selectedCity.value.value === "臺北市"
+          ? districtOptionsTPC
+          : districtOptionsNTC;
       }
       return [];
-    },
-  },
-  methods: {
-    async fetchData() {
-      this.isLoading = true;
-      const stationList = this.StationList;
-      this.stations = Object.fromEntries(
-        Object.keys(stationList).map((name) => [name, new Station(name)])
+    });
+
+    const stationsForSelectedMetroLine = computed(() => {
+      if (!selectedMetroLine.value) return [];
+      return Object.keys(stationLines).filter(
+        (station) =>
+          stationLines[station].includes(selectedMetroLine.value) &&
+          !metroStations.value.includes(station)
       );
-      this.stationsNickname = Object.fromEntries(
-        Object.entries(stationList).map(([key, value]) => [key, value.nickname])
-      );
+    });
+
+    //Mutual methods
+    const toggleMenu = () => {
+      showMenu.value = !showMenu.value;
+    };
+
+    const openAddYoubikeStationDialog = () => {
+      showAddYoubikeStationDialog.value = true;
+      showMenu.value = false;
+    };
+
+    const openAddMetroStationDialog = () => {
+      showAddMetroStation.value = true;
+      showMenu.value = false;
+    };
+
+    // Youbike methods
+    const fetchYoubikeData = async () => {
+      if (isInitialLoad.value) {
+        isLoading.value = true;
+      }
+      const stationList = StationList.value;
+      if (!stationList) {
+        console.error("StationList is undefined");
+        isLoading.value = false;
+        return;
+      }
+
+      // Only initialize stations if it's the initial load or if stations is empty
+      if (isInitialLoad.value || Object.keys(stations.value).length === 0) {
+        stations.value = Object.fromEntries(
+          Object.keys(stationList).map((name) => [name, new Station(name)])
+        );
+        stationsNickname.value = Object.fromEntries(
+          Object.entries(stationList).map(([key, value]) => [
+            key,
+            value.nickname,
+          ])
+        );
+      }
+
       try {
-        //Fetch data from TPC API
+        // Fetch data from TPC API
         const responseTPC = await axios.get(
           "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
         );
         const dataTPC = responseTPC.data;
-        //Fetch data from NTC API
-        var responseNTC;
-        var dataNTC;
-        responseNTC = await axios.get(
+        // Fetch data from NTC API
+        let responseNTC = await axios.get(
           "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
         );
-        dataNTC = responseNTC.data;
-        //Fetch the data of the second page of the NTC API
+        let dataNTC = responseNTC.data;
+        // Fetch the data of the second page of the NTC API
         responseNTC = await axios.get(
           "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
         );
-        dataNTC = [...dataNTC, ...responseNTC.data]; //Merging the two arrays of objects together
-
-        //Fetch data for each station
-        for (const key in this.stations) {
-          if (stationList[key].city == "臺北市") {
+        dataNTC = [...dataNTC, ...responseNTC.data]; // Merging the two arrays of objects together
+        // Update data for each station
+        for (const key in stations.value) {
+          if (stationList[key].city === "臺北市") {
             const stationData = dataTPC.find(
-              (station) => station.sna === this.stations[key].name
+              (station) => station.sna === stations.value[key].name
             );
 
             if (stationData) {
-              this.stations[key].available_rent_bikes =
+              stations.value[key].available_rent_bikes =
                 stationData.available_rent_bikes;
-              this.stations[key].available_return_bikes =
+              stations.value[key].available_return_bikes =
                 stationData.available_return_bikes;
-              this.stations[key].infoTime = stationData.mday;
-            } else {
-              this.stations[key].available_rent_bikes = "Station not found";
-              this.stations[key].available_return_bikes = "Station not found";
-              this.stations[key].infoTime = "Station not found";
+              stations.value[key].infoTime = stationData.mday;
             }
-          } else if (stationList[key].city == "新北市") {
+          } else if (stationList[key].city === "新北市") {
             const stationData = dataNTC.find(
-              (station) => station.sna === this.stations[key].name
+              (station) => station.sna === stations.value[key].name
             );
 
             if (stationData) {
-              this.stations[key].available_rent_bikes = stationData.sbi;
-              this.stations[key].available_return_bikes = stationData.bemp;
-              this.stations[key].infoTime = stationData.mday;
-            } else {
-              this.stations[key].available_rent_bikes = "Station not found";
-              this.stations[key].available_return_bikes = "Station not found";
-              this.stations[key].infoTime = "Station not found";
+              stations.value[key].available_rent_bikes = stationData.sbi;
+              stations.value[key].available_return_bikes = stationData.bemp;
+              stations.value[key].infoTime = stationData.mday;
             }
           }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        for (const key in this.stations) {
-          this.stations[key].available_rent_bikes = "Error fetching data";
-          this.stations[key].available_return_bikes = "Error fetching data";
-          this.stations[key].infoTime = "Error fetching data";
-        }
+        // Don't update station data on error to keep existing data
       } finally {
-        this.isLoading = false;
+        if (isInitialLoad.value) {
+          isLoading.value = false;
+          isInitialLoad.value = false;
+        }
       }
-    },
-    async addStation() {
-      if (this.selectedStation) {
-        const station = new Station(this.selectedStation["value"]);
-        this.stations[this.selectedStation["value"]] = station;
+    };
+
+    const addYoubikeStation = async () => {
+      if (selectedStation.value) {
+        const station = new Station(selectedStation.value["value"]);
+        stations.value[selectedStation.value["value"]] = station;
         //臺北市&新北市使用不同API
-        if (this.selectedCity["value"] === "臺北市") {
+        if (selectedCity.value["value"] === "臺北市") {
           try {
             const response = await axios.get(
               "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
@@ -511,7 +751,7 @@ export default defineComponent({
             const data = response.data;
 
             const stationData = data.find(
-              (s) => s.sna === this.selectedStation["value"]
+              (s) => s.sna === selectedStation.value["value"]
             );
 
             if (stationData) {
@@ -530,7 +770,7 @@ export default defineComponent({
             station.available_return_bikes = "Error fetching data";
             station.infoTime = "Error fetching data";
           }
-        } else if (this.selectedCity["value"] === "新北市") {
+        } else if (selectedCity.value["value"] === "新北市") {
           try {
             let response;
             let data;
@@ -545,7 +785,7 @@ export default defineComponent({
             data = [...data, ...response.data]; //Merging the two arrays of objects together
 
             const stationData = data.find(
-              (s) => s.sna === this.selectedStation["value"]
+              (s) => s.sna === selectedStation.value["value"]
             );
 
             if (stationData) {
@@ -570,34 +810,35 @@ export default defineComponent({
 
         // Update store
         store.dispatch("addStation", {
-          stationName: this.selectedStation["value"],
+          stationName: selectedStation.value["value"],
           stationData: {
-            nickname: this.selectedStation.label,
-            city: this.selectedCity.value,
+            nickname: selectedStation.value.label,
+            city: selectedCity.value.value,
           },
         });
 
-        this.showAddStationDialog = false;
-        this.selectedCity = null;
-        this.selectedDistrict = null;
-        this.selectedStation = null;
+        showAddYoubikeStationDialog.value = false;
+        selectedCity.value = null;
+        selectedDistrict.value = null;
+        selectedStation.value = null;
       }
-    },
-    onCityChange() {
-      this.selectedDistrict = null;
-      this.selectedStation = null;
-      this.stationOptions = [];
-    },
-    //選完行政區後抓站點選項
-    async onDistrictChange() {
-      this.selectedStation = null;
-      this.stationOptions = [];
-      if (this.selectedDistrict) {
+    };
+
+    const onCityChange = () => {
+      selectedDistrict.value = null;
+      selectedStation.value = null;
+      stationOptions.value = [];
+    };
+
+    const onDistrictChange = async () => {
+      selectedStation.value = null;
+      stationOptions.value = [];
+      if (selectedDistrict.value) {
         let apiUrl;
-        if (this.selectedCity["value"] === "臺北市") {
+        if (selectedCity.value["value"] === "臺北市") {
           apiUrl =
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json";
-        } else if (this.selectedCity["value"] === "新北市") {
+        } else if (selectedCity.value["value"] === "新北市") {
           apiUrl =
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000";
         }
@@ -608,7 +849,7 @@ export default defineComponent({
           data = response.data;
 
           //Because NTC API has two pages
-          if (this.selectedCity["value"] === "新北市") {
+          if (selectedCity.value["value"] === "新北市") {
             const response = await axios.get(
               "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
             );
@@ -617,54 +858,60 @@ export default defineComponent({
 
           // Filter stations by selected district
           const filteredStations = data.filter(
-            (station) => station.sarea === this.selectedDistrict["value"]
+            (station) => station.sarea === selectedDistrict.value["value"]
           );
-
           // Map the filtered stations to station options
-          this.stationOptions = filteredStations.map((station) => ({
+          stationOptions.value = filteredStations.map((station) => ({
             label: station.sna.substr(11),
             value: station.sna,
           }));
         } catch (error) {
           console.error("Error fetching data:", error);
-          this.stationOptions = [];
+          stationOptions.value = [];
         }
       } else {
-        this.stationOptions = [];
+        stationOptions.value = [];
       }
-    },
-    openEditNicknameDialog(stationName) {
-      this.selectedStationForEdit = stationName;
-      this.newNickname = this.stationsNickname[stationName] || "";
-      this.showEditNicknameDialog = true;
-    },
-    updateNickname() {
-      if (this.selectedStationForEdit && this.newNickname) {
+    };
+
+    const openEditNicknameDialog = (stationName) => {
+      selectedStationForEdit.value = stationName;
+      newNickname.value = stationsNickname.value[stationName] || "";
+      showEditNicknameDialog.value = true;
+    };
+
+    const updateNickname = () => {
+      if (selectedStationForEdit.value && newNickname.value) {
         // Update local state
-        this.stationsNickname = {
-          ...this.stationsNickname,
-          [this.selectedStationForEdit]: this.newNickname,
+        stationsNickname.value = {
+          ...stationsNickname.value,
+          [selectedStationForEdit.value]: newNickname.value,
         };
 
         // Update store
         store.dispatch("updateStationNickname", {
-          stationName: this.selectedStationForEdit,
-          newNickname: this.newNickname,
+          stationName: selectedStationForEdit.value,
+          newNickname: newNickname.value,
         });
       }
-      this.showEditNicknameDialog = false;
-    },
-    openDeleteStationDialog(stationName) {
-      this.selectedStationForDelete = stationName;
-      this.showDeleteStationDialog = true;
-    },
-    deleteStation(key) {
-      if (this.stations[key]) {
-        const stationName = this.stations[key].name;
+      showEditNicknameDialog.value = false;
+    };
+
+    const openDeleteStationDialog = (stationName) => {
+      selectedStationForDelete.value = stationName;
+      showDeleteStationDialog.value = true;
+    };
+
+    const deleteStation = (key) => {
+      if (stations.value[key]) {
+        const stationName = stations.value[key].name;
 
         // Remove from local component state
-        delete this.stationsNickname[stationName];
-        delete this.stations[key];
+        delete stationsNickname.value[stationName];
+
+        // Use Vue's reactivity system to trigger an update
+        stations.value = { ...stations.value };
+        delete stations.value[key];
 
         // Update store
         store.dispatch("deleteStation", stationName);
@@ -672,9 +919,10 @@ export default defineComponent({
         // If the station is not in the local state, it might be directly in the store
         store.dispatch("deleteStation", key);
       }
-      this.showDeleteStationDialog = false;
-    },
-    parseTimestamp(timestamp) {
+      showDeleteStationDialog.value = false;
+    };
+
+    const parseTimestamp = (timestamp) => {
       if (typeof timestamp === "string") {
         // Check if the timestamp matches the 新北市 format (YYYYMMDDHHMMSS)
         if (/^\d{14}$/.test(timestamp)) {
@@ -686,22 +934,24 @@ export default defineComponent({
       }
       // If it's not a string, return it as is (it might already be a Date object)
       return timestamp;
-    },
-    timeAgo(time) {
+    };
+
+    const timeAgo = (time) => {
       const parsedTime = this.parseTimestamp(time);
       return formatDistanceToNow(parsedTime, { locale: zhTW }) + "前";
-    },
-    getChipColor(value) {
+    };
+
+    const getChipColor = (value) => {
       if (value === 0) return "red-9";
       if (value >= 1 && value <= 3) return "orange-8";
       return "green";
-    },
+    };
 
-    findNearestStations() {
+    const findNearestStations = () => {
       this.showLocationPickerDialog = true;
-    },
+    };
 
-    async handleLocationSelected({ latlng }) {
+    const handleLocationSelected = async ({ latlng }) => {
       console.log("Click event latlng:", latlng);
       const userLat = latlng.lat;
       const userLng = latlng.lng;
@@ -730,9 +980,9 @@ export default defineComponent({
 
       this.showLocationPickerDialog = false;
       this.showNearestStationsDialog = true;
-    },
+    };
 
-    async fetchAllStationsData() {
+    const fetchAllStationsData = async () => {
       try {
         const tpcResponse = await axios.get(
           "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
@@ -764,9 +1014,9 @@ export default defineComponent({
         console.error("Error fetching all stations data:", error);
         throw error;
       }
-    },
+    };
 
-    calculateDistance(lat1, lon1, lat2, lon2) {
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371;
       const dLat = this.deg2rad(lat2 - lat1);
       const dLon = this.deg2rad(lon2 - lon1);
@@ -779,13 +1029,13 @@ export default defineComponent({
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const d = R * c;
       return d;
-    },
+    };
 
-    deg2rad(deg) {
+    const deg2rad = (deg) => {
       return deg * (Math.PI / 180);
-    },
+    };
 
-    addNearestStation(station) {
+    const addNearestStation = (station) => {
       const newStationName = station.sna;
       const newStationData = {
         nickname: station.sna.substr(11),
@@ -805,21 +1055,408 @@ export default defineComponent({
         timeout: 2000,
       });
 
-      this.fetchData();
-    },
+      this.fetchYoubikeData();
+    };
 
-    isStationInList(stationName) {
+    const isStationInList = (stationName) => {
       return Object.keys(this.stations).includes(stationName);
-    },
+    };
 
-    findNearestStationsFromDialog() {
-      this.showAddStationDialog = false;
+    const findNearestStationsFromDialog = () => {
+      this.showAddYoubikeStationDialog = false;
       this.findNearestStations();
-    },
-  },
-  mounted() {
-    console.log(JSON.parse(localStorage.getItem("store")));
-    this.fetchData();
+    };
+
+    //Metro Methods
+    const getLineOfStation = (station) => {
+      return stationLines[station] || [];
+    };
+
+    const getLineIcon = (line) => {
+      const iconPlaceholders = {
+        BR: "../../public/metro/BR.png",
+        R: "../../public/metro/R.png",
+        G: "../../public/metro/G.png",
+        O: "../../public/metro/O.png",
+        BL: "../../public/metro/BL.png",
+        Y: "../../public/metro/Y.png",
+      };
+      return iconPlaceholders[line] || "";
+    };
+
+    const getFilteredTrackInfo = (station) => {
+      if (!trackInfo.value) return [];
+
+      try {
+        const jsonPart = trackInfo.value.match(/\[.*\]/s);
+        if (!jsonPart) return [];
+
+        const parsedInfo = JSON.parse(jsonPart[0]);
+        return parsedInfo.filter((info) => {
+          const stationNameToMatch =
+            station === "台北車站" ? station : station.concat("站");
+          return info.StationName === stationNameToMatch;
+        });
+      } catch (error) {
+        console.error("Error parsing trackInfo:", error);
+        return [];
+      }
+    };
+
+    const formatCountDown = (countDown) => {
+      if (countDown === "列車進站" || countDown === "營運時間已過")
+        return countDown;
+
+      const [minutes, seconds] = countDown.split(":").map(Number);
+      let totalSeconds = minutes * 60 + seconds;
+      totalSeconds = Math.round(totalSeconds / 5) * 5;
+      const roundedMinutes = Math.floor(totalSeconds / 60);
+      const roundedSeconds = totalSeconds % 60;
+
+      return {
+        minutes: roundedMinutes,
+        seconds: roundedSeconds.toString().padStart(2, "0"),
+      };
+    };
+
+    const isValidCountDown = (countDown) => {
+      return (
+        countDown === "列車進站" ||
+        countDown === "營運時間已過" ||
+        /^\d+:\d+$/.test(countDown)
+      );
+    };
+
+    const fetchTrackInfo = async () => {
+      const proxyUrl =
+        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
+      const apiUrl = "https://api.metro.taipei/metroapi/TrackInfo.asmx";
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+  <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+  <getTrackInfo xmlns="http://tempuri.org/">
+  <userName>diegopeng0426@gmail.com</userName>
+  <passWord>Hn2pJ2511N</passWord>
+  </getTrackInfo>
+  </soap:Body>
+  </soap:Envelope>`;
+
+      try {
+        if (metroInitialLoading.value) {
+          metroStations.value.forEach((station) => {
+            metroLoading.value[station] = true;
+            metroError.value[station] = null;
+          });
+        }
+
+        const response = await axios.post(
+          proxyUrl,
+          {
+            url: apiUrl,
+            xmlData: xmlData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        trackInfo.value = response.data;
+        if (metroInitialLoading.value) {
+          metroStations.value.forEach((station) => {
+            metroLoading.value[station] = false;
+          });
+          metroInitialLoading.value = false;
+        }
+        console.log("Data fetched");
+        //console.log(trackInfo);
+      } catch (error) {
+        console.error("Error fetching track info:", error);
+        if (metroInitialLoading.value) {
+          metroStations.value.forEach((station) => {
+            metroError.value[station] = "無法獲取資料，請稍後再試。";
+            metroLoading.value[station] = false;
+          });
+          metroInitialLoading.value = false;
+        }
+      }
+    };
+
+    const getLineColor = (destinationName, currentStation, trainNumber) => {
+      const destination = destinationName.slice(0, -1);
+      const destLines = stationLines[destination] || [];
+      const currentLines = stationLines[currentStation] || [];
+
+      if (currentStation === "忠孝復興" && destination === "南港展覽館") {
+        return trainNumber === ""
+          ? metroLineColors["BR"]
+          : metroLineColors["BL"];
+      }
+
+      const commonLines = destLines.filter((line) =>
+        currentLines.includes(line)
+      );
+
+      if (commonLines.length > 0) {
+        return metroLineColors[commonLines[0]];
+      } else if (destLines.length > 0) {
+        return metroLineColors[destLines[0]];
+      }
+
+      return "inherit";
+    };
+
+    let intervalId = null;
+
+    const startFetchingData = () => {
+      fetchTrackInfo();
+      fetchCarWeight();
+      fetchCarWeightBR();
+      fetchYoubikeData();
+
+      intervalId = setInterval(() => {
+        fetchTrackInfo();
+        fetchCarWeight();
+        fetchCarWeightBR();
+        fetchYoubikeData();
+      }, 10000);
+    };
+
+    const stopFetchingData = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+
+    const fetchCarWeight = async () => {
+      const proxyUrl =
+        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
+      const apiUrl = "https://api.metro.taipei/metroapi/CarWeight.asmx";
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Body>
+<getCarWeightByInfoEx xmlns="http://tempuri.org/">
+<userName>diegopeng0426@gmail.com</userName>
+<passWord>Hn2pJ2511N</passWord>
+</getCarWeightByInfoEx>
+</soap:Body>
+</soap:Envelope>`;
+
+      try {
+        const response = await axios.post(
+          proxyUrl,
+          {
+            url: apiUrl,
+            xmlData: xmlData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        carWeightData.value = response.data;
+        //console.log("Car Weight Data:", carWeightData.value);
+      } catch (error) {
+        console.error("Error fetching car weight data:", error);
+      }
+    };
+
+    const getTrainCrowdedness = (trainNumber) => {
+      if (!carWeightData.value) return [];
+
+      try {
+        const jsonPart = carWeightData.value.match(/\[.*\]/s);
+        if (!jsonPart) return [];
+
+        const parsedData = JSON.parse(jsonPart[0]);
+        const trainData = parsedData.find(
+          (train) => train.TrainNumber === trainNumber
+        );
+
+        if (!trainData) return [];
+
+        return [
+          trainData.Cart1L,
+          trainData.Cart2L,
+          trainData.Cart3L,
+          trainData.Cart4L,
+          trainData.Cart5L,
+          trainData.Cart6L,
+        ];
+      } catch (error) {
+        console.error("Error parsing carWeightData:", error);
+        return [];
+      }
+    };
+
+    const getCrowdednessColor = (level) => {
+      const intLevel = parseInt(level);
+      if (intLevel <= 1) return "light-green";
+      if (intLevel === 2) return "amber-5";
+      if (intLevel === 3) return "orange-6";
+      return "deep-orange-10";
+    };
+
+    const fetchCarWeightBR = async () => {
+      const proxyUrl =
+        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
+      const apiUrl = "https://api.metro.taipei/metroapi/CarWeightBR.asmx";
+      const xmlData = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Body>
+<getCarWeightBRInfo xmlns="http://tempuri.org/">
+<userName>diegopeng0426@gmail.com</userName>
+<passWord>Hn2pJ2511N</passWord>
+</getCarWeightBRInfo>
+</soap:Body>
+</soap:Envelope>`;
+
+      try {
+        const response = await axios.post(
+          proxyUrl,
+          {
+            url: apiUrl,
+            xmlData: xmlData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        //console.log("Wenhu Line Car Weight Data:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching Wenhu Line car weight data:", error);
+      }
+    };
+
+    const addMetroStation = () => {
+      if (selectedMetroStation.value) {
+        store.dispatch("addMetroStation", selectedMetroStation.value);
+        cancelAddMetroStation();
+      }
+    };
+
+    const cancelAddMetroStation = () => {
+      showAddMetroStation.value = false;
+      selectedMetroLine.value = null;
+      selectedMetroStation.value = null;
+    };
+
+    const deleteMetroStation = (stationName) => {
+      store.dispatch("deleteMetroStation", stationName);
+    };
+
+    onMounted(() => {
+      startFetchingData();
+    });
+
+    onUnmounted(() => {
+      stopFetchingData();
+    });
+
+    return {
+      // Youbike data
+      stations,
+      stationsNickname,
+      isLoading,
+      isInitialLoad,
+      StationList,
+      showAddYoubikeStationDialog,
+      showEditNicknameDialog,
+      showDeleteStationDialog,
+      selectedStationForEdit,
+      newNickname,
+      selectedStationForDelete,
+      selectedCity,
+      selectedDistrict,
+      selectedStation,
+      cityOptions,
+      districtOptionsTPC,
+      districtOptionsNTC,
+      stationOptions,
+      showNearestStationsDialog,
+      userPosition,
+      mapCenter,
+      mapZoom,
+      mapOptions,
+      youbikeIcon,
+      userIcon,
+      circleRadius,
+      showLocationPickerDialog,
+
+      // Metro data
+      metroStations,
+      trackInfo,
+      metroLoading,
+      metroInitialLoading,
+      metroError,
+      carWeightData,
+      showAddMetroStation,
+      metroLines,
+      selectedMetroLine,
+      selectedMetroStation,
+
+      // Computed properties
+      districtOptions,
+      stationsForSelectedMetroLine,
+
+      // Youbike methods
+      fetchYoubikeData,
+      addYoubikeStation,
+      onCityChange,
+      onDistrictChange,
+      openEditNicknameDialog,
+      updateNickname,
+      openDeleteStationDialog,
+      deleteStation,
+      parseTimestamp,
+      timeAgo,
+      getChipColor,
+      findNearestStations,
+      handleLocationSelected,
+      fetchAllStationsData,
+      calculateDistance,
+      deg2rad,
+      addNearestStation,
+      isStationInList,
+      findNearestStationsFromDialog,
+
+      // Metro methods
+      formatCountDown,
+      getLineColor,
+      getLineOfStation,
+      getLineIcon,
+      getFilteredTrackInfo,
+      getTrainCrowdedness,
+      getCrowdednessColor,
+      isValidCountDown,
+      fetchCarWeightBR,
+      addMetroStation,
+      cancelAddMetroStation,
+      deleteMetroStation,
+
+      // Utility methods and libraries
+      formatDistanceToNow,
+      parseISO,
+      parse,
+      zhTW,
+      showMenu,
+      toggleMenu,
+      openAddYoubikeStationDialog,
+      openAddMetroStationDialog,
+
+      // Constants
+      stationLines,
+    };
   },
 });
 </script>
@@ -915,5 +1552,120 @@ export default defineComponent({
 .find-nearest-btn {
   margin-top: 16px;
   margin-bottom: 16px;
+}
+
+/* Metro */
+.countdown-display {
+  display: inline-flex;
+  align-items: center;
+}
+.small-unit {
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+.non-operational {
+  font-weight: normal;
+}
+.non-operational-text {
+  font-style: italic;
+  color: #999;
+}
+.station-line-icon {
+  display: inline-block;
+  margin-left: 5px;
+}
+.line-icon {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+}
+.station-section {
+  position: relative;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+.station-header {
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+.crowdedness-indicators {
+  display: inline-flex;
+  align-items: center;
+}
+.line-button {
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.line-button.selected {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 2px solid #1976d2;
+  transform: scale(1.1);
+}
+
+.add-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #c10015;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-btn {
+  position: absolute;
+  top: 20px;
+  right: 12px;
+}
+.station-list-enter-active,
+.station-list-leave-active {
+  transition: all 0.4s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.station-list-enter-from {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.station-list-leave-to {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+.station-list-move {
+  transition: transform 0.4s;
+}
+
+.first-car {
+  clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.add-menu {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 110px;
+  z-index: 10;
+}
+
+.add-menu .menu-item {
+  display: block;
+  width: 100%;
+  padding: 12px 10px;
+  font-size: 17px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
 }
 </style>

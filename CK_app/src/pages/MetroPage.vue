@@ -185,12 +185,12 @@ export default {
 
     const getLineIcon = (line) => {
       const iconPlaceholders = {
-        BR: "https://imgur.com/X5gxkdJ.png",
-        R: "https://imgur.com/OKqw2RD.png",
-        G: "https://imgur.com/cOXYDOL.png",
-        O: "https://imgur.com/RLPyHZO.png",
-        BL: "https://imgur.com/zNzZdpj.png",
-        Y: "https://imgur.com/9ZVjixb.png",
+        BR: "../../public/metro/BR.png",
+        R: "../../public/metro/R.png",
+        G: "../../public/metro/G.png",
+        O: "../../public/metro/O.png",
+        BL: "../../public/metro/BL.png",
+        Y: "../../public/metro/Y.png",
       };
       return iconPlaceholders[line] || "";
     };

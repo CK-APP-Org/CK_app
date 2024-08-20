@@ -15,6 +15,9 @@
     "heroku-postbuild": "yarn && yarn build"
   },
   "dependencies": {
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
+    "firebase": "^10.12.5",
+    "leaflet": "^1.9.4",
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
     "date-fns": "^3.6.0",

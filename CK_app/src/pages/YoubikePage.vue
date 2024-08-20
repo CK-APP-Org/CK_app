@@ -1,110 +1,97 @@
 <template>
-  <q-page class="flex justify-center bg-grey-1" style="min-height: 600px">
-    <transition-group name="station-list" tag="div">
-      <div
-        v-for="(station, key) in stations"
-        :key="key"
-        class="station-wrapper"
-      >
-        <div class="justify-center">
-          <q-card
-            inline
-            class="custom-card-margin"
-            style="height: 127px; width: 350px"
-          >
-            <q-card-section>
-              <!--站點名稱-->
+  <q-page class="bg-grey-1 q-pa-sm">
+    <div class="row q-col-gutter-sm">
+      <div v-for="(station, key) in stations" :key="key" class="col-6">
+        <q-card class="station-card">
+          <q-card-section>
+            <div class="row justify-between items-center">
               <div class="header">
-                <span v-if="station.name in stationsNickname">
-                  {{ stationsNickname[station.name] }}&nbsp;
-                </span>
-                <span v-else> {{ station.name.substr(11) }}&nbsp; </span>
+                {{ stationsNickname[station.name] || station.name.substr(11) }}
               </div>
+              <q-btn flat dense round color="primary" icon="more_vert">
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item
+                      dense
+                      clickable
+                      v-close-popup
+                      @click="openEditNicknameDialog(station.name)"
+                      style="height: 40px"
+                    >
+                      <q-item-section>修改暱稱</q-item-section>
+                    </q-item>
+                    <q-item
+                      dense
+                      clickable
+                      v-close-popup
+                      @click="openDeleteStationDialog(key)"
+                      style="height: 40px"
+                    >
+                      <q-item-section>刪除此站</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
 
-              <!-- Loading indicator -->
-              <div
-                v-if="isLoading"
-                class="flex flex-center"
-                style="height: 80px"
-              >
-                <q-spinner color="primary" size="3em" />
-              </div>
+            <!-- Loading indicator -->
+            <div v-if="isLoading" class="flex flex-center" style="height: 33px">
+              <q-spinner color="primary" size="2.5em" />
+            </div>
 
-              <!-- Station information (only show when not loading) -->
-              <template v-else>
-                <!--資訊-->
-                <div class="text" v-if="station.available_rent_bikes !== null">
-                  可借車輛:
+            <!-- Station information (only show when not loading) -->
+            <template v-else>
+              <div class="row q-mt-xs items-center">
+                <div class="col-6">
+                  <q-icon name="pedal_bike" size="xs" color="primary" />
                   <q-chip
+                    dense
                     :color="getChipColor(station.available_rent_bikes)"
                     text-color="white"
-                    >{{ station.available_rent_bikes }}</q-chip
+                    class="q-ml-xs"
                   >
+                    <div class="text">{{ station.available_rent_bikes }}</div>
+                  </q-chip>
                 </div>
-                <div
-                  class="row justify-between items-center text"
-                  v-if="station.available_return_bikes !== null"
-                >
-                  <div>
-                    可停車位:
-                    <q-chip
-                      :color="getChipColor(station.available_return_bikes)"
-                      text-color="white"
-                      >{{ station.available_return_bikes }}</q-chip
-                    >
-                  </div>
-                  <div v-if="station.infoTime !== null" class="update-time">
-                    <q-icon name="update" size="sm" />
-                    {{ timeAgo(station.infoTime) }}
-                  </div>
+                <div class="col-6">
+                  <q-icon name="local_parking" size="xs" color="primary" />
+                  <q-chip
+                    dense
+                    :color="getChipColor(station.available_return_bikes)"
+                    text-color="white"
+                    class="q-ml-xs"
+                  >
+                    <div class="text">{{ station.available_return_bikes }}</div>
+                  </q-chip>
                 </div>
-              </template>
-            </q-card-section>
-            <q-btn
-              class="absolute-top-right menu-btn"
-              color="primary"
-              flat
-              round
-            >
-              <q-icon name="more_vert" />
-              <q-menu>
-                <q-list style="min-width: 100px">
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="openEditNicknameDialog(station.name)"
-                  >
-                    <q-item-section>修改暱稱</q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="openDeleteStationDialog(key)"
-                  >
-                    <q-item-section>刪除此站</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </q-card>
-        </div>
-      </div>
-    </transition-group>
-    <div class="flex justify-center">
-      <div v-if="!isLoading" class="flex justify-center search-btn">
-        <q-btn
-          icon="search"
-          color="primary"
-          label="尋找最近的九個站點"
-          @click="findNearestStations"
-        />
+              </div>
+            </template>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
 
-    <!--按鈕(新增站點)-->
-    <div class="add-button-container">
-      <button class="add-button" @click="showAddStationDialog = true">+</button>
+    <!--
+    <div class="flex justify-center q-mt-md">
+      <q-btn
+        icon="search"
+        color="primary"
+        label="尋找最近的九個站點"
+        @click="findNearestStations"
+        class="find-nearest-btn"
+      />
     </div>
+    -->
+
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn
+        fab
+        icon="add"
+        color="red-9"
+        size="sm"
+        @click="showAddStationDialog = true"
+      />
+    </q-page-sticky>
 
     <!--對話框(新增站點)-->
     <q-dialog v-model="showAddStationDialog" full-width>
@@ -841,32 +828,19 @@ export default defineComponent({
 .header {
   font-weight: Bold;
   color: #03328d;
-  font-size: 21px;
+  font-size: 19px;
   margin-bottom: 2px;
 }
 .text {
-  font-size: 17px;
-  font-weight: medium;
+  font-size: 15px;
+  font-weight: bold;
 }
-.red-text {
-  font-weight: Bold;
-  color: #c10015;
-}
-.q-page {
-  padding-top: 16px;
-}
+
 .custom-card-margin {
   margin: 10px 10px;
   background-color: rgb(239, 246, 254);
 }
-.delete-btn {
-  margin-bottom: 8px;
-  margin-right: 8px;
-}
-.menu-btn {
-  margin-top: 10px;
-  margin-right: 6px;
-}
+
 .add-button-container {
   position: fixed;
   bottom: 85px;
@@ -923,22 +897,23 @@ export default defineComponent({
   height: 36px;
 }
 
-.station-list-enter-active,
-.station-list-leave-active {
-  transition: all 0.4s cubic-bezier(0.55, 0, 0.1, 1);
+.menu-btn {
+  top: 10px;
+  right: 6px;
 }
 
-.station-list-enter-from {
-  opacity: 0;
-  transform: translate(30px, 0);
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.station-list-leave-to {
-  opacity: 0;
-  transform: translate(30px, 0);
+.station-card {
+  height: 100%;
+  background-color: rgb(239, 246, 254);
 }
 
-.station-list-move {
-  transition: transform 0.4s;
+.find-nearest-btn {
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 </style>

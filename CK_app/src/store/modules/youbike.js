@@ -3,13 +3,13 @@ export default {
     //Prettier-ignores
     stationList: {
       "YouBike2.0_泉州寧波西街口": {
-        nickname: "泉州寧波西街口(建中側門)",
+        nickname: "建中東側門",
         city: "臺北市",
       },
       "YouBike2.0_郵政博物館": { nickname: "郵政博物館", city: "臺北市" },
       "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
       "YouBike2.0_捷運中正紀念堂站(2號出口)": {
-        nickname: "中正紀念堂站(2號出口)",
+        nickname: "中正紀念堂站",
         city: "臺北市",
       },
     },
@@ -33,8 +33,8 @@ export default {
       };
     },
     LOAD_STATIONS(state, stations) {
-      state.stationList = stations
-    }
+      state.stationList = stations;
+    },
   },
   actions: {
     updateStationNickname({ commit }, payload) {
@@ -47,9 +47,9 @@ export default {
     addStation({ commit }, payload) {
       commit("ADD_STATION", payload);
     },
-    loadStation({commit}, stations) {
+    loadStation({ commit }, stations) {
       commit("LOAD_STATIONS", stations);
-    }
+    },
   },
   getters: {
     getStationList: (state) => state.stationList,

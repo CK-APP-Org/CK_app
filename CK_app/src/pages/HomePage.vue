@@ -145,11 +145,10 @@ export default {
       items: [
         { name: "課表", icon: "book", link: "/schedule" },
         { name: "行事曆", icon: "calendar_month", link: "/todo" },
-        { name: "YouBike", icon: "directions_bike", link: "/Youbike" },
+        { name: "交通", icon: "directions_walk", link: "/transport" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
-        { name: "北捷", icon: "directions_subway", link: "/metro" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
       ],

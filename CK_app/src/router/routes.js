@@ -15,9 +15,11 @@ const routes = [
     ],
   },
   {
-    path: "/youbike",
+    path: "/transport",
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/YoubikePage.vue") }],
+    children: [
+      { path: "", component: () => import("pages/TransportPage.vue") },
+    ],
   },
   {
     path: "/menu",

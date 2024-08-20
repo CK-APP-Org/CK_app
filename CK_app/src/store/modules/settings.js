@@ -5,11 +5,10 @@ export default {
       { label: "首頁", icon: "home", link: "/", visible: true, fixed: true },
       { label: "課表", icon: "book", link: "/schedule", visible: true },
       { label: "行事曆", icon: "calendar_month", link: "/todo", visible: true },
-      { label: "YouBike", icon: "directions_bike", link: "/Youbike", visible: true },
+      { label: "交通", icon: "directions_walk", link: "/transport", visible: true },
       { label: "熱食部", icon: "restaurant_menu", link: "/menu", visible: true },
       { label: "美食", icon: "fastfood", link: "/food", visible: true },
       { label: "校網", icon: "newspaper", link: "/news", visible: true },
-      { label: "北捷", icon: "directions_subway", link: "/metro", visible: true },
     ],
   }),
   mutations: {

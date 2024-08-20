@@ -1074,12 +1074,12 @@ export default defineComponent({
 
     const getLineIcon = (line) => {
       const iconPlaceholders = {
-        BR: "../../public/metro/BR.png",
-        R: "../../public/metro/R.png",
-        G: "../../public/metro/G.png",
-        O: "../../public/metro/O.png",
-        BL: "../../public/metro/BL.png",
-        Y: "../../public/metro/Y.png",
+        BR: "../../metro/BR.png",
+        R: "../../metro/R.png",
+        G: "../../metro/G.png",
+        O: "../../metro/O.png",
+        BL: "../../metro/BL.png",
+        Y: "../../metro/Y.png",
       };
       return iconPlaceholders[line] || "";
     };

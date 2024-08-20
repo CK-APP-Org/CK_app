@@ -1,4 +1,4 @@
-export const metroLines = {
+export const metroLineColors = {
   BR: "#c48c31",
   R: "#e3002c",
   G: "#008659",

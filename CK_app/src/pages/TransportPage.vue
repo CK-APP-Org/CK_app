@@ -8,10 +8,14 @@
     <div class="row q-col-gutter-sm">
       <div v-for="(station, key) in stations" :key="key" class="col-6">
         <q-card class="station-card">
-          <q-card-section>
+          <q-card-section class="q-pr-none q-pl-md">
             <div class="row justify-between items-center">
               <div class="header">
-                {{ stationsNickname[station.name] || station.name.substr(11) }}
+                {{
+                  (
+                    stationsNickname[station.name] || station.name.substr(11)
+                  ).slice(0, 7)
+                }}
               </div>
               <q-btn flat dense round color="primary" icon="more_vert">
                 <q-menu>
@@ -284,7 +288,7 @@
         <q-card-section>
           <q-input
             v-model="newNickname"
-            label="輸入新暱稱"
+            label="輸入新暱稱 (至多顯示七個字)"
             autofocus
             @keyup.enter="updateNickname"
           />

@@ -1,6 +1,10 @@
 <template>
   <q-page class="bg-grey-1 q-pa-sm">
     <!-- Youbike Section -->
+    <h3 class="text-h5 q-mb-md">
+      <q-icon name="directions_bike" size="sm" class="q-mr-sm" />
+      YouBike 站點
+    </h3>
     <div class="row q-col-gutter-sm">
       <div v-for="(station, key) in stations" :key="key" class="col-6">
         <q-card class="station-card">
@@ -75,6 +79,10 @@
         </q-card>
       </div>
     </div>
+    <h3 class="text-h5 q-mb-md">
+      <q-icon name="directions_subway" size="sm" class="q-mr-sm" />
+      捷運車站
+    </h3>
 
     <!-- Metro Section -->
     <div class="q-mt-md">
@@ -104,7 +112,7 @@
                 </q-list>
               </q-menu>
             </q-btn>
-            <h4 class="text-h4 text-weight-bold q-mb-md q-mt-xs station-header">
+            <h4 class="text-h6 text-weight-bold q-mb-md q-mt-xs station-header">
               {{ station }}
               <span
                 v-for="line in getLineOfStation(station)"
@@ -221,26 +229,6 @@
         </button>
       </div>
     </div>
-
-    <!--
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn-dropdown color="red-9" icon="add" size="md">
-        <q-list>
-          <q-item
-            clickable
-            v-close-popup
-            @click="showAddYoubikeStationDialog = true"
-          >
-            <q-item-section>Add Youbike Station</q-item-section>
-          </q-item>
-          <q-item clickable v-close-popup @click="showAddMetroStation = true">
-            <q-item-section>Add Metro Station</q-item-section>
-          </q-item>
-        </q-list>
-      </q-btn-dropdown>
-    </q-page-sticky>
-    -->
-
     <!--對話框(新增站點)-->
     <q-dialog v-model="showAddYoubikeStationDialog" full-width>
       <q-card>
@@ -1485,12 +1473,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 }
 
 .add-button {
-  width: 50px;
-  height: 50px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   background-color: #c10015;
   color: white;
-  font-size: 24px;
+  font-size: 35px;
   border: none;
   cursor: pointer;
   display: flex;
@@ -1602,19 +1590,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   transform: scale(1.1);
 }
 
-.add-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #c10015;
-  color: white;
-  font-size: 24px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .menu-btn {
   position: absolute;

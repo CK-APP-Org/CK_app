@@ -85,7 +85,7 @@
     </div>
     <h3 class="text-h5 q-mb-md">
       <q-icon name="directions_subway" size="sm" class="q-mr-sm" />
-      捷運車站
+      北捷車站
     </h3>
 
     <!-- Metro Section -->
@@ -226,7 +226,7 @@
       <button class="add-button" @click="toggleMenu">+</button>
       <div v-if="showMenu" class="add-menu">
         <button class="menu-item" @click="openAddYoubikeStationDialog">
-          <q-icon name="directions_bike" />&ensp;Youbike
+          <q-icon name="directions_bike" />&ensp;YouBike
         </button>
         <button class="menu-item" @click="openAddMetroStationDialog">
           <q-icon name="directions_subway" />&ensp;北捷
@@ -1477,12 +1477,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 }
 
 .add-button {
-  width: 75px;
-  height: 75px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-color: #c10015;
   color: white;
-  font-size: 35px;
+  font-size: 24px;
   border: none;
   cursor: pointer;
   display: flex;
@@ -1593,7 +1593,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   border: 2px solid #1976d2;
   transform: scale(1.1);
 }
-
 
 .menu-btn {
   position: absolute;

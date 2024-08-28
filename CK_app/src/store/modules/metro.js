@@ -1,15 +1,6 @@
 export default {
   state: () => ({
-    stationList: [
-      "圓山",
-      "府中",
-      "忠孝復興",
-      "南港展覽館",
-      "民權西路",
-      "頭前庄",
-      "亞東醫院",
-      "淡水",
-    ],
+    stationList: ["中正紀念堂", "小南門", "西門"],
   }),
   mutations: {
     ADD_METRO_STATION(state, stationName) {

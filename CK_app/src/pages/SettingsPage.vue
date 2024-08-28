@@ -2,6 +2,7 @@
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-4">
+        <!-- Account Information Card -->
         <q-card class="q-mb-md">
           <q-card-section>
             <div class="text-h6 q-mb-md">帳號資訊</div>
@@ -52,100 +53,139 @@
             </div>
           </q-card-section>
         </q-card>
-        <div class="col-12 col-sm-6 col-md-4">
-          <q-select
-            filled
-            @update:model-value="confirmClassChange"
-            :options="classOptions"
-            v-model="selectedClass"
-            label="選擇班級(用於課表資料匯入)"
-            class="q-mb-md"
-          />
-          <!--
+        <!-- Settings Cards -->
         <q-card class="q-mb-md">
           <q-card-section>
-            <div class="text-h6 q-mb-md">主題顏色設定</div>
-            <q-select
-              v-model="themeColor"
-              :options="colorOptions"
-              label="選擇主題顏色"
-              emit-value
-              map-options
-            >
-              <template v-slot:option="{ itemProps, opt, toggleOption }">
-                <q-item v-bind="itemProps" @click="toggleOption(opt)">
-                  <q-item-section avatar>
-                    <q-avatar :color="opt.value" text-color="white">
-                      {{ opt.label.charAt(0) }}
-                    </q-avatar>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label>{{ opt.label }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
+            <div class="text-h6 q-mb-md">設定</div>
+            <q-list>
+              <q-item>
+                <q-item-section avatar>
+                  <q-icon name="school" />
+                </q-item-section>
+                <q-item-section>
+                  <q-select
+                    filled
+                    @update:model-value="confirmClassChange"
+                    :options="classOptions"
+                    v-model="selectedClass"
+                    label="選擇班級(用於課表資料匯入)"
+                    style="padding: 8px 0"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-ripple @click="showHomeSettings = true">
+                <q-item-section avatar>
+                  <q-icon name="home" />
+                </q-item-section>
+                <q-item-section>首頁顯示項目設定</q-item-section>
+                <q-item-section side>
+                  <q-icon name="chevron_right" />
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-ripple @click="showToolbarSettings = true">
+                <q-item-section avatar>
+                  <q-icon name="build" />
+                </q-item-section>
+                <q-item-section>自訂工具列</q-item-section>
+                <q-item-section side>
+                  <q-icon name="chevron_right" />
+                </q-item-section>
+              </q-item>
+            </q-list>
           </q-card-section>
         </q-card>
-        -->
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="text-h6 q-mb-md">首頁顯示項目設定</div>
-              <div class="column q-gutter-y-sm">
-                <q-checkbox v-model="showSchedule" label="顯示課表" />
-                <q-checkbox v-model="showTodo" label="顯示待辦事項" />
-                <q-checkbox v-model="showSchoolNews" label="顯示學校新聞" />
-              </div>
-            </q-card-section>
-          </q-card>
-
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="text-h6 q-mb-md">自訂工具列</div>
-              <q-list dense bordered separator>
-                <q-item
-                  v-for="(item, index) in menuItems"
-                  :key="index"
-                  class="custom-menu-item"
-                >
-                  <q-item-section avatar>
-                    <q-icon :name="item.icon" />
-                  </q-item-section>
-                  <q-item-section>{{ item.label }}</q-item-section>
-                  <q-item-section side class="items-center">
-                    <div class="row items-center">
-                      <q-toggle
-                        v-if="!item.fixed"
-                        v-model="item.visible"
-                        :disable="item.fixed"
-                      />
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="arrow_upward"
-                        @click="moveItem(index, -1)"
-                        :disable="index === 0"
-                        class="q-mr-sm"
-                      />
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="arrow_downward"
-                        @click="moveItem(index, 1)"
-                        :disable="index === menuItems.length - 1"
-                        class="q-mr-sm"
-                      />
-                    </div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
-          </q-card>
-        </div>
       </div>
     </div>
+
+    <!-- 首頁顯示項目設定 Dialog -->
+    <q-dialog v-model="showHomeSettings">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">首頁顯示項目設定</div>
+        </q-card-section>
+        <q-card-section>
+          <q-list>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>目前課程</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle v-model="showSchedule" color="primary" />
+              </q-item-section>
+            </q-item>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>今日待辦事項</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle v-model="showTodo" color="primary" />
+              </q-item-section>
+            </q-item>
+            <q-item tag="label" v-ripple>
+              <q-item-section>
+                <q-item-label>釘選校網內容</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle v-model="showSchoolNews" color="primary" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- 自訂工具列 Dialog -->
+    <q-dialog v-model="showToolbarSettings">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">自訂工具列</div>
+        </q-card-section>
+        <q-card-section>
+          <q-list separator>
+            <q-item v-for="(item, index) in menuItems" :key="index">
+              <q-item-section avatar>
+                <q-icon :name="item.icon" />
+              </q-item-section>
+              <q-item-section>{{ item.label }}</q-item-section>
+              <q-item-section side>
+                <q-toggle
+                  v-if="!item.fixed"
+                  v-model="item.visible"
+                  @update:model-value="(val) => toggleVisibility(index, val)"
+                  :disable="item.fixed"
+                />
+              </q-item-section>
+              <q-item-section side>
+                <q-btn-group flat>
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    icon="arrow_upward"
+                    @click="moveItem(index, -1)"
+                    :disable="index === 0"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    icon="arrow_downward"
+                    @click="moveItem(index, 1)"
+                    :disable="index === menuItems.length - 1"
+                  />
+                </q-btn-group>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="關閉" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="confirmDialog">
       <q-card>
@@ -332,6 +372,9 @@ export default {
     const stationList = computed(() => store.getters.getStationList);
 
     const scheduleData = computed(() => store.getters.getScheduleData);
+
+    const showHomeSettings = ref(false);
+    const showToolbarSettings = ref(false);
 
     // Theme color
     const themeColor = ref("#1976D2"); // Default to blue
@@ -719,6 +762,8 @@ export default {
       menuItems,
       toggleVisibility,
       moveItem,
+      showHomeSettings,
+      showToolbarSettings,
     };
   },
 };

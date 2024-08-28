@@ -164,10 +164,10 @@ export default {
           "分成月曆和待辦兩個頁面，讓學生能夠有效掌握未來的所有活動和工作",
       },
       {
-        name: "YouBike",
-        icon: "directions_bike",
-        title: "YouBike : 便捷查詢，車輛隨時掌握",
-        description: "獲得各站點的即時資訊，客製化優先顯示的站點資料並更改暱稱",
+        name: "Transport",
+        icon: "directions_walk",
+        title: "交通：掌握臺北最新交通動態",
+        description: "客製化呈現即時YouBike及北捷交通資訊，提升通勤效率",
       },
       {
         name: "Menu",
@@ -178,7 +178,7 @@ export default {
       {
         name: "Food",
         icon: "fastfood",
-        title: "即時資訊，不再白跑一趟",
+        title: "美食地圖&即時營業資訊，不再白跑一趟",
         description: "即時顯示建中附近餐廳之營業狀態及建中生之特殊優惠",
       },
       {

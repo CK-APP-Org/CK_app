@@ -1,7 +1,7 @@
 <template>
   <q-page class="bg-grey-1 q-pa-sm">
     <!-- Youbike Section -->
-    <h3 class="text-h5 q-mb-md">
+    <h3 class="text-h5 q-mb-md" style="font-weight: bold">
       <q-icon name="directions_bike" size="sm" class="q-mr-sm" />
       YouBike 站點
     </h3>
@@ -83,7 +83,7 @@
         </q-card>
       </div>
     </div>
-    <h3 class="text-h5 q-mb-md">
+    <h3 class="text-h5 q-mb-md" style="font-weight: bold">
       <q-icon name="directions_subway" size="sm" class="q-mr-sm" />
       北捷車站
     </h3>
@@ -1032,7 +1032,19 @@ export default defineComponent({
         city: station.city,
       };
 
-      stations[newStationName] = new Station(newStationName);
+      // Update local state
+      stations.value = {
+        ...stations.value,
+        [newStationName]: new Station(newStationName),
+      };
+
+      // Update local stationsNickname
+      stationsNickname.value = {
+        ...stationsNickname.value,
+        [newStationName]: newStationData.nickname,
+      };
+
+      // Update store
       store.dispatch("addStation", {
         stationName: newStationName,
         stationData: newStationData,
@@ -1049,7 +1061,7 @@ export default defineComponent({
     };
 
     const isStationInList = (stationName) => {
-      return Object.keys(stations).includes(stationName);
+      return Object.keys(stations.value).includes(stationName);
     };
 
     const findNearestStationsFromDialog = () => {
@@ -1566,9 +1578,10 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   margin-left: 5px;
 }
 .line-icon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   vertical-align: middle;
+  margin-bottom: 5px;
 }
 .station-section {
   position: relative;

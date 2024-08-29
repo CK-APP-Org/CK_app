@@ -301,6 +301,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 
@@ -492,6 +493,41 @@ export default {
             showSchoolNews: true,
             showSchedule: true,
             showTodo: true,
+            menuItems: [
+              {
+                label: "首頁",
+                icon: "home",
+                link: "/",
+                visible: true,
+                fixed: true,
+              },
+              { label: "課表", icon: "book", link: "/schedule", visible: true },
+              {
+                label: "行事曆",
+                icon: "calendar_month",
+                link: "/todo",
+                visible: true,
+              },
+              {
+                label: "交通",
+                icon: "directions_walk",
+                link: "/transport",
+                visible: true,
+              },
+              {
+                label: "熱食部",
+                icon: "restaurant_menu",
+                link: "/menu",
+                visible: true,
+              },
+              { label: "美食", icon: "fastfood", link: "/food", visible: true },
+              {
+                label: "校網",
+                icon: "newspaper",
+                link: "/news",
+                visible: true,
+              },
+            ],
           },
           Schedule: { userClass: "101", ScheduleData: null },
           Todo: {
@@ -616,6 +652,11 @@ export default {
           "Metro.metroStationList",
           defaultValues.Metro.metroStationList
         );
+        const menuItems = getValueOrDefault(
+          userData,
+          "Settings.menuItems",
+          defaultValues.Settings.menuItems
+        );
 
         if (schedules === null) {
           $q.notify({
@@ -648,6 +689,7 @@ export default {
         });
         store.dispatch("loadStation", StationList);
         store.dispatch("loadMetro", metroStationList);
+        store.dispatch("updateMenuItems", menuItems);
 
         $q.notify({
           message: "成功匯入資料",
@@ -722,7 +764,6 @@ export default {
         return;
       }
 
-      // Show loading notification
       const loadingNotif = $q.notify({
         message: "備份中...",
         color: "info",
@@ -731,7 +772,6 @@ export default {
       });
 
       try {
-        // Wrap the Firebase operation in a Promise with a timeout
         await Promise.race([
           (async () => {
             const firebaseConfig = {
@@ -749,12 +789,9 @@ export default {
 
             userRef.value = doc(db, "User Data", "Userdata");
 
-            // Helper function to safely convert dates
-            const safeDate = (date) => {
-              if (date instanceof Date && !isNaN(date)) {
-                return date;
-              }
-              return null;
+            // Helper function to convert Date to Firestore Timestamp
+            const dateToTimestamp = (date) => {
+              return date instanceof Date ? Timestamp.fromDate(date) : null;
             };
 
             // Helper function to process arrays with dates
@@ -762,7 +799,9 @@ export default {
               return arr.map((item) => {
                 const newItem = { ...item };
                 dateFields.forEach((field) => {
-                  newItem[field] = safeDate(item[field]);
+                  if (item[field]) {
+                    newItem[field] = dateToTimestamp(item[field]);
+                  }
                 });
                 return newItem;
               });
@@ -780,7 +819,7 @@ export default {
                 pinnedNews: processArrayWithDates(pinnedNews.value, [
                   "pubDate",
                 ]),
-                lastClearedTime: safeDate(lastClearedTime.value),
+                lastClearedTime: dateToTimestamp(lastClearedTime.value),
               },
               Food: {
                 favoriteRestaurants: favoriteRestaurants.value,
@@ -800,6 +839,7 @@ export default {
                 showSchedule: showSchedule.value,
                 showTodo: showTodo.value,
                 showSchoolNews: showSchoolNews.value,
+                menuItems: menuItems.value,
               },
               Metro: {
                 metroStationList: metroStationList.value,
@@ -811,10 +851,9 @@ export default {
           })(),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Timeout")), 10000)
-          ), // 10 seconds timeout
+          ),
         ]);
 
-        // Dismiss loading notification
         loadingNotif();
 
         $q.notify({
@@ -826,10 +865,8 @@ export default {
       } catch (error) {
         console.error("Error saving data to Firebase:", error);
 
-        // Dismiss loading notification
         loadingNotif();
 
-        // Determine the error message
         let errorMessage = "備份資料時發生錯誤";
         if (error.message === "Timeout") {
           errorMessage = "備份超時，請檢查您的網路連接並重試";

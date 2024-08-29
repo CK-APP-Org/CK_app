@@ -14,6 +14,9 @@ export default {
         state.metroStationList.splice(index, 1);
       }
     },
+    LOAD_METRO(state, stations) {
+      state.metroStationList = stations;
+    },
   },
   actions: {
     addMetroStation({ commit }, stationName) {
@@ -21,6 +24,9 @@ export default {
     },
     deleteMetroStation({ commit }, stationName) {
       commit("DELETE_METRO_STATION", stationName);
+    },
+    loadMetro({ commit }, stations) {
+      commit("LOAD_METRO", stations);
     },
   },
   getters: {

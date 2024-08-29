@@ -1,17 +1,17 @@
 export default {
   state: () => ({
-    stationList: ["中正紀念堂", "小南門", "西門"],
+    metroStationList: ["中正紀念堂", "小南門", "西門"],
   }),
   mutations: {
     ADD_METRO_STATION(state, stationName) {
-      if (!state.stationList.includes(stationName)) {
-        state.stationList.push(stationName);
+      if (!state.metroStationList.includes(stationName)) {
+        state.metroStationList.push(stationName);
       }
     },
     DELETE_METRO_STATION(state, stationName) {
-      const index = state.stationList.indexOf(stationName);
+      const index = state.metroStationList.indexOf(stationName);
       if (index > -1) {
-        state.stationList.splice(index, 1);
+        state.metroStationList.splice(index, 1);
       }
     },
   },
@@ -24,6 +24,6 @@ export default {
     },
   },
   getters: {
-    getMetroStationList: (state) => state.stationList,
+    getMetroStationList: (state) => state.metroStationList,
   },
 };

@@ -6,7 +6,7 @@ const SCHEDULE_URL =
 export default {
   state: () => ({
     scheduleData: [],
-    userClass: "317",
+    userClass: "101",
     displayScheduleWidget: true,
   }),
   mutations: {

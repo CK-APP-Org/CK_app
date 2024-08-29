@@ -72,8 +72,8 @@ export default {
       showDialog: false,
       baseMenuUrl:
         "https://raw.githubusercontent.com/CK-APP-Org/Data/main/menus/",
-      currentWeekStart: this.getWeekStartDate(),
-      selectedDay: this.getTodayOrNextMonday(),
+      currentWeekStart: null,
+      selectedDay: null,
       days: [
         { label: "星期一", shortLabel: "一", value: 1 },
         { label: "星期二", shortLabel: "二", value: 2 },
@@ -82,40 +82,27 @@ export default {
         { label: "星期五", shortLabel: "五", value: 5 },
       ],
       isLoading: true,
+      //testDate: null,
+      testDate: new Date("2024-09-09"),
     };
   },
   computed: {
     statusLabel() {
-      const now = new Date();
+      const now = this.getCurrentDate();
       const hours = now.getHours();
-      if (hours >= this.openHour && hours < this.closeHour) {
-        return "營業中";
-      } else {
-        return "已歇業";
-      }
+      return hours >= this.openHour && hours < this.closeHour
+        ? "營業中"
+        : "已歇業";
     },
     statusColor() {
-      const now = new Date();
+      const now = this.getCurrentDate();
       const hours = now.getHours();
-      if (hours >= this.openHour && hours < this.closeHour) {
-        return "green";
-      } else {
-        return "red";
-      }
-    },
-    cardStyle() {
-      const now = new Date();
-      const hours = now.getHours();
-      if (hours >= this.openHour && hours < this.closeHour) {
-        return {};
-      } else {
-        return { opacity: 0.5 };
-      }
+      return hours >= this.openHour && hours < this.closeHour ? "green" : "red";
     },
     getCurrentMenuImage() {
       const day = this.selectedDay;
       const weekStart = this.currentWeekStart;
-      const timestamp = new Date().getTime();
+      const timestamp = this.getCurrentDate().getTime();
       const url = `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
       console.log(url);
       return { url, key: `${weekStart}_${day}` };
@@ -127,21 +114,30 @@ export default {
       this.isLoading = true;
     },
     getWeekStartDate() {
-      const now = new Date();
+      const now = this.getCurrentDate();
       const dayOfWeek = now.getDay();
-      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -5 : 1);
+      const diff =
+        now.getDate() -
+        dayOfWeek +
+        (dayOfWeek === 0 ? 1 : dayOfWeek === 6 ? 8 : 1);
       const monday = new Date(now.setDate(diff));
       return monday.toISOString().split("T")[0]; // Format: YYYY-MM-DD
     },
     getTodayOrNextMonday() {
-      const now = new Date();
+      const now = this.getCurrentDate();
       const day = now.getDay(); // 0 is Sunday, 1 is Monday, ..., 6 is Saturday
-      if (day === 0 || day === 6) {
-        // Saturday or Sunday
-        return 5; // Show next Monday's menu
-      }
-      return day;
+      return day === 0 || day === 6 ? 1 : day; // Return 1 (Monday) if it's Saturday or Sunday
     },
+    getCurrentDate() {
+      return this.testDate ? new Date(this.testDate) : new Date();
+    },
+    updateDateRelatedData() {
+      this.currentWeekStart = this.getWeekStartDate();
+      this.selectedDay = this.getTodayOrNextMonday();
+    },
+  },
+  created() {
+    this.updateDateRelatedData();
   },
 };
 </script>

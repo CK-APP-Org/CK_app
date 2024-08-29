@@ -470,49 +470,163 @@ export default {
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        userRef.value = doc(db, "User Data", "Userdata"); // Initialize userRef here
+        userRef.value = doc(db, "User Data", "Userdata");
         const docSnap = await getDoc(userRef.value);
-        const userData = docSnap.data()[userAccount.value];
-        console.log(userData["Food"]["favoriteRestaurants"]);
-        const favoriteRestaurants = userData["Food"]["favoriteRestaurants"];
+        const userData = docSnap.data()[userAccount.value] || {};
 
-        const pinnedNews = userData["News"]["pinnedNews"];
-        const lastClearedTime = userData["News"]["lastClearedTime"]
-          ? userData["News"]["lastClearedTime"].toDate()
-          : null;
-        const showSchool = userData["Settings"]["showSchoolNews"];
+        // Helper function to convert Firebase timestamp to JavaScript Date
+        const convertTimestamp = (timestamp) => {
+          if (timestamp && typeof timestamp.toDate === "function") {
+            return timestamp.toDate();
+          } else if (timestamp && timestamp.seconds) {
+            return new Date(timestamp.seconds * 1000);
+          }
+          return null;
+        };
 
-        const classes = userData["Schedule"]["userClass"];
-        const schedules = userData["Schedule"]["ScheduleData"];
-        const showSchedule = userData["Settings"]["showSchedule"];
+        // Default values
+        const defaultValues = {
+          Food: { favoriteRestaurants: [] },
+          News: { pinnedNews: [], lastClearedTime: null },
+          Settings: {
+            showSchoolNews: true,
+            showSchedule: true,
+            showTodo: true,
+          },
+          Schedule: { userClass: "101", ScheduleData: null },
+          Todo: {
+            events: [],
+            eventCategories: [{ name: "Default", color: "#ADADAD" }],
+            todos: [],
+            currentView: "calendar",
+            todoCategories: [],
+          },
+          Youbike: {
+            stationList: {
+              "YouBike2.0_泉州寧波西街口": {
+                nickname: "建中東側門",
+                city: "臺北市",
+              },
+              "YouBike2.0_郵政博物館": {
+                nickname: "郵政博物館",
+                city: "臺北市",
+              },
+              "YouBike2.0_植物園": { nickname: "台北植物園", city: "臺北市" },
+              "YouBike2.0_捷運中正紀念堂站(2號出口)": {
+                nickname: "中正紀念堂站",
+                city: "臺北市",
+              },
+            },
+          },
+          Metro: { metroStationList: ["中正紀念堂", "小南門", "西門"] },
+        };
 
-        const events = userData["Todo"]["events"].map((event) => ({
-          ...event,
-          startDate: event.startDate.toDate(),
-          endDate: event.endDate.toDate(),
+        // Helper function to get value or default
+        const getValueOrDefault = (obj, path, defaultValue) => {
+          return (
+            path.split(".").reduce((acc, part) => acc && acc[part], obj) ??
+            defaultValue
+          );
+        };
+
+        const favoriteRestaurants = getValueOrDefault(
+          userData,
+          "Food.favoriteRestaurants",
+          defaultValues.Food.favoriteRestaurants
+        );
+        const pinnedNews = getValueOrDefault(
+          userData,
+          "News.pinnedNews",
+          defaultValues.News.pinnedNews
+        ).map((news) => ({
+          ...news,
+          pubDate: news.pubDate ? new Date(news.pubDate.seconds * 1000) : null,
         }));
-        const eventCategories = userData["Todo"]["eventCategories"];
-        const todos = userData["Todo"]["todos"].map((event) => ({
+        const lastClearedTime = convertTimestamp(
+          getValueOrDefault(
+            userData,
+            "News.lastClearedTime",
+            defaultValues.News.lastClearedTime
+          )
+        );
+        const showSchool = getValueOrDefault(
+          userData,
+          "Settings.showSchoolNews",
+          defaultValues.Settings.showSchoolNews
+        );
+        const classes = getValueOrDefault(
+          userData,
+          "Schedule.userClass",
+          defaultValues.Schedule.userClass
+        );
+        const schedules = getValueOrDefault(
+          userData,
+          "Schedule.ScheduleData",
+          defaultValues.Schedule.ScheduleData
+        );
+        const showSchedule = getValueOrDefault(
+          userData,
+          "Settings.showSchedule",
+          defaultValues.Settings.showSchedule
+        );
+        const events = getValueOrDefault(
+          userData,
+          "Todo.events",
+          defaultValues.Todo.events
+        ).map((event) => ({
           ...event,
-          date: event.date ? event.date.toDate() : null,
+          startDate: convertTimestamp(event.startDate),
+          endDate: convertTimestamp(event.endDate),
         }));
-        const currentView = userData["Todo"]["currentView"];
-        const todoCategories = userData["Todo"]["todoCategories"];
-        const showTodo = userData["Settings"]["showTodo"];
-
-        const StationList = userData["Youbike"]["stationList"];
-
-        const metroStationList = userData["Metro"]["metroStationList"];
+        const eventCategories = getValueOrDefault(
+          userData,
+          "Todo.eventCategories",
+          defaultValues.Todo.eventCategories
+        );
+        const todos = getValueOrDefault(
+          userData,
+          "Todo.todos",
+          defaultValues.Todo.todos
+        ).map((todo) => ({
+          ...todo,
+          date: convertTimestamp(todo.date),
+        }));
+        const currentView = getValueOrDefault(
+          userData,
+          "Todo.currentView",
+          defaultValues.Todo.currentView
+        );
+        const todoCategories = getValueOrDefault(
+          userData,
+          "Todo.todoCategories",
+          defaultValues.Todo.todoCategories
+        );
+        const showTodo = getValueOrDefault(
+          userData,
+          "Settings.showTodo",
+          defaultValues.Settings.showTodo
+        );
+        const StationList = getValueOrDefault(
+          userData,
+          "Youbike.stationList",
+          defaultValues.Youbike.stationList
+        );
+        const metroStationList = getValueOrDefault(
+          userData,
+          "Metro.metroStationList",
+          defaultValues.Metro.metroStationList
+        );
 
         if (schedules === null) {
           $q.notify({
-            message: "您尚未備份過",
+            message: "您尚未備份過或備份資料不完整",
             color: "warning",
             position: "bottom",
             timeout: 2000,
           });
-          return; // Exit the function early
+          return;
         }
+
         store.dispatch("loadRestaurants", favoriteRestaurants);
         store.dispatch("loadNews", {
           pinned: pinnedNews,
@@ -542,7 +656,7 @@ export default {
           timeout: 2000,
         });
       } catch (error) {
-        console.error("Error saving data to Firebase:", error);
+        console.error("Error importing data from Firebase:", error);
         $q.notify({
           message: "資料匯入時發生錯誤",
           color: "negative",
@@ -634,6 +748,26 @@ export default {
             const db = getFirestore(app);
 
             userRef.value = doc(db, "User Data", "Userdata");
+
+            // Helper function to safely convert dates
+            const safeDate = (date) => {
+              if (date instanceof Date && !isNaN(date)) {
+                return date;
+              }
+              return null;
+            };
+
+            // Helper function to process arrays with dates
+            const processArrayWithDates = (arr, dateFields) => {
+              return arr.map((item) => {
+                const newItem = { ...item };
+                dateFields.forEach((field) => {
+                  newItem[field] = safeDate(item[field]);
+                });
+                return newItem;
+              });
+            };
+
             const newUserData = {
               Email: email.value,
               Password: password.value,
@@ -643,17 +777,22 @@ export default {
               },
               Youbike: { stationList: stationList.value },
               News: {
-                pinnedNews: pinnedNews.value,
-                lastClearedTime: lastClearedTime.value,
+                pinnedNews: processArrayWithDates(pinnedNews.value, [
+                  "pubDate",
+                ]),
+                lastClearedTime: safeDate(lastClearedTime.value),
               },
               Food: {
                 favoriteRestaurants: favoriteRestaurants.value,
                 userRatings: {},
               },
               Todo: {
-                events: events.value,
+                events: processArrayWithDates(events.value, [
+                  "startDate",
+                  "endDate",
+                ]),
                 eventCategories: eventCategories.value,
-                todos: todos.value,
+                todos: processArrayWithDates(todos.value, ["date"]),
                 currentView: currentView.value,
                 todoCategories: todoCategories.value,
               },
@@ -672,7 +811,7 @@ export default {
           })(),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Timeout")), 10000)
-          ), // 30 seconds timeout
+          ), // 10 seconds timeout
         ]);
 
         // Dismiss loading notification

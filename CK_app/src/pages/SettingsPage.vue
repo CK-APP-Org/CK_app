@@ -376,6 +376,8 @@ export default {
     const showHomeSettings = ref(false);
     const showToolbarSettings = ref(false);
 
+    const metroStationList = computed(() => store.getters.getMetroStationList);
+
     // Theme color
     const themeColor = ref("#1976D2"); // Default to blue
 
@@ -499,7 +501,9 @@ export default {
         const showTodo = userData["Settings"]["showTodo"];
 
         const StationList = userData["Youbike"]["stationList"];
-        console.log(schedules);
+
+        const metroStationList = userData["Metro"]["metroStationList"];
+
         if (schedules === null) {
           $q.notify({
             message: "您尚未備份過",
@@ -529,6 +533,8 @@ export default {
           displayTodoWidget: showTodo,
         });
         store.dispatch("loadStation", StationList);
+        store.dispatch("loadMetro", metroStationList);
+
         $q.notify({
           message: "成功匯入資料",
           color: "positive",
@@ -655,6 +661,9 @@ export default {
                 showSchedule: showSchedule.value,
                 showTodo: showTodo.value,
                 showSchoolNews: showSchoolNews.value,
+              },
+              Metro: {
+                metroStationList: metroStationList.value,
               },
             };
 

@@ -16,7 +16,7 @@ processed_data = {}
 day_map = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday'}
 
 # Map class numbers to Chinese characters
-class_map = {1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '七'}
+class_map = {1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '七', 8:'八'}
 
 # Process each row in the dataframe
 for _, row in df.iterrows():

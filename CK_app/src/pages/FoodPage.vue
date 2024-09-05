@@ -260,31 +260,36 @@ const showOnlyFavorites = ref(false);
 const showRestaurantList = ref(false);
 
 const openIcon = new Icon({
-  iconUrl: "../../public/food/marker-icon-open.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/marker-icon-open.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedIcon = new Icon({
-  iconUrl: "../../public/food/marker-icon-closed.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/marker-icon-closed.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const openVarIcon = new Icon({
-  iconUrl: "../../public/food/marker-icon-open-var.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/marker-icon-open-var.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const closedVarIcon = new Icon({
-  iconUrl: "../../public/food/marker-icon-closed-var.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/marker-icon-closed-var.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
 const ckIcon = new Icon({
-  iconUrl: "../../public/food/CK_Logo.png",
+  iconUrl:
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/food/CK_Logo.png",
   iconSize: [41, 41],
   iconAnchor: [20, 20],
 });

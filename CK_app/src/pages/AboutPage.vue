@@ -198,7 +198,7 @@ export default {
     };
 
     const openOfficialWebsite = () => {
-      window.open("https://sites.google.com/view/ck-app-org", "_blank");
+      window.open("https://ckapp-tw.web.app/", "_blank");
     };
 
     return {

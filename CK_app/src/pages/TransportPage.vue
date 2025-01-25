@@ -686,16 +686,22 @@ export default defineComponent({
           "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
         );
         const dataTPC = responseTPC.data;
-        // Fetch data from NTC API
-        let responseNTC = await axios.get(
-          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+
+        // Use proxy for NTC API
+        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
+        let responseNTC1 = await axios.get(
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+          )}`
         );
-        let dataNTC = responseNTC.data;
-        // Fetch the data of the second page of the NTC API
-        responseNTC = await axios.get(
-          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+        let responseNTC2 = await axios.get(
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+          )}`
         );
-        dataNTC = [...dataNTC, ...responseNTC.data]; // Merging the two arrays of objects together
+
+        let dataNTC = [...responseNTC1.data, ...responseNTC2.data];
+
         // Update data for each station
         for (const key in stations.value) {
           if (stationList[key].city === "臺北市") {

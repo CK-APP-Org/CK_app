@@ -423,9 +423,15 @@
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             ></l-tile-layer>
           </l-map>
+          <div v-if="isLoadingNearestStations" class="text-center q-mt-md">
+            <q-spinner color="primary" size="3em" />
+            <div class="text-subtitle1 q-mt-sm">正在搜尋站點...</div>
+          </div>
         </q-card-section>
         <q-card-section>
-          <div class="text-center">點擊地圖上的位置來選擇您的位置</div>
+          <div v-if="!isLoadingNearestStations" class="text-center">
+            點擊地圖上的位置來選擇您的位置
+          </div>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -590,6 +596,7 @@ export default defineComponent({
     const showNearestStationsDialog = ref(false);
     const nearestStations = ref(null);
     const userPosition = ref(null);
+    const isLoadingNearestStations = ref(false);
     const mapCenter = ref([25.031204, 121.515966]);
     const mapZoom = ref(15);
     const mapOptions = {
@@ -969,21 +976,39 @@ export default defineComponent({
       userPosition.value = [userLat, userLng];
       mapCenter.value = [userLat, userLng];
 
-      const allStations = await fetchAllStationsData();
+      isLoadingNearestStations.value = true;
 
-      const stationsWithDistances = allStations.map((station) => ({
-        ...station,
-        distance: calculateDistance(userLat, userLng, station.lat, station.lng),
-      }));
+      try {
+        const allStations = await fetchAllStationsData();
 
-      stationsWithDistances.sort((a, b) => a.distance - b.distance);
+        const stationsWithDistances = allStations.map((station) => ({
+          ...station,
+          distance: calculateDistance(
+            userLat,
+            userLng,
+            station.lat,
+            station.lng
+          ),
+        }));
 
-      nearestStations.value = stationsWithDistances.slice(0, 9);
+        stationsWithDistances.sort((a, b) => a.distance - b.distance);
 
-      circleRadius.value = nearestStations.value[8].distance * 1100;
+        nearestStations.value = stationsWithDistances.slice(0, 9);
 
-      showLocationPickerDialog.value = false;
-      showNearestStationsDialog.value = true;
+        circleRadius.value = nearestStations.value[8].distance * 1100;
+
+        showLocationPickerDialog.value = false;
+        showNearestStationsDialog.value = true;
+      } catch (error) {
+        console.error("Error finding nearest stations:", error);
+        $q.notify({
+          message: "無法取得附近站點，請稍後再試",
+          color: "negative",
+          position: "bottom",
+        });
+      } finally {
+        isLoadingNearestStations.value = false;
+      }
     };
 
     const fetchAllStationsData = async () => {
@@ -1411,6 +1436,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       stationOptions,
       showNearestStationsDialog,
       nearestStations,
+      isLoadingNearestStations,
       userPosition,
       mapCenter,
       mapZoom,

@@ -661,6 +661,7 @@ export default defineComponent({
         isLoading.value = true;
       }
       const stationList = StationList.value;
+      const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
       if (!stationList) {
         console.error("StationList is undefined");
         isLoading.value = false;
@@ -683,12 +684,13 @@ export default defineComponent({
       try {
         // Fetch data from TPC API
         const responseTPC = await axios.get(
-          "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+          )}`
         );
         const dataTPC = responseTPC.data;
 
         // Use proxy for NTC API
-        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
         let responseNTC1 = await axios.get(
           `${proxyUrl}?url=${encodeURIComponent(
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
@@ -744,10 +746,13 @@ export default defineComponent({
         const station = new Station(selectedStation.value["value"]);
         stations.value[selectedStation.value["value"]] = station;
         //臺北市&新北市使用不同API
+        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
         if (selectedCity.value["value"] === "臺北市") {
           try {
             const response = await axios.get(
-              "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+              `${proxyUrl}?url=${encodeURIComponent(
+                "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+              )}`
             );
             const data = response.data;
 
@@ -773,17 +778,17 @@ export default defineComponent({
           }
         } else if (selectedCity.value["value"] === "新北市") {
           try {
-            let response;
-            let data;
-            response = await axios.get(
-              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+            let response1 = await axios.get(
+              `${proxyUrl}?url=${encodeURIComponent(
+                "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+              )}`
             );
-            data = response.data;
-            //fetch the data of the second page of the NTC API
-            response = await axios.get(
-              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+            let response2 = await axios.get(
+              `${proxyUrl}?url=${encodeURIComponent(
+                "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+              )}`
             );
-            data = [...data, ...response.data]; //Merging the two arrays of objects together
+            let data = [...response1.data, ...response2.data];
 
             const stationData = data.find(
               (s) => s.sna === selectedStation.value["value"]
@@ -834,27 +839,30 @@ export default defineComponent({
     const onDistrictChange = async () => {
       selectedStation.value = null;
       stationOptions.value = [];
+      const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
       if (selectedDistrict.value) {
         let apiUrl;
         if (selectedCity.value["value"] === "臺北市") {
-          apiUrl =
-            "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json";
+          apiUrl = encodeURIComponent(
+            "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+          );
         } else if (selectedCity.value["value"] === "新北市") {
-          apiUrl =
-            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000";
+          apiUrl = encodeURIComponent(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+          );
         }
         try {
-          let response;
-          let data;
-          response = await axios.get(apiUrl);
-          data = response.data;
+          let response = await axios.get(`${proxyUrl}?url=${apiUrl}`);
+          let data = response.data;
 
           //Because NTC API has two pages
           if (selectedCity.value["value"] === "新北市") {
-            const response = await axios.get(
-              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+            const response2 = await axios.get(
+              `${proxyUrl}?url=${encodeURIComponent(
+                "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+              )}`
             );
-            data = [...data, ...response.data];
+            data = [...data, ...response2.data];
           }
 
           // Filter stations by selected district
@@ -980,9 +988,13 @@ export default defineComponent({
 
     const fetchAllStationsData = async () => {
       try {
+        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
         const tpcResponse = await axios.get(
-          "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+          )}`
         );
+
         const tpcData = tpcResponse.data.map((station) => ({
           ...station,
           lat: station.latitude,
@@ -991,11 +1003,17 @@ export default defineComponent({
         }));
 
         const ntcResponse1 = await axios.get(
-          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+          )}`
         );
+
         const ntcResponse2 = await axios.get(
-          "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+          `${proxyUrl}?url=${encodeURIComponent(
+            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+          )}`
         );
+
         const ntcData = [...ntcResponse1.data, ...ntcResponse2.data].map(
           (station) => ({
             ...station,

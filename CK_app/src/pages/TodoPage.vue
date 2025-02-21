@@ -562,19 +562,23 @@
 <script>
 import { computed, onMounted, ref } from "vue";
 import store from "../store/index";
-import ICAL from 'ical.js';
+import ICAL from "ical.js";
 import { useQuasar } from "quasar";
 
 export default {
   setup() {
     const $q = useQuasar();
-    const schoolEvents = ref([])
+    const schoolEvents = ref([]);
+    /*
     onMounted(() => {
       fetchAndParseSchoolEvents();
     });
+    */
     const fetchAndParseSchoolEvents = async () => {
       try {
-        const response = await fetch("https://raw.githubusercontent.com/CK-APP-Org/Data/main/ckCalendar.ics");
+        const response = await fetch(
+          "https://raw.githubusercontent.com/CK-APP-Org/Data/main/ckCalendar.ics"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -583,7 +587,7 @@ export default {
         const jcalData = ICAL.parse(icsData);
         const comp = new ICAL.Component(jcalData);
         const vevents = comp.getAllSubcomponents("vevent");
-        vevents.forEach(vevent => {
+        vevents.forEach((vevent) => {
           const event = new ICAL.Event(vevent);
 
           const newEvent = {
@@ -591,21 +595,21 @@ export default {
             title: event.summary,
             startDate: event.startDate.toJSDate(),
             endDate: event.endDate.toJSDate(),
-            category: { name: '學校事務', color: '#4285F4' }, // You can choose any color
+            category: { name: "學校事務", color: "#4285F4" }, // You can choose any color
           };
-          schoolEvents.value.push(newEvent)
+          schoolEvents.value.push(newEvent);
         }),
-        // schoolEvent = vevents.map((vevent) => {
-        //   const event = new ICAL.Event(vevent);
-        //   return {
-        //     id: event.uid,
-        //     title: event.summary,
-        //     startDate: event.startDate.toJSDate(),
-        //     endDate: event.endDate.toJSDate(),
-        //     category: { name: "學校事務", color: "#4285F4" },
-        //   };
-        // });
-        console.log(schoolEvents.value)
+          // schoolEvent = vevents.map((vevent) => {
+          //   const event = new ICAL.Event(vevent);
+          //   return {
+          //     id: event.uid,
+          //     title: event.summary,
+          //     startDate: event.startDate.toJSDate(),
+          //     endDate: event.endDate.toJSDate(),
+          //     category: { name: "學校事務", color: "#4285F4" },
+          //   };
+          // });
+          console.log(schoolEvents.value);
 
         $q.notify({
           type: "positive",
@@ -626,7 +630,7 @@ export default {
       get: () => store.getters.getCurrentView,
       set: (value) => store.dispatch("updateCurrentView", value),
     });
-    return { events, eventCategories, todos, currentView, schoolEvents};
+    return { events, eventCategories, todos, currentView, schoolEvents };
   },
   data() {
     return {
@@ -862,11 +866,13 @@ export default {
       this.selectedDate = day.date;
 
       // Filter events for the selected day
-      this.selectedDayEvents = [...this.events, ...this.schoolEvents].filter((event) => {
-        const eventStart = new Date(event.startDate);
-        const eventEnd = new Date(event.endDate);
-        return day.date >= eventStart && day.date <= eventEnd;
-      });
+      this.selectedDayEvents = [...this.events, ...this.schoolEvents].filter(
+        (event) => {
+          const eventStart = new Date(event.startDate);
+          const eventEnd = new Date(event.endDate);
+          return day.date >= eventStart && day.date <= eventEnd;
+        }
+      );
 
       // Filter todos for the selected day
       const selectedDayTodos = this.todos.filter((todo) => {

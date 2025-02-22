@@ -1249,7 +1249,8 @@ export default {
 }
 
 .calendar-day:hover {
-  background-color: #f0f0f0;
+  /*background-color: #f0f0f0;*/
+  background-color: #ffffff;
 }
 .q-list .q-item:not(.q-select__dropdown .q-item) {
   background-color: #f8f8f8;

@@ -97,7 +97,7 @@
           :key="station"
           class="station-wrapper"
         >
-          <div class="station-section q-mb-xl q-pa-md bg-white rounded-borders">
+          <div class="station-section q-mb-xl q-pa-md rounded-borders">
             <q-btn
               class="absolute-top-right menu-btn"
               color="primary"
@@ -1648,7 +1648,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .station-card {
   height: 100%;
-  background-color: rgb(255, 255, 255);
+  background-color: #f8f8f8;
 }
 
 .find-nearest-btn {
@@ -1686,6 +1686,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   position: relative;
   margin-bottom: 1rem;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  background-color: #f8f8f8;
 }
 .station-header {
   border-bottom: 2px solid #f0f0f0;

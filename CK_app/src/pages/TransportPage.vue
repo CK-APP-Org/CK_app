@@ -45,7 +45,7 @@
 
             <!-- Loading indicator -->
             <div
-              v-if="isLoading && isInitialLoad"
+              v-if="isStationLoading(station.name)"
               class="flex flex-center"
               style="height: 33px"
             >
@@ -83,12 +83,13 @@
         </q-card>
       </div>
     </div>
+
+    <!-- Metro Section -->
     <h3 class="text-h5 q-mb-md" style="font-weight: bold">
       <q-icon name="directions_subway" size="sm" class="q-mr-sm" />
       北捷車站
     </h3>
 
-    <!-- Metro Section -->
     <div class="q-mt-md">
       <transition-group name="station-list" tag="div">
         <div
@@ -536,6 +537,8 @@ export default defineComponent({
     const stationsNickname = ref({});
     const isInitialLoad = ref(true);
     const isLoading = ref(true);
+    const tpcLoading = ref({});
+    const ntcLoading = ref({});
     const showAddYoubikeStationDialog = ref(false);
     const showEditNicknameDialog = ref(false);
     const showDeleteStationDialog = ref(false);
@@ -664,19 +667,17 @@ export default defineComponent({
 
     // Youbike methods
     const fetchYoubikeData = async () => {
-      if (isInitialLoad.value) {
-        isLoading.value = true;
-      }
       const stationList = StationList.value;
       const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
+
       if (!stationList) {
         console.error("StationList is undefined");
         isLoading.value = false;
         return;
       }
 
-      // Only initialize stations if it's the initial load or if stations is empty
-      if (isInitialLoad.value || Object.keys(stations.value).length === 0) {
+      // Initialize stations and loading states if needed
+      if (Object.keys(stations.value).length === 0) {
         stations.value = Object.fromEntries(
           Object.keys(stationList).map((name) => [name, new Station(name)])
         );
@@ -686,151 +687,198 @@ export default defineComponent({
             value.nickname,
           ])
         );
+
+        // Initialize loading states for each station based on their city
+        Object.entries(stationList).forEach(([name, data]) => {
+          if (data.city === "臺北市") {
+            tpcLoading.value[name] = true;
+          } else if (data.city === "新北市") {
+            ntcLoading.value[name] = true;
+          }
+        });
       }
 
+      // Function to update station data
+      const updateStationData = (stationKey, stationData, isTPCData = true) => {
+        if (stationData) {
+          stations.value[stationKey].available_rent_bikes = isTPCData
+            ? stationData.available_rent_bikes
+            : stationData.sbi;
+          stations.value[stationKey].available_return_bikes = isTPCData
+            ? stationData.available_return_bikes
+            : stationData.bemp;
+          stations.value[stationKey].infoTime = stationData.mday;
+        }
+      };
+
       try {
-        // Fetch data from TPC API
-        const responseTPC = await axios.get(
+        // Fetch TPC data
+        const tpcDataPromise = axios.get(
           `${proxyUrl}?url=${encodeURIComponent(
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
           )}`
         );
-        const dataTPC = responseTPC.data;
 
-        // Use proxy for NTC API
-        let responseNTC1 = await axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
-            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
-          )}`
-        );
-        let responseNTC2 = await axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
-            "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
-          )}`
-        );
+        // Fetch NTC data in parallel
+        const ntcDataPromises = [
+          axios.get(
+            `${proxyUrl}?url=${encodeURIComponent(
+              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+            )}`
+          ),
+          axios.get(
+            `${proxyUrl}?url=${encodeURIComponent(
+              "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+            )}`
+          ),
+        ];
 
-        let dataNTC = [...responseNTC1.data, ...responseNTC2.data];
+        // Handle TPC data
+        const tpcResponse = await tpcDataPromise;
+        const dataTPC = tpcResponse.data;
 
-        // Update data for each station
+        // Update TPC stations
         for (const key in stations.value) {
           if (stationList[key].city === "臺北市") {
             const stationData = dataTPC.find(
               (station) => station.sna === stations.value[key].name
             );
-
-            if (stationData) {
-              stations.value[key].available_rent_bikes =
-                stationData.available_rent_bikes;
-              stations.value[key].available_return_bikes =
-                stationData.available_return_bikes;
-              stations.value[key].infoTime = stationData.mday;
-            }
-          } else if (stationList[key].city === "新北市") {
-            const stationData = dataNTC.find(
-              (station) => station.sna === stations.value[key].name
-            );
-
-            if (stationData) {
-              stations.value[key].available_rent_bikes = stationData.sbi;
-              stations.value[key].available_return_bikes = stationData.bemp;
-              stations.value[key].infoTime = stationData.mday;
-            }
+            updateStationData(key, stationData, true);
+            tpcLoading.value[key] = false;
           }
         }
+
+        // Handle NTC data
+        Promise.all(ntcDataPromises)
+          .then(([response1, response2]) => {
+            const dataNTC = [...response1.data, ...response2.data];
+
+            // Update NTC stations
+            for (const key in stations.value) {
+              if (stationList[key].city === "新北市") {
+                const stationData = dataNTC.find(
+                  (station) => station.sna === stations.value[key].name
+                );
+                updateStationData(key, stationData, false);
+                ntcLoading.value[key] = false;
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching NTC data:", error);
+            // Mark all NTC stations as not loading on error
+            Object.keys(ntcLoading.value).forEach((key) => {
+              ntcLoading.value[key] = false;
+            });
+          });
       } catch (error) {
-        console.error("Error fetching data:", error);
-        // Don't update station data on error to keep existing data
-      } finally {
-        if (isInitialLoad.value) {
-          isLoading.value = false;
-          isInitialLoad.value = false;
-        }
+        console.error("Error fetching TPC data:", error);
+        // Mark all stations as not loading on error
+        Object.keys(tpcLoading.value).forEach((key) => {
+          tpcLoading.value[key] = false;
+        });
+        Object.keys(ntcLoading.value).forEach((key) => {
+          ntcLoading.value[key] = false;
+        });
       }
+    };
+
+    // Compute whether a station is loading based on its city
+    const isStationLoading = (stationName) => {
+      const stationData = StationList.value[stationName];
+      if (!stationData) {
+        return false; // Return false if station data is not yet in StationList
+      }
+      if (stationData.city === "臺北市") {
+        return tpcLoading.value[stationName];
+      } else if (stationData.city === "新北市") {
+        return ntcLoading.value[stationName];
+      }
+      return false;
     };
 
     const addYoubikeStation = async () => {
       if (selectedStation.value) {
-        const station = new Station(selectedStation.value["value"]);
-        stations.value[selectedStation.value["value"]] = station;
-        //臺北市&新北市使用不同API
+        const stationName = selectedStation.value["value"];
+        const city = selectedCity.value["value"];
+
+        // Initialize the station in local state
+        stations.value[stationName] = new Station(stationName);
+
+        // Initialize loading state based on city
+        if (city === "臺北市") {
+          tpcLoading.value[stationName] = true;
+        } else if (city === "新北市") {
+          ntcLoading.value[stationName] = true;
+        }
+
+        // Update store first to ensure StationList has the data
+        await store.dispatch("addStation", {
+          stationName: stationName,
+          stationData: {
+            nickname: selectedStation.value.label,
+            city: city,
+          },
+        });
+
+        // Then fetch the data
+        showAddYoubikeStationDialog.value = false;
         const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
-        if (selectedCity.value["value"] === "臺北市") {
-          try {
+
+        try {
+          if (city === "臺北市") {
             const response = await axios.get(
               `${proxyUrl}?url=${encodeURIComponent(
                 "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
               )}`
             );
             const data = response.data;
-
-            const stationData = data.find(
-              (s) => s.sna === selectedStation.value["value"]
-            );
+            const stationData = data.find((s) => s.sna === stationName);
 
             if (stationData) {
-              station.available_rent_bikes = stationData.available_rent_bikes;
-              station.available_return_bikes =
+              stations.value[stationName].available_rent_bikes =
+                stationData.available_rent_bikes;
+              stations.value[stationName].available_return_bikes =
                 stationData.available_return_bikes;
-              station.infoTime = stationData.mday;
-            } else {
-              station.available_rent_bikes = "Station not found";
-              station.available_return_bikes = "Station not found";
-              station.infoTime = "Station not found";
+              stations.value[stationName].infoTime = stationData.mday;
             }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            station.available_rent_bikes = "Error fetching data";
-            station.available_return_bikes = "Error fetching data";
-            station.infoTime = "Error fetching data";
-          }
-        } else if (selectedCity.value["value"] === "新北市") {
-          try {
-            let response1 = await axios.get(
-              `${proxyUrl}?url=${encodeURIComponent(
-                "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
-              )}`
-            );
-            let response2 = await axios.get(
-              `${proxyUrl}?url=${encodeURIComponent(
-                "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
-              )}`
-            );
-            let data = [...response1.data, ...response2.data];
+            tpcLoading.value[stationName] = false;
+          } else if (city === "新北市") {
+            const [response1, response2] = await Promise.all([
+              axios.get(
+                `${proxyUrl}?url=${encodeURIComponent(
+                  "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
+                )}`
+              ),
+              axios.get(
+                `${proxyUrl}?url=${encodeURIComponent(
+                  "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
+                )}`
+              ),
+            ]);
 
-            const stationData = data.find(
-              (s) => s.sna === selectedStation.value["value"]
-            );
+            const data = [...response1.data, ...response2.data];
+            const stationData = data.find((s) => s.sna === stationName);
 
             if (stationData) {
-              station.available_rent_bikes = stationData.sbi;
-              station.available_return_bikes = stationData.bemp;
-              station.infoTime = stationData.mday;
-            } else {
-              station.available_rent_bikes = "Station not found";
-              station.available_return_bikes = "Station not found";
-              station.infoTime = "Station not found";
+              stations.value[stationName].available_rent_bikes =
+                stationData.sbi;
+              stations.value[stationName].available_return_bikes =
+                stationData.bemp;
+              stations.value[stationName].infoTime = stationData.mday;
             }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            station.available_rent_bikes = "Error fetching data";
-            station.available_return_bikes = "Error fetching data";
-            station.infoTime = "Error fetching data";
+            ntcLoading.value[stationName] = false;
           }
-        } else {
-          console.error("Unknown city selected");
-          return;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          if (city === "臺北市") {
+            tpcLoading.value[stationName] = false;
+          } else if (city === "新北市") {
+            ntcLoading.value[stationName] = false;
+          }
         }
 
-        // Update store
-        store.dispatch("addStation", {
-          stationName: selectedStation.value["value"],
-          stationData: {
-            nickname: selectedStation.value.label,
-            city: selectedCity.value.value,
-          },
-        });
-
-        showAddYoubikeStationDialog.value = false;
+        // Reset the form
         selectedCity.value = null;
         selectedDistrict.value = null;
         selectedStation.value = null;
@@ -1464,6 +1512,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
       // Youbike methods
       fetchYoubikeData,
+      isStationLoading,
       addYoubikeStation,
       onCityChange,
       onDistrictChange,
@@ -1599,7 +1648,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .station-card {
   height: 100%;
-  background-color: rgb(239, 246, 254);
+  background-color: rgb(255, 255, 255);
 }
 
 .find-nearest-btn {

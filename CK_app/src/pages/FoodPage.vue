@@ -289,7 +289,7 @@ const closedVarIcon = new Icon({
 
 const ckIcon = new Icon({
   iconUrl:
-    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/food/CK_Logo.png",
+    "https://raw.githubusercontent.com/CK-APP-Org/Data/main/FoodPage/CK_Logo.png",
   iconSize: [41, 41],
   iconAnchor: [20, 20],
 });

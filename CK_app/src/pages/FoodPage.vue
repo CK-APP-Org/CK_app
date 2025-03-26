@@ -245,6 +245,7 @@ import { Icon, Point } from "leaflet";
 import store from "../store/index";
 import L from "leaflet";
 import { useQuasar } from "quasar";
+import restaurantDataLocal from "../data/restaurantData.json";
 const $q = useQuasar();
 
 const mapRef = ref(null);
@@ -420,13 +421,16 @@ const fetchRestaurantData = async () => {
   try {
     isLoading.value = true;
     error.value = null;
-    const response = await axios.get(
+
+    // Fetch from GitHub
+    const githubResponse = await axios.get(
       "https://raw.githubusercontent.com/CK-APP-Org/Data/main/restaurantData.json"
     );
-    restaurantData.value = response.data;
-  } catch (err) {
-    console.error("Error fetching restaurant data:", err);
-    error.value = "Failed to load restaurant data. Please try again later.";
+    const githubData = githubResponse.data;
+
+    // Use local data
+    const localData = restaurantDataLocal;
+    restaurantData.value = localData;
   } finally {
     isLoading.value = false;
   }

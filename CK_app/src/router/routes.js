@@ -57,11 +57,11 @@ const routes = [
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
-  {
-    path: "/metro",
-    component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/MetroPage.vue") }],
-  },
+  // {
+  //   path: "/metro",
+  //   component: () => import("layouts/MainLayout.vue"),
+  //   children: [{ path: "", component: () => import("pages/MetroPage.vue") }],
+  // },
   //to here-----------
 
   // Always leave this as last one,

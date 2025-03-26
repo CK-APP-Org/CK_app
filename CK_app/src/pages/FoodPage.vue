@@ -516,13 +516,13 @@ const selectRandomRestaurant = () => {
 
 onMounted(() => {
   fetchRestaurantData();
-  delete Icon.Default.prototype._getIconUrl;
-  Icon.Default.mergeOptions({
-    iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
-      .href,
-    iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
-    shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
-  });
+  // delete Icon.Default.prototype._getIconUrl;
+  // Icon.Default.mergeOptions({
+  //   iconRetinaUrl: new URL("https://imgur.com/2bk3D5t.png", import.meta.url)
+  //     .href,
+  //   iconUrl: new URL("https://imgur.com/0ZsD2ff.png", import.meta.url).href,
+  //   shadowUrl: new URL("https://imgur.com/qKgJSmB.png", import.meta.url).href,
+  // });
 });
 </script>
 

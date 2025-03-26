@@ -110,9 +110,11 @@
                     </div>
                   </template>
                 </div>
+                <!--
                 <div class="text-h6">
                   建中優惠: {{ selectedMarker.discount }}
                 </div>
+                -->
               </div>
             </div>
           </div>

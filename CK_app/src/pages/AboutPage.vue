@@ -68,7 +68,7 @@
 
     <q-card class="q-ma-md">
       <q-card-section class="row items-center">
-        <div class="text-h5 text-primary">版本資訊＆未來版本</div>
+        <div class="text-h5 text-primary">版本資訊</div>
         <q-space />
         <q-btn
           color="primary"
@@ -90,10 +90,10 @@
         </q-card-section>
 
         <q-card-section>
-          <div class="item-info-title q-mb-sm">未來版本預計新增功能：</div>
+          <div class="item-info-title q-mb-sm">新增功能：</div>
           <q-list dense>
             <q-item
-              v-for="(item, index) in futureFeatures"
+              v-for="(item, index) in newFeatures"
               :key="index"
               class="item-info"
             >
@@ -135,13 +135,12 @@ export default {
     const slide = ref("Intro");
     const openVersionInfo = ref(false);
     const openEmailDialog = ref(false);
-    const futureFeatures = ref([
-      "熱食部/早餐部擁擠程度",
-      "北捷/公車即時資訊",
-      "圖書館剩餘座位資訊",
-      "YouBike頁面搜尋自動抓取使用者位置",
-      "美食頁面顯示建中生專屬優惠及建中生評分系統",
-      "資料自動備份",
+    const newFeatures = ref([
+      "北捷即時動態",
+      "校網資料自動刷新",
+      "自由設定首頁&工具列",
+      "美食地圖隨機選擇餐廳",
+      "美食地圖資訊",
     ]);
     const carouselSlides = [
       {
@@ -205,7 +204,7 @@ export default {
       slide,
       carouselSlides,
       openVersionInfo,
-      futureFeatures,
+      newFeatures,
       openEmailDialog,
       openInstagram,
       openOfficialWebsite,

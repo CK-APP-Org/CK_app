@@ -562,7 +562,7 @@
 <script>
 import { computed, onMounted, ref } from "vue";
 import store from "../store/index";
-import ICAL from "ical.js";
+//import ICAL from "ical.js";
 import { useQuasar } from "quasar";
 
 export default {

@@ -73,7 +73,7 @@
         <q-btn
           color="primary"
           icon="info"
-          label="2.0"
+          label="3.0"
           @click="openVersionInfo = true"
         />
       </q-card-section>
@@ -86,7 +86,7 @@
         </q-card-section>
 
         <q-card-section>
-          <div class="text-h6">CK APP 當前版本： 2.0</div>
+          <div class="text-h6">CK APP 當前版本： 3.0</div>
         </q-card-section>
 
         <q-card-section>

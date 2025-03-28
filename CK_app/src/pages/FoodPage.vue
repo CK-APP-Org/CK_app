@@ -313,7 +313,7 @@ const getMarkerIcon = (marker) => {
 
   const hourRanges = todayHours.split(",");
   for (const range of hourRanges) {
-    const [open, close] = range.split(/[-–]/);
+    const [open, close] = range.split(/[-]/);
 
     // Check if closing in 30 minutes
     if (isWithinMinutes(time, close, 30) && time < close) {

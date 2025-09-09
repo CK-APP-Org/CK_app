@@ -272,18 +272,18 @@ export default {
 
     const fetchNews = async () => {
       isLoading.value = true;
-      const urls = [
+      const originalUrls = [
         "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/KG5mY0d9355?f=normal&%240=hhyrNQJ0110&vector=private&static=false", //重要公告
         "https://www.ck.tp.edu.tw/nss/main/feeder/5abf2d62aa93092cee58ceb4/IXZld9j7619?f=normal&%240=kpenVCJ9015&vector=private&static=false", //最新消息
       ];
 
+      const proxiedUrls = originalUrls.map(
+        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`
+      );
+
       try {
         const lastClearedTime = store.getters.getLastClearedTime;
-        const promises = urls.map((url) =>
-          axios.get("https://ck-web-news-9f40e6bce7de.herokuapp.com/proxy", {
-            params: { url },
-          })
-        );
+        const promises = proxiedUrls.map((url) => axios.get(url));
 
         const responses = await Promise.all(promises);
         let allNews = [];

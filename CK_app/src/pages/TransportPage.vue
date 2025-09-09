@@ -668,7 +668,6 @@ export default defineComponent({
     // Youbike methods
     const fetchYoubikeData = async () => {
       const stationList = StationList.value;
-      const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
 
       if (!stationList) {
         console.error("StationList is undefined");
@@ -712,22 +711,22 @@ export default defineComponent({
       };
 
       try {
-        // Fetch TPC data
+        // Fetch TPC data using corsproxy.io
         const tpcDataPromise = axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
+          `https://corsproxy.io/?${encodeURIComponent(
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
           )}`
         );
 
-        // Fetch NTC data in parallel
+        // Fetch NTC data in parallel using corsproxy.io
         const ntcDataPromises = [
           axios.get(
-            `${proxyUrl}?url=${encodeURIComponent(
+            `https://corsproxy.io/?${encodeURIComponent(
               "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
             )}`
           ),
           axios.get(
-            `${proxyUrl}?url=${encodeURIComponent(
+            `https://corsproxy.io/?${encodeURIComponent(
               "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
             )}`
           ),
@@ -823,12 +822,11 @@ export default defineComponent({
 
         // Then fetch the data
         showAddYoubikeStationDialog.value = false;
-        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
 
         try {
           if (city === "臺北市") {
             const response = await axios.get(
-              `${proxyUrl}?url=${encodeURIComponent(
+              `https://corsproxy.io/?${encodeURIComponent(
                 "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
               )}`
             );
@@ -846,12 +844,12 @@ export default defineComponent({
           } else if (city === "新北市") {
             const [response1, response2] = await Promise.all([
               axios.get(
-                `${proxyUrl}?url=${encodeURIComponent(
+                `https://corsproxy.io/?${encodeURIComponent(
                   "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
                 )}`
               ),
               axios.get(
-                `${proxyUrl}?url=${encodeURIComponent(
+                `https://corsproxy.io/?${encodeURIComponent(
                   "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
                 )}`
               ),
@@ -894,26 +892,26 @@ export default defineComponent({
     const onDistrictChange = async () => {
       selectedStation.value = null;
       stationOptions.value = [];
-      const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
+
       if (selectedDistrict.value) {
         let apiUrl;
         if (selectedCity.value["value"] === "臺北市") {
-          apiUrl = encodeURIComponent(
+          apiUrl = `https://corsproxy.io/?${encodeURIComponent(
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
-          );
+          )}`;
         } else if (selectedCity.value["value"] === "新北市") {
-          apiUrl = encodeURIComponent(
+          apiUrl = `https://corsproxy.io/?${encodeURIComponent(
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
-          );
+          )}`;
         }
         try {
-          let response = await axios.get(`${proxyUrl}?url=${apiUrl}`);
+          let response = await axios.get(apiUrl);
           let data = response.data;
 
           //Because NTC API has two pages
           if (selectedCity.value["value"] === "新北市") {
             const response2 = await axios.get(
-              `${proxyUrl}?url=${encodeURIComponent(
+              `https://corsproxy.io/?${encodeURIComponent(
                 "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
               )}`
             );
@@ -1061,9 +1059,8 @@ export default defineComponent({
 
     const fetchAllStationsData = async () => {
       try {
-        const proxyUrl = "https://ck-web-news-9f40e6bce7de.herokuapp.com/Proxy";
         const tpcResponse = await axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
+          `https://corsproxy.io/?${encodeURIComponent(
             "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
           )}`
         );
@@ -1076,13 +1073,13 @@ export default defineComponent({
         }));
 
         const ntcResponse1 = await axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
+          `https://corsproxy.io/?${encodeURIComponent(
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?size=1000"
           )}`
         );
 
         const ntcResponse2 = await axios.get(
-          `${proxyUrl}?url=${encodeURIComponent(
+          `https://corsproxy.io/?${encodeURIComponent(
             "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json?page=1&size=1000"
           )}`
         );
@@ -1227,8 +1224,6 @@ export default defineComponent({
     };
 
     const fetchTrackInfo = async () => {
-      const proxyUrl =
-        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
       const apiUrl = "https://api.metro.taipei/metroapi/TrackInfo.asmx";
       const xmlData = `<?xml version="1.0" encoding="utf-8"?>
   <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1251,14 +1246,12 @@ export default defineComponent({
         }
 
         const response = await axios.post(
-          proxyUrl,
-          {
-            url: apiUrl,
-            xmlData: xmlData,
-          },
+          `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+          xmlData,
           {
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "text/xml; charset=utf-8",
+              SOAPAction: "http://tempuri.org/getTrackInfo",
             },
           }
         );
@@ -1330,8 +1323,6 @@ export default defineComponent({
     };
 
     const fetchCarWeight = async () => {
-      const proxyUrl =
-        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
       const apiUrl = "https://api.metro.taipei/metroapi/CarWeight.asmx";
       const xmlData = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1347,14 +1338,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
       try {
         const response = await axios.post(
-          proxyUrl,
-          {
-            url: apiUrl,
-            xmlData: xmlData,
-          },
+          `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+          xmlData,
           {
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "text/xml; charset=utf-8",
+              SOAPAction: "http://tempuri.org/getCarWeightByInfoEx",
             },
           }
         );
@@ -1402,8 +1391,6 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     };
 
     const fetchCarWeightBR = async () => {
-      const proxyUrl =
-        "https://ck-web-news-9f40e6bce7de.herokuapp.com/metroProxy";
       const apiUrl = "https://api.metro.taipei/metroapi/CarWeightBR.asmx";
       const xmlData = `<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1419,14 +1406,12 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
       try {
         const response = await axios.post(
-          proxyUrl,
-          {
-            url: apiUrl,
-            xmlData: xmlData,
-          },
+          `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+          xmlData,
           {
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "text/xml; charset=utf-8",
+              SOAPAction: "http://tempuri.org/getCarWeightBRInfo",
             },
           }
         );

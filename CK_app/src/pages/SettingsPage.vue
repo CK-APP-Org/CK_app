@@ -975,4 +975,13 @@ export default {
 .custom-menu-item .q-item__section--avatar {
   min-width: 40px;
 }
+.custom-banner {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+}
 </style>

@@ -4,8 +4,8 @@
   </div>
   <div v-else class="q-pa-md">
     <div class="custom-banner q-mb-md">
-      <q-icon name="info" color="info" size="sm" class="q-mr-sm" />
-      點擊課表格子可自訂科目、顏色和備註
+      <q-icon name="warning" color="info" size="sm" class="q-mr-sm" />
+      校方基於隱私權現在不提供課表資料，僅能自行輸入
     </div>
     <q-table
       flat
@@ -35,6 +35,7 @@
             />
             <div class="text-h5 text-bold">{{ userClass }} 課表 &thinsp;</div>
             <q-btn
+              disable
               round
               size="sm"
               color="primary"
@@ -52,6 +53,7 @@
 
                 <q-card-section class="q-pt-md">
                   <q-select
+                    disable
                     filled
                     v-model="selectedClass"
                     :options="classOptions"

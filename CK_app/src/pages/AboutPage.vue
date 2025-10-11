@@ -13,7 +13,7 @@
       navigation
       padding
       arrows
-      height="380px"
+      height="355px"
       class="bg-white text-primary shadow-3 rounded-borders q-mb-md"
     >
       <q-carousel-slide
@@ -39,7 +39,7 @@
           由兩位建中高三生於2024年所開發，CK
           APP旨在幫助所有建中生解決生活中遇到的大小困難。
         </p>
-        <p>
+        <p class="q-mb-none">
           我們歡迎使用者提供任何建議，若能精進CK
           APP以提升所有建中生的福祉，將是我們的一大榮幸。
         </p>
@@ -81,16 +81,12 @@
 
     <q-dialog v-model="openVersionInfo">
       <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h5">版本資訊</div>
-        </q-card-section>
-
-        <q-card-section>
+        <q-card-section class="q-pb-none">
           <div class="text-h6">CK APP 當前版本： 3.0</div>
         </q-card-section>
 
-        <q-card-section>
-          <div class="item-info-title q-mb-sm">新增功能：</div>
+        <q-card-section class="q-pb-none">
+          <div class="item-info-title q-mb-sm">更新項目：</div>
           <q-list dense>
             <q-item
               v-for="(item, index) in newFeatures"
@@ -136,11 +132,12 @@ export default {
     const openVersionInfo = ref(false);
     const openEmailDialog = ref(false);
     const newFeatures = ref([
-      "北捷即時動態",
-      "校網資料自動刷新",
-      "自由設定首頁&工具列",
+      "新增北捷即時動態",
+      "校網資料自動背景刷新",
+      "自由設定首頁&工具列項目",
       "美食地圖隨機選擇餐廳",
       "美食地圖資訊更新",
+      "暫時移除課表及註冊功能",
     ]);
     const carouselSlides = [
       {

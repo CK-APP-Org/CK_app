@@ -59,7 +59,7 @@
             <l-popup :options="{ offset: new Point(0, -10) }">
               <div class="text-h6">{{ marker.name }}</div>
               <div class="today-hours">
-                今日營業&nbsp;
+                今日時間&nbsp;
                 <template
                   v-for="(section, index) in marker.openingHours[
                     getCurrentDay()
@@ -73,9 +73,11 @@
                 </template>
 
                 <!-- Debug information -->
+                <!--
                 <div class="icon-debug">
                   Icon Type: {{ getIconType(getMarkerIcon(marker)) }}
                 </div>
+                -->
               </div>
             </l-popup>
           </l-marker>
@@ -469,11 +471,13 @@ const showSidebarAndDisplayIconType = (marker) => {
   const iconType = getIconType(getMarkerIcon(marker));
 
   // Optional: Use Quasar notify to show more details
+  /*
   $q.notify({
     message: `Marker: ${marker.name}, Icon Type: ${iconType}`,
     color: "info",
     position: "bottom",
   });
+  */
 
   showSidebar(marker);
 };

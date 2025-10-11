@@ -1,5 +1,9 @@
 <template>
   <q-page class="q-pa-md">
+    <div class="custom-banner q-mb-md">
+      <q-icon name="warning" color="info" size="sm" class="q-mr-sm" />
+      註冊功能基於隱私權因素而暫時停用，敬請見諒。
+    </div>
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-4">
         <!-- Account Information Card -->
@@ -10,24 +14,28 @@
               <div><strong>名稱:</strong> {{ userAccount }}</div>
               <div><strong>Email:</strong> {{ email }}</div>
               <q-btn
+                disable
                 color="negative"
                 label="登出"
                 @click="logout"
                 class="full-width q-mt-md"
               />
               <q-btn
+                disable
                 color="negative"
                 label="清除所有資料"
                 @click="confirmClear"
                 class="full-width q-mt-md"
               />
               <q-btn
+                disable
                 color="primary"
                 label="匯入資料"
                 @click="importData"
                 class="full-width q-mt-md"
               />
               <q-btn
+                disable
                 color="primary"
                 label="備份資料"
                 @click="saveData"
@@ -39,12 +47,14 @@
                 您尚未登入。若欲備份您的資料或匯入已備份之資料，請點擊登入/註冊按鈕。
               </p>
               <q-btn
+                disable
                 color="primary"
                 label="登入/註冊"
                 @click="goToLoginPage"
                 class="full-width q-mt-md"
               />
               <q-btn
+                disable
                 color="negative"
                 label="清除所有資料"
                 @click="confirmClear"
@@ -64,6 +74,7 @@
                 </q-item-section>
                 <q-item-section>
                   <q-select
+                    disable
                     filled
                     @update:model-value="confirmClassChange"
                     :options="classOptions"

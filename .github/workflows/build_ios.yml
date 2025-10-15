@@ -1,0 +1,38 @@
+name: Build Quasar App for iOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'CK_app/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd CK_app
+          npm install
+          npm install -g @quasar/cli
+          npm install -g cordova
+
+      - name: Build Quasar app for iOS (Cordova)
+        run: |
+          cd CK_app
+          quasar mode add cordova
+          quasar build -m cordova -T ios
+
+      - name: Archive iOS build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: CK_app/src-cordova/platforms/ios/build/

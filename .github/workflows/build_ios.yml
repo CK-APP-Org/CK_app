@@ -61,9 +61,10 @@ jobs:
         run: |
           cd CK_app
           yarn ios
+          npx cap build ios
 
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: CK_app/src-capacitor/platforms/ios/build/
+          path: CK_app/src-capacitor/ios/App/output

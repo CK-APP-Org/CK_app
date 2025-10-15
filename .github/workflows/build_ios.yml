@@ -28,7 +28,7 @@ jobs:
           quasar build -m cordova -T ios
 
       - name: Archive iOS build output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: src-cordova/platforms/ios/build/

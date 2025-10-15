@@ -83,17 +83,17 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn
+        <!--<q-btn
           v-if="isLogin"
           flat
           label="忘記密碼?"
           @click="showForgotPasswordDialog = true"
-        />
-        <q-btn
+        />-->
+        <!--<q-btn
           flat
           :label="isLogin ? '尚未註冊?' : '已有帳號?'"
           @click="isLogin = !isLogin"
-        />
+        />>-->
       </q-card-actions>
     </q-card>
   </q-page>

@@ -2,6 +2,8 @@ export default {
   state: () => ({
     menuItems: [
       { label: "首頁", icon: "home", link: "/", visible: true, fixed: true },
+      { label: "特約", icon: "store", link: "/promo", visible: true },
+      { label: "紀念品", icon: "shopping_bag", link: "/souvenir", visible: true },
       { label: "課表", icon: "book", link: "/schedule", visible: true },
       { label: "行事曆", icon: "calendar_month", link: "/todo", visible: true },
       {

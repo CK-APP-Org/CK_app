@@ -51,6 +51,16 @@ const routes = [
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/NewsPage.vue") }],
   },
+  {
+    path: "/promo",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/PromoPage.vue") }],
+  },
+  {
+    path: "/souvenir",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/SouvenirPage.vue") }],
+  },
   //New---------------
   {
     path: "/login",

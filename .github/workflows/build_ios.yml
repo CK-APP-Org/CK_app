@@ -15,11 +15,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
-      - run: 'cd CK_app'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd CK_app
+          npm install
 
       - name: Install Quasar CLI
         run: npm install -g @quasar/cli

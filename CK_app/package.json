@@ -10,7 +10,8 @@
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
-    "build": "quasar build"
+    "build": "quasar build",
+    "ios": "quasar build -m capacitor -T ios"
   },
   "dependencies": {
     "@quasar/cli": "^2.5.0",
@@ -41,7 +42,7 @@
     "prettier": "^2.5.1"
   },
   "engines": {
-    "node": "^18 || ^16 || ^14.19",
+    "node": "^22 || ^14.19",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   }

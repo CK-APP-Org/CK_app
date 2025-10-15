@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build",
-    "ios": "quasar build -m capacitor -T ios"
+    "ios": "quasar build -m capacitor -T ios --ide"
   },
   "dependencies": {
     "@quasar/cli": "^2.5.0",

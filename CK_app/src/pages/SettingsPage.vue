@@ -2,62 +2,34 @@
   <q-page class="q-pa-md">
     <div class="custom-banner q-mb-md">
       <q-icon name="warning" color="info" size="sm" class="q-mr-sm" />
-      註冊功能基於隱私權因素而暫時停用，敬請見諒。
+      登入功能僅供管理員使用
     </div>
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-4">
         <!-- Account Information Card -->
         <q-card class="q-mb-md">
           <q-card-section>
-            <div class="text-h6 q-mb-md">帳號資訊</div>
+            <div class="text-h6 q-mb-md">管理員登入</div>
             <div v-if="isLoggedIn" class="column q-gutter-y-sm">
-              <div><strong>名稱:</strong> {{ userAccount }}</div>
-              <div><strong>Email:</strong> {{ email }}</div>
+              <div class="adminbackground row items-center q-gutter-x-md">
+                <q-icon name="manage_accounts" size="50px"/>
+                <div class="column">
+                  <div class="admin-username">{{ userAccount }}</div>
+                  <div class="admin-email">{{ email }}</div>
+                </div>
+              </div>
               <q-btn
-                disable
                 color="negative"
                 label="登出"
                 @click="logout"
                 class="full-width q-mt-md"
               />
-              <q-btn
-                disable
-                color="negative"
-                label="清除所有資料"
-                @click="confirmClear"
-                class="full-width q-mt-md"
-              />
-              <q-btn
-                disable
-                color="primary"
-                label="匯入資料"
-                @click="importData"
-                class="full-width q-mt-md"
-              />
-              <q-btn
-                disable
-                color="primary"
-                label="備份資料"
-                @click="saveData"
-                class="full-width q-mt-md"
-              />
             </div>
             <div v-else class="column q-gutter-y-sm">
-              <p>
-                您尚未登入。若欲備份您的資料或匯入已備份之資料，請點擊登入/註冊按鈕。
-              </p>
               <q-btn
-                disable
                 color="primary"
-                label="登入/註冊"
+                label="登入"
                 @click="goToLoginPage"
-                class="full-width q-mt-md"
-              />
-              <q-btn
-                disable
-                color="negative"
-                label="清除所有資料"
-                @click="confirmClear"
                 class="full-width q-mt-md"
               />
             </div>
@@ -236,7 +208,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showBackupDialog">
+    <!--<q-dialog v-model="showBackupDialog">
       <q-card>
         <q-card-section>
           <div class="text-h6">註冊成功！歡迎您的加入</div>
@@ -258,7 +230,7 @@
           />
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog>-->
 
     <q-dialog v-model="showImportDialog">
       <q-card>
@@ -983,5 +955,25 @@ export default {
   font-size: 0.9em;
   display: flex;
   align-items: center;
+}
+.adminbackground {
+  display: "flex";
+  align-items: "center";
+  gap: "12px";
+  padding: "12px";
+  border-radius:  "12px";
+  box-shadow: "0 2px 6px rgba(0,0,0,0.1)";
+  margin-bottom: 0;
+}
+.admin-username {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+.admin-email {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
 }
 </style>

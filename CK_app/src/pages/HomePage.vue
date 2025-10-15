@@ -65,7 +65,7 @@
               <q-item-section>
                 <q-item-label>{{ task.title }}</q-item-label>
                 <q-item-label caption v-if="task.category">{{
-                  task.category.name
+                  task.name
                 }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -130,12 +130,36 @@
           <div class="text-content text-capitalize">{{ item.name }}</div>
         </q-btn>
       </div>
+      <!--<div v-if="isLogin">
+        <div v-for="admin in admins" :key="admin.name" class="icon-item">
+          <q-btn
+            stack
+            class="icon-btn"
+            :rounded="true"
+            @click="navigateTo(admin.link)"
+          >
+            <q-icon :name="admin.icon" size="2.5em" />
+            <div class="text-content text-capitalize">{{ admin.name }}</div>
+          </q-btn>
+        </div>
+      </div>-->
     </div>
   </div>
 </template>
 
 <script>
-import { onMounted, ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+/*import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";*/
 import store from "../store/index";
 
 export default {
@@ -143,14 +167,19 @@ export default {
     return {
       search: "",
       items: [
-        { name: "課表", icon: "book", link: "/schedule" },
+        { name: "特約商店", icon: "store", link: "/promo" },
+        { name: "校慶紀念品", icon: "shopping_bag", link: "/souvenir" },
         { name: "行事曆", icon: "calendar_month", link: "/todo" },
         { name: "交通", icon: "directions_walk", link: "/transport" },
         { name: "熱食部", icon: "restaurant_menu", link: "/menu" },
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
+        { name: "課表", icon: "book", link: "/schedule" },
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
+      ],
+      admins: [
+        { name: "管理資訊", icon: "info", link: "/adminpost" },
       ],
     };
   },
@@ -163,7 +192,12 @@ export default {
   },
   methods: {
     navigateTo(link) {
+      if (link.startsWith("http") || link.startsWith("www") || link.startsWith("https")) {
+        window.open(link, "_blank");
+        return;
+      } else {
       this.$router.push(link);
+      }
     },
     onTodoCheck(todo) {
       store.dispatch("deleteTodo", todo.id);
@@ -193,18 +227,18 @@ export default {
       });
     });
 
-    // Pinned School News data
-    // const pinnedNews = ref([
-    //   { title: "下週一校慶活動安排", date: "2023-07-25" },
-    //   { title: "暑期輔導課程開放報名", date: "2023-07-24" },
-    // ]);
-
     const scheduleData = computed(() => store.getters.getScheduleData);
     const pinnedNews = computed(() => store.getters.getPinnedNews);
 
     const showSchedule = computed(() => store.getters.getShowSchedule);
     const showTodo = computed(() => store.getters.getShowTodo);
     const showSchoolNews = computed(() => store.getters.getShowSchoolNews);
+
+    // 從 Vuex store 獲取登入狀態
+    const isLogin = computed(() => {
+      const userAccount = store.getters.getUserAccount;
+      return userAccount !== null && userAccount !== undefined && userAccount !== '';
+    });
 
     const currentClass = computed(() => {
       const now = new Date();
@@ -218,7 +252,6 @@ export default {
         "Saturday",
       ][now.getDay()];
       const currentHour = now.getHours();
-      // Assuming classes start at 8 AM and each period is 1 hour
       const currentPeriod =
         ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
         "課後";
@@ -244,7 +277,7 @@ export default {
       };
       const getLabelValue = (label) => {
         const option = colorOptions.find((opt) => opt.label === label);
-        return option ? option.value : "#f4f4f1"; // Default color if not found
+        return option ? option.value : "#f4f4f1";
       };
       return currentClassData
         ? {
@@ -257,7 +290,9 @@ export default {
             note: "這個時段沒有安排課程",
           };
     });
+
     return {
+      isLogin,
       currentClass,
       todos,
       pinnedNews,
@@ -266,7 +301,7 @@ export default {
       showTodo,
       todayTodos,
     };
-  },
+  }
 };
 </script>
 

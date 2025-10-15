@@ -39,30 +39,42 @@
           由兩位建中高三生於2024年所開發，CK
           APP旨在幫助所有建中生解決生活中遇到的大小困難。
         </p>
-        <p class="q-mb-none">
+        <p class="q-mb-sm">
           我們歡迎使用者提供任何建議，若能精進CK
           APP以提升所有建中生的福祉，將是我們的一大榮幸。
+        </p>
+        <p class="q-mb-none">
+          班聯會資訊股自2025年10月(80屆)起開始負責CK APP
+          的維護與更新，如有任何問題亦歡迎與班聯會聯繫。
         </p>
       </q-card-section>
     </q-card>
 
     <q-card class="q-ma-md">
       <q-card-section class="row items-center">
-        <div class="text-h5 text-primary">聯絡我們</div>
+        <div class="text-h5 text-primary q-mb-md">聯絡我們</div>
         <q-space />
-        <q-btn color="primary" icon="mail" @click="openEmailDialog = true" />
-        <q-btn
-          class="q-ml-sm"
-          color="purple"
-          icon="photo_camera"
-          @click="openInstagram"
-        />
-        <q-btn
-          class="q-ml-sm"
-          color="blue"
-          icon="language"
-          @click="openOfficialWebsite"
-        />
+        <div>
+          <q-btn color="primary" icon="mail" @click="openEmailDialog = true" />
+          <q-btn
+            class="q-ml-sm"
+            color="purple"
+            icon="photo_camera"
+            @click="openInstagram"
+          />
+          <q-btn
+            class="q-ml-sm"
+            color="blue"
+            icon="language"
+            @click="openOfficialWebsite"
+          />
+          <q-btn
+            class="q-ml-sm"
+            color="orange"
+            icon="tag"
+            @click="openckscinsta"
+          />
+        </div>
       </q-card-section>
     </q-card>
 
@@ -113,7 +125,8 @@
           <div class="text-h6">Email 地址</div>
         </q-card-section>
         <q-card-section>
-          <p>ckappofficial@gmail.com</p>
+          <p>CK APP : ckappofficial@gmail.com</p>
+          <p>班聯會 : ckhssc@gl.ck.tp.edu.tw</p>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="關閉" color="primary" v-close-popup />
@@ -132,6 +145,8 @@ export default {
     const openVersionInfo = ref(false);
     const openEmailDialog = ref(false);
     const newFeatures = ref([
+      "新增校慶紀念品訂購功能",
+      "新增特約商店功能",
       "新增北捷即時動態",
       "校網資料自動背景刷新",
       "自由設定首頁&工具列項目",
@@ -184,6 +199,20 @@ export default {
         description:
           "追蹤校網的所有公告，自由已讀或釘選，不再漏接訊息或被不重要的訊息干擾",
       },
+      {
+        name: "Promo",
+        icon: "store",
+        title: "特約商店，節省荷包",
+        description:
+          "查詢特約商店相關資訊，為自己節省荷包",
+      },
+      {
+        name: "Souvenir",
+        icon: "shopping_bag",
+        title: "校慶紀念品，隨時都能買",
+        description:
+          "今日我以建中為榮，明日建中以我為榮",
+      },
     ];
 
     const openInstagram = () => {
@@ -197,6 +226,10 @@ export default {
       window.open("https://ckapp-tw.web.app/", "_blank");
     };
 
+    const openckscinsta = () => {
+      window.open("https://www.instagram.com/cksc.80th/", "_blank")
+    }
+
     return {
       slide,
       carouselSlides,
@@ -205,6 +238,7 @@ export default {
       openEmailDialog,
       openInstagram,
       openOfficialWebsite,
+      openckscinsta,
     };
   },
 };

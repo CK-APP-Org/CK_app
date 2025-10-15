@@ -4,7 +4,7 @@
     content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
   />
   <q-layout view="hHh lpR fFf">
-    <q-header elevated>
+    <q-header elevated v-if="!isSouvenirPage">
       <q-toolbar>
         <q-btn
           flat
@@ -96,10 +96,12 @@ export default defineComponent({
 
     const visibleMenuItems = computed(() => store.getters.getVisibleMenuItems);
     const isHomePage = computed(() => route.path === "/");
+    const isSouvenirPage = computed(() => route.path === "/souvenir");
 
     return {
       visibleMenuItems,
       isHomePage,
+      isSouvenirPage,
     };
   },
 });

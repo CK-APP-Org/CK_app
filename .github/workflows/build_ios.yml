@@ -22,7 +22,7 @@ jobs:
         run: |
           cd CK_app
           npm install -g yarn @quasar/cli
-          yarn ci
+          yarn install --frozen-lockfile
 
       # - name: Install Certificates and Provisioning Profile
       #   env:

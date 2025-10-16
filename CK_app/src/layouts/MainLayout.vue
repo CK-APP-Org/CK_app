@@ -4,7 +4,7 @@
     content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
   />
   <q-layout view="hHh lpR fFf">
-    <q-header elevated v-if="!isSouvenirPage">
+    <q-header elevated>
       <q-toolbar>
         <q-btn
           flat

@@ -1,13 +1,13 @@
-name: Build Quasar App for iOS
+name: Deploy iOS App to TestFlight
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'CK_app/**'
-      - '.github/workflows/build_ios.yml'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'CK_app/**'
+  #     - '.github/workflows/build_ios.yml'
 
 jobs:
   build-ios:

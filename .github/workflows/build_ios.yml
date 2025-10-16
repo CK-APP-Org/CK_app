@@ -17,6 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: 
+          xcode-version: latest-stable
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

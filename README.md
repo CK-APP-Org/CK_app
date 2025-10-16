@@ -2,6 +2,7 @@
 1. [CK APP是什麼？](#ck-app是什麼)
 2. [CK APP架構介紹](#ck-app架構介紹)
 3. [頁面/功能介紹](#頁面功能介紹)
+4. [開發說明](#開發說明)
 
 ## CK APP是什麼？
 CK APP是建中第77屆學生彭可翰和楊晨諺於2024年暑假所開發的應用程式，目的是幫助所有建中生解決生活中遇到的大小困難。CK APP自從2024年9月在iOS和Android雙平台上架至2025年9月共累積2080次下載。我們期許CK APP能夠持續幫助未來的所有建中生。
@@ -78,3 +79,8 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 版本要記得改。之後應該要增加開發者介紹。
 ### LoginPage
 註冊/登入的功能未來應該要拔掉。目前我們的做法是把使用者資料丟到Firebase，但現在CK APP好像不太能存取Firebase，我們推測是因為太多使用者上傳資料，連後臺想去Firebase看資料都會卡到爆。
+
+## 開發說明
+### 上架
+1. 在 `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
+2. 執行 Github Action - Deploy iOS App to TestFlight

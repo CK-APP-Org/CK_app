@@ -9,7 +9,6 @@
         <q-btn
           flat
           dense
-          round
           icon="info"
           href="/#/about"
           class="absolute-left q-ml-md"
@@ -17,7 +16,6 @@
         <q-btn
           flat
           dense
-          round
           icon="settings"
           href="/#/settings"
           class="absolute-right q-mr-md"

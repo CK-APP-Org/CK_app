@@ -81,6 +81,15 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 註冊/登入的功能未來應該要拔掉。目前我們的做法是把使用者資料丟到Firebase，但現在CK APP好像不太能存取Firebase，我們推測是因為太多使用者上傳資料，連後臺想去Firebase看資料都會卡到爆。
 
 ## 開發說明
+### 在電腦以網頁模擬
+1. 下載Node.js (https://nodejs.org/en/download/)
+2. 下載Git (https://git-scm.com/downloads)
+3. 開啟終端機(Terminal)並輸入 `git clone https://github.com/CK-APP-Org/CK_app.git`
+4. 進入CK_app資料夾 `cd CK_app/CK_app`
+5. 安裝Quasar CLI `npm install -g @quasar/cli`
+6. 安裝套件 `yarn install`
+7. 啟動網頁模擬 `quasar dev`
+8. 在瀏覽器開啟 `http://localhost:9000`
 ### 上架
 1. 在 `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
 2. 執行 Github Action - Deploy iOS App to TestFlight

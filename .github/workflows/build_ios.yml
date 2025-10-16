@@ -58,7 +58,10 @@ jobs:
           cd CK_app
           yarn ios
           cd src-capacitor
-          npx cap build ios
+          npx cap update
+          npx cap copy
+          xcodebuild -workspace './ios/App/App.xcworkspace' -scheme App -destination generic/platform=iOS -archivePath App.xcarchive archive
+          xcodebuild archive -archivePath App.xcarchive -exportArchive -exportOptionsPlist ./archive.plist -exportPath output -allowProvisioningUpdates
 
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4

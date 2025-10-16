@@ -14,7 +14,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'yarn'
           cache-dependency-path: 'CK_app/yarn.lock'
 
@@ -22,7 +22,7 @@ jobs:
         run: |
           cd CK_app
           npm install -g yarn @quasar/cli
-          yarn ci
+          yarn install --frozen-lockfile
 
       - name: Install the Apple certificate and provisioning profile
         env:
@@ -57,9 +57,11 @@ jobs:
         run: |
           cd CK_app
           yarn ios
+          cd src-capacitor
+          npx cap build ios
 
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: CK_app/src-capacitor/platforms/ios/build/
+          path: CK_app/src-capacitor/ios/App/output

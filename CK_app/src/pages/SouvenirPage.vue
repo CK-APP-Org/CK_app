@@ -1,19 +1,13 @@
 <template>
   <div class="iframe-container">
     <iframe
-      id="inlineFrameExample"
-      title="Inline Frame Example"
       src="https://souvenir.cksc.tw/auth"
     >
     </iframe>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'FullScreenIframe'
-}
-</script>
+<script></script>
 
 <style scoped>
 .iframe-container {

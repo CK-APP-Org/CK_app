@@ -6,8 +6,8 @@
 <string>app-store</string>
 <key>provisioningProfiles</key>
 <dict>
-    <key>place.appreciation.jar</key>
-    <string>Deploy GitHub</string>
+    <key>org.capacitor.quasar.ckapp</key>
+    <string>Github Actions</string>
 </dict>
 </dict>
 </plist>

@@ -39,7 +39,7 @@ iframe {
 
 @media (max-width: 1023px) {
   .iframe-wrapper {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 50px - 50px);
   }
 }
 </style>

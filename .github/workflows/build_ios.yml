@@ -61,10 +61,10 @@ jobs:
           npx cap update ios
           npx cap copy ios
           xcodebuild -workspace './ios/App/App.xcworkspace' -scheme App -destination generic/platform=iOS -archivePath App.xcarchive archive
-          xcodebuild archive -archivePath App.xcarchive -exportArchive -exportOptionsPlist ./archive.plist -exportPath output -allowProvisioningUpdates
+          xcodebuild archive -archivePath App.xcarchive -exportArchive -exportPath output -allowProvisioningUpdates
 
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: CK_app/src-capacitor/ios/App/output
+          path: CK_app/src-capacitor/output

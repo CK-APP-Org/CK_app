@@ -1567,7 +1567,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .add-button-container {
   position: fixed;
-  bottom: 200px;
+  bottom: 140px;
   right: 20px;
   z-index: 2000;
 }

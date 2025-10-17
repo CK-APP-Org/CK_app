@@ -20,7 +20,7 @@ export default {
 <style scoped>
 .souvenir-page {
   padding: 0;
-  height: 70%;
+  height: 67%;
   overflow: hidden;
 }
 

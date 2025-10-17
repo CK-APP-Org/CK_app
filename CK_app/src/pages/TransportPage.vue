@@ -1567,9 +1567,9 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .add-button-container {
   position: fixed;
-  bottom: 85px;
+  bottom: 100px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .add-button {
@@ -1722,7 +1722,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 .add-menu {
   position: absolute;
-  bottom: 60px;
+  bottom: 70px;
   right: 0;
   background-color: white;
   border: 1px solid #ddd;

@@ -4,23 +4,39 @@
     content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
   />
   <q-layout view="hHh lpR fFf">
-    <q-header elevated style="padding-top: env(safe-area-inset-top);">
+    <q-header elevated v-if="!isSouvenirPage" style="padding-top: env(safe-area-inset-top);">
       <q-toolbar>
         <q-btn
           flat
           dense
           icon="info"
           href="/#/about"
-          class="absolute-left q-ml-sm"
         />
+        <q-toolbar-title class="text-center"> CK APP </q-toolbar-title>
         <q-btn
           flat
           dense
           icon="settings"
           href="/#/settings"
-          class="absolute-right q-mr-sm"
         />
-        <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
+      </q-toolbar>
+    </q-header>
+
+    <q-header elevated v-if="isSouvenirPage">
+      <q-toolbar>
+        <q-btn
+          flat
+          dense
+          icon="info"
+          href="/#/about"
+        />
+        <q-toolbar-title class="text-center"> CK APP </q-toolbar-title>
+        <q-btn
+          flat
+          dense
+          icon="settings"
+          href="/#/settings"
+        />
       </q-toolbar>
     </q-header>
 
@@ -84,6 +100,7 @@
 import { defineComponent, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import SouvenirPage from "src/pages/SouvenirPage.vue";
 
 export default defineComponent({
   name: "MainLayout",

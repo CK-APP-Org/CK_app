@@ -19,6 +19,7 @@
     <div class="day-selector q-md">
       <div class="row q-col-gutter-sm justify-center">
         <div v-for="day in days" :key="day.value" class="col-auto">
+          <br />
           <q-btn
             :label="day.label"
             :color="selectedDay === day.value ? 'primary' : 'grey-7'"

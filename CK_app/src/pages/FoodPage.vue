@@ -648,7 +648,7 @@ onMounted(() => {
 
 .map-controls-2 {
   position: absolute;
-  bottom: 200px;
+  bottom: 140px;
   right: 4px;
   z-index: 2000;
   background-color: rgba(255, 255, 255, 0.8);

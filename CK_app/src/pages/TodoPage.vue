@@ -1147,9 +1147,9 @@ export default {
 
 .add-button-container {
   position: fixed;
-  bottom: 85px;
+  bottom: 150px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .add-button {

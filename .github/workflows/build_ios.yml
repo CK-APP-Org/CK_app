@@ -12,7 +12,9 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-
+    defaults:
+      run:
+        working-directory: ./CK_app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -30,7 +32,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd CK_app
           npm install -g yarn @quasar/cli
           yarn install --frozen-lockfile
 
@@ -65,7 +66,6 @@ jobs:
 
       - name: Build Quasar app for iOS (Capacitor)
         run: |
-          cd CK_app
           yarn ios
           cd src-capacitor
           npx cap update ios
@@ -77,7 +77,7 @@ jobs:
         uses: apple-actions/upload-testflight-build@v3
         if: ${{ github.event_name == 'workflow_dispatch' }}
         with: 
-          app-path: 'CK_app/src-capacitor/output/App.ipa' 
+          app-path: 'CK_app/src-capacitor/output/App.ipa'
           issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}

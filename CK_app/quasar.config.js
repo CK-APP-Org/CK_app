@@ -211,5 +211,8 @@ module.exports = configure(function (/* ctx */) {
       // extendBexScriptsConf (esbuildConf) {}
       // extendBexManifestJson (json) {}
     },
+    bin: {
+      windowsAndroidStudio: "C:\\Users\\Nathan Lee\\AppData\\Local\\Programs\\Android Studio\\bin\\studio64.exe",
+    }
   };
 });

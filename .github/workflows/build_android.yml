@@ -1,0 +1,79 @@
+name: Deploy Android APP to Google Play
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'CK_app/**'
+  #     - '.github/workflows/build_ios.yml'
+
+jobs:
+  build-ios:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./CK_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "zulu"
+          java-version: "21"
+          cache: "gradle"
+          cache-dependency-path: "CK_app/src-capacitor/android/build.gradle"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'yarn'
+          cache-dependency-path: 'CK_app/yarn.lock'
+
+      - name: Install dependencies
+        run: |
+          npm install -g yarn @quasar/cli
+          yarn install --frozen-lockfile
+
+      - name: Build Quasar app for Android (Capacitor)
+        run: |
+          chmod +x src-capacitor/android/gradlew
+          yarn android
+          cd src-capacitor/android
+          ./gradlew bundle
+
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK
+        # ID used to access action output
+        id: sign_app
+        with:
+          releaseDirectory: K_app/src-capacitor/android/app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.PLAY_SIGNING_KEY }}
+          alias: ${{ secrets.PLAY_SIGNING_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.PLAY_SIGNING_KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.PLAY_SIGNING_KEY_PASSWORD }}
+        env:
+          # override default build-tools version (33.0.0) -- optional
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: 'Upload app to Google Play Internal test'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: org.capacitor.quasar.ckapp
+          releaseFiles: ${{steps.sign_app.outputs.signedReleaseFile}}
+          track: internal
+          status: inProgress
+          inAppUpdatePriority: 2
+          userFraction: 0.33
+      #          whatsNewDirectory: distribution/whatsnew
+      #          mappingFile: src-capacitor/android/app/build/outputs/mapping/release/mapping.txt
+      #          debugSymbols: src-capacitor/android/app/intermediates/merged_native_libs/release/out/lib
+
+      - name: Archive Android build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}

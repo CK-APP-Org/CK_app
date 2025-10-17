@@ -11,7 +11,8 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build",
-    "ios": "quasar build -m capacitor -T ios --ide"
+    "android": "quasar build -m capacitor -T android --skip-pkg",
+    "ios": "quasar build -m capacitor -T ios --skip-pkg"
   },
   "dependencies": {
     "@quasar/cli": "^2.5.0",

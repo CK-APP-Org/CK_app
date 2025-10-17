@@ -11,14 +11,14 @@
           dense
           icon="info"
           href="/#/about"
-          class="absolute-left q-ml-md"
+          class="absolute-left q-ml-sm"
         />
         <q-btn
           flat
           dense
           icon="settings"
           href="/#/settings"
-          class="absolute-right q-mr-md"
+          class="absolute-right q-mr-sm"
         />
         <q-toolbar-title class="absolute-center"> CK APP </q-toolbar-title>
       </q-toolbar>

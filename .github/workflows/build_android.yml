@@ -49,7 +49,7 @@ jobs:
         # ID used to access action output
         id: sign_app
         with:
-          releaseDirectory: K_app/src-capacitor/android/app/build/outputs/bundle/release
+          releaseDirectory: CK_app/src-capacitor/android/app/build/outputs/bundle/release
           signingKeyBase64: ${{ secrets.PLAY_SIGNING_KEY }}
           alias: ${{ secrets.PLAY_SIGNING_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.PLAY_SIGNING_KEY_STORE_PASSWORD }}

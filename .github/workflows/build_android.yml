@@ -67,7 +67,7 @@ jobs:
           track: internal
           status: inProgress
           inAppUpdatePriority: 2
-          userFraction: 0.33
+          userFraction: 1.00
       #          whatsNewDirectory: distribution/whatsnew
       #          mappingFile: src-capacitor/android/app/build/outputs/mapping/release/mapping.txt
       #          debugSymbols: src-capacitor/android/app/intermediates/merged_native_libs/release/out/lib

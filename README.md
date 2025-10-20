@@ -90,6 +90,9 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 6. 安裝套件 `yarn install`
 7. 啟動網頁模擬 `quasar dev`
 8. 在瀏覽器開啟 `http://localhost:9000`
-### 上架
+### 上架 (Android)
+1. 在 `CK_app\src-capacitor\android\app\build.gradle` 改版本 (`versionCode` & `versionName`)
+2. 執行 Github Action - Deploy Android APP to Google Play
+### 上架 (iOS)
 1. 在 `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
 2. 執行 Github Action - Deploy iOS App to TestFlight

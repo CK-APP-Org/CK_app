@@ -311,6 +311,7 @@ export default {
         news.value = allNews;
       } catch (error) {
         console.error("Error fetching news:", error);
+        isLoading.value = false;
       } finally {
         isLoading.value = false;
       }

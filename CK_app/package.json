@@ -1,8 +1,8 @@
 {
   "name": "ck-app",
-  "version": "0.0.1",
+  "version": "3.0.1",
   "description": "An app designed to cope for CK students daily needs",
-  "productName": "CK_app",
+  "productName": "CK APP",
   "author": "Kimi and Diego",
   "private": true,
   "scripts": {

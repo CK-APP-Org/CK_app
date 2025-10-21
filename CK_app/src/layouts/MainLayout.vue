@@ -4,25 +4,7 @@
     content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
   />
   <q-layout view="hHh lpR fFf">
-    <q-header elevated v-if="!isSouvenirPage">
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          icon="info"
-          href="/#/about"
-        />
-        <q-toolbar-title class="text-center"> CK APP </q-toolbar-title>
-        <q-btn
-          flat
-          dense
-          icon="settings"
-          href="/#/settings"
-        />
-      </q-toolbar>
-    </q-header>
-
-    <q-header elevated v-if="isSouvenirPage">
+    <q-header elevated>
       <q-toolbar>
         <q-btn
           flat
@@ -77,11 +59,11 @@
       </q-scroll-area>
     </q-drawer> -->
 
-    <q-page-container>
+    <q-page-container v-if="isHomePage" :class="isAndroid ? 'pad-footer' : ''">
       <router-view />
     </q-page-container>
 
-    <q-footer class="" v-if="!isHomePage">
+    <q-footer class="" v-if="!isHomePage" :class="isAndroid ? 'pad-footer' : ''">
       <q-tabs>
         <q-route-tab
           v-for="item in visibleMenuItems"
@@ -100,7 +82,6 @@
 import { defineComponent, computed } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import SouvenirPage from "src/pages/SouvenirPage.vue";
 
 export default defineComponent({
   name: "MainLayout",
@@ -111,12 +92,12 @@ export default defineComponent({
 
     const visibleMenuItems = computed(() => store.getters.getVisibleMenuItems);
     const isHomePage = computed(() => route.path === "/");
-    const isSouvenirPage = computed(() => route.path === "/souvenir");
+    const isAndroid = window.Capacitor.getPlatform() === 'android';
 
     return {
       visibleMenuItems,
       isHomePage,
-      isSouvenirPage,
+      isAndroid,
     };
   },
 });
@@ -124,4 +105,10 @@ export default defineComponent({
 
 <style>
 /* No need for media query, we're using Quasar's responsive classes */
+.pad-header {
+  padding-top: env(safe-area-inset-bottom);
+}
+.pad-footer {
+  padding-bottom: env(safe-area-inset-bottom);
+}
 </style>

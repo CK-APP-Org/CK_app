@@ -59,11 +59,11 @@
       </q-scroll-area>
     </q-drawer> -->
 
-    <q-page-container v-if="isHomePage" :class="isAndroid ? 'pad-footer' : ''">
+    <q-page-container :class="isAndroid ? 'pad-footer' : ''">
       <router-view />
     </q-page-container>
 
-    <q-footer class="" v-if="!isHomePage" :class="isAndroid ? 'pad-footer' : ''">
+    <q-footer v-if="!isHomePage" :class="isAndroid ? 'pad-footer' : ''">
       <q-tabs>
         <q-route-tab
           v-for="item in visibleMenuItems"
@@ -92,7 +92,7 @@ export default defineComponent({
 
     const visibleMenuItems = computed(() => store.getters.getVisibleMenuItems);
     const isHomePage = computed(() => route.path === "/");
-    const isAndroid = window.Capacitor.getPlatform() === 'android';
+    const isAndroid = window && window.Capacitor && window.Capacitor.getPlatform() === 'android';
 
     return {
       visibleMenuItems,

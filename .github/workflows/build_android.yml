@@ -80,7 +80,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: "org.capacitor.quasar.ckapp"
-          releaseFile: "CK_app/android-build/app-release.aab"
+          releaseFile: "../android-build/app-release.aab"
           track: "internal"
           inAppUpdatePriority: 3
           

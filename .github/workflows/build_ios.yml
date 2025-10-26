@@ -86,13 +86,13 @@ jobs:
     if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Download iOS build output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ios-build
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
         with: 
-          app-path: ./ios-build/App.ipa
+          app-path: CK_app/ios-build/App.ipa
           issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}

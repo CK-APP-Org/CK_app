@@ -1,16 +1,17 @@
-name: Deploy iOS App to TestFlight
+name: Build (& Deploy to TestFlight) iOS APP
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'CK_app/**'
-  #     - '.github/workflows/build_ios.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'CK_app/**'
+      - '.github/workflows/build_ios.yml'
 
 jobs:
   build-ios:
+    name: Build iOS App
     runs-on: macos-latest
     defaults:
       run:
@@ -73,17 +74,26 @@ jobs:
           xcodebuild -workspace './ios/App/App.xcworkspace' -scheme App -destination generic/platform=iOS -archivePath App.xcarchive archive
           xcodebuild archive -archivePath App.xcarchive -exportArchive -exportOptionsPlist ./archive.plist -exportPath output -allowProvisioningUpdates
 
-      - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v3
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        with: 
-          app-path: 'CK_app/src-capacitor/output/App.ipa'
-          issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
-          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
-
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: CK_app/src-capacitor/output
+  deploy-ios:
+    name: Deploy iOS to TestFlight
+    needs: build-ios
+    runs-on: macos-latest
+    if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Download iOS build output
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-build
+      - name: 'Upload app to TestFlight'
+        uses: apple-actions/upload-testflight-build@v3
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        with: 
+          app-path: ./ios-build/App.ipa
+          issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}

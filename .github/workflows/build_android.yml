@@ -1,16 +1,17 @@
-name: Deploy Android APP to Google Play
+name: Build (& Deploy to Google Play) Android APP
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'CK_app/**'
-  #     - '.github/workflows/build_ios.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'CK_app/**'
+      - '.github/workflows/build_ios.yml'
 
 jobs:
   build-android:
+    name: Build Android App
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -58,21 +59,28 @@ jobs:
           # override default build-tools version (33.0.0) -- optional
           BUILD_TOOLS_VERSION: "34.0.0"
 
-      - name: 'Upload app to Google Play Internal test'
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-          packageName: org.capacitor.quasar.ckapp
-          releaseFiles: ${{steps.sign_app.outputs.signedReleaseFile}}
-          track: internal
-          status: completed
-          inAppUpdatePriority: 3
-      #          whatsNewDirectory: distribution/whatsnew
-      #          mappingFile: src-capacitor/android/app/build/outputs/mapping/release/mapping.txt
-      #          debugSymbols: src-capacitor/android/app/intermediates/merged_native_libs/release/out/lib
-
       - name: Archive Android build output
         uses: actions/upload-artifact@v4
         with:
           name: android-build
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
+  deploy-android:
+    name: Deploy Android to Google Play
+    needs: build-android
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Download Android build output
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build
+
+      - name: Deploy to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: "org.capacitor.quasar.ckapp"
+          releaseFile: "./android-build/app-release.aab"
+          track: "internal"
+          inAppUpdatePriority: 3
+          

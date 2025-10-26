@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - 'CK_app/**'
-      - '.github/workflows/build_ios.yml'
+      - '.github/workflows/build_android.yml'
 
 jobs:
   build-android:
@@ -71,7 +71,7 @@ jobs:
     if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Download Android build output
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: android-build
 
@@ -80,7 +80,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: "org.capacitor.quasar.ckapp"
-          releaseFile: "./android-build/app-release.aab"
+          releaseFile: "CK_app/android-build/app-release.aab"
           track: "internal"
           inAppUpdatePriority: 3
           

@@ -74,6 +74,14 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: android-build
+      
+      - name: Debug
+        run: |
+          pwd
+          ls -la .
+          ls -la ..
+          ls -la ./android-build
+          ls -la ../android-build
 
       - name: Deploy to Google Play
         uses: r0adkll/upload-google-play@v1

@@ -91,10 +91,12 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 7. 啟動網頁模擬 `quasar dev`
 8. 在瀏覽器開啟 `http://localhost:9000`
 ### 上架 (Android)
+[![Build (& Deploy to Google Play) Android APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml)
 1. 在 `CK_app\src-capacitor\android\app\build.gradle` 改版本 (`versionCode` & `versionName`)
 2a. 執行 Github Action - Deploy Android APP to Google Play
 2b. 或者，在commit時commit message前加入`[deploy] `，將自動嘗試上傳&上架
 ### 上架 (iOS)
+[![Build (& Deploy to TestFlight) iOS APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml)
 1. 在 `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
 2a. 執行 Github Action - Deploy iOS App to TestFlight
 2b. 或者，在commit時commit message前加入`[deploy] `，將自動嘗試上傳&上架

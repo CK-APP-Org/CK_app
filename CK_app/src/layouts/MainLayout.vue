@@ -4,7 +4,7 @@
     content="HowzUtdxDiec7CaWGmTlF_hNH7zkdBgcY69xn27ijKg"
   />
   <q-layout view="hHh lpR fFf">
-    <q-header elevated>
+    <q-header elevated :class="isAndroid ? 'pad-header':''">
       <q-toolbar>
         <q-btn
           flat
@@ -106,7 +106,7 @@ export default defineComponent({
 <style>
 /* No need for media query, we're using Quasar's responsive classes */
 .pad-header {
-  padding-top: env(safe-area-inset-bottom);
+  padding-top: env(safe-area-inset-top);
 }
 .pad-footer {
   padding-bottom: env(safe-area-inset-bottom);

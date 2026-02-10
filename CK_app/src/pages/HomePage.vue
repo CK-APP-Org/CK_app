@@ -5,7 +5,7 @@
       <template v-slot:avatar>
         <q-icon name="announcement" color="white" size="md" />
       </template>
-      CK APP 3.0版隆重推出！
+      CK APP 3.1版隆重推出！
     </q-banner>
 
     <!-- <div class="header">
@@ -175,6 +175,7 @@ export default {
         { name: "美食", icon: "fastfood", link: "/food" },
         { name: "校網", icon: "newspaper", link: "/news" },
         { name: "課表", icon: "book", link: "/schedule" },
+        { name: "選擇障礙小幫手", icon: "help", link: "/help" }
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
       ],

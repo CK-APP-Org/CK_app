@@ -67,6 +67,11 @@ const routes = [
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
   },
+  {
+    path: "/help",
+    component: () => import("layouts/MainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/HelpPage.vue") }],
+  },
   // {
   //   path: "/metro",
   //   component: () => import("layouts/MainLayout.vue"),

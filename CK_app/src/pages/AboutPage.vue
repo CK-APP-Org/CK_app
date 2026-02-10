@@ -85,7 +85,7 @@
         <q-btn
           color="primary"
           icon="info"
-          label="3.0"
+          label="3.1"
           @click="openVersionInfo = true"
         />
       </q-card-section>
@@ -94,7 +94,7 @@
     <q-dialog v-model="openVersionInfo">
       <q-card style="min-width: 350px">
         <q-card-section class="q-pb-none">
-          <div class="text-h6">CK APP 當前版本： 3.0</div>
+          <div class="text-h6">CK APP 當前版本： 3.1</div>
         </q-card-section>
 
         <q-card-section class="q-pb-none">
@@ -153,6 +153,7 @@ export default {
       "美食地圖隨機選擇餐廳",
       "美食地圖資訊更新",
       "暫時移除課表及註冊功能",
+      "新增選擇障礙小幫手功能",
     ]);
     const carouselSlides = [
       {

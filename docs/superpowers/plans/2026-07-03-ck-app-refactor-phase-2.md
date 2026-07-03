@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Remove the production debug-logging plugin and CLEAR_DATA console output, fix a duplicate Vuex mutation, strip 15 production `console.log` calls (several of which log plaintext account credentials) across 7 files, and remove 2 genuinely-unused dependencies.
+**Goal:** Remove the production debug-logging plugin and CLEAR_DATA console output, fix a duplicate Vuex mutation, strip 16 production `console.log` calls (several of which log plaintext account credentials) across 7 files, and remove 2 genuinely-unused dependencies.
 
 **Architecture:** No runtime architecture changes — this is deletion-only work (removing debug code, a duplicate mutation definition, and unused package.json entries). Nothing here changes a public interface or data flow.
 
@@ -549,7 +549,7 @@ gh pr create --title "Refactor: Phase 2 quick wins (debug logging, duplicate mut
 - Removes storeWatcherPlugin, which deep-cloned and console.logged the entire Vuex state (including the account module's plaintext password) on every mutation in production.
 - Removes the two CLEAR_DATA console.log calls in the same file.
 - Removes a duplicate SET_SHOW_TODO mutation definition in todo.js.
-- Removes 15 production console.log calls across 7 files (account.js, youbike.js, newsService.js, xmlUtils.js, SettingsPage.vue, TransportPage.vue, MenuPage.vue) — several logged plaintext account credentials. console.error calls are untouched.
+- Removes 16 production console.log calls across 7 files (account.js, youbike.js, newsService.js, xmlUtils.js, SettingsPage.vue, TransportPage.vue, MenuPage.vue) — several logged plaintext account credentials. console.error calls are untouched.
 - Removes 2 unused dependencies: pinia, vuex-persistedstate.
 
 ## Correction to docs/refactoring-plan.md

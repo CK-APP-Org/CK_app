@@ -62,12 +62,13 @@ Key locations (keep `console.error`):
 | `pages/TransportPage.vue` | Lines 1017, 1020, 1265 |
 | `pages/MenuPage.vue` | Line 108 |
 
-### 2-D. Remove unused dependencies
+### 2-D. Remove unused dependencies — done, see Phase 2 PR
 - `pinia` — installed, never imported anywhere
 - `vuex-persistedstate` — replaced by hand-rolled `localStoragePlugin.js`
-- `timeago.js` — zero usages; `date-fns` is used instead
 
-Run `npm uninstall pinia vuex-persistedstate timeago.js`
+**Correction:** this list originally also named `timeago.js` as unused. That was wrong — it's genuinely imported and called in `src/App.vue` and `src/pages/NewsPage.vue` for relative timestamp formatting. It was NOT removed.
+
+Ran `yarn remove pinia vuex-persistedstate` (not `npm uninstall` — this is a yarn-only project; running npm here would create a conflicting `package-lock.json`).
 
 ---
 

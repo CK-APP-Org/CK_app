@@ -52,10 +52,10 @@ CK_app為CK APP的主體程式，語言是Quasar Framework，本質上為HTML、
 	- **store**: 頁面會透過這裡更動本機資料，非常重要（見 [Store 章節](#storei18n-與其他基礎建設)）
 	- **utils**
 		- xmlUtils.js: 解析校網 XML 的工具
-	- **tools**
-		- Convert_xlsx_to_json.py: 把教務處課表檔(.xls)轉成json，使用說明在檔案裡
-		- menu_scraper.py: (見 MenuPage 說明)
-		- menu_visualizer.py: 將熱食部菜單自動轉成圖檔
+- **tools**（位於 repo 根目錄，與 `CK_app/` 同層，非 Vite 專案的一部分）
+	- Convert_xlsx_to_json.py: 把教務處課表檔(.xls)轉成json，使用說明在檔案裡
+	- menu_scraper.py: (見 MenuPage 說明)
+	- menu_visualizer.py: 將熱食部菜單自動轉成圖檔
 
 除了GitHub外，我們也有用Firebase儲存使用者資料，以及[官方網站](https://ckapp-tw.web.app/) (由 78屆的Ian Wen開發管理)、官方gmail(ckappofficial@gmail.com)和[官方IG帳號](https://www.instagram.com/ckappofficial/)。
 

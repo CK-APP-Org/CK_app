@@ -23,7 +23,6 @@ export default {
     DELETE_STATION(state, stationName) {
       if (state.stationList[stationName]) {
         delete state.stationList[stationName];
-        console.log(JSON.parse(localStorage.getItem("store")));
       }
     },
     ADD_STATION(state, { stationName, stationData }) {
@@ -42,7 +41,6 @@ export default {
     },
     deleteStation({ commit }, stationName) {
       commit("DELETE_STATION", stationName);
-      console.log(JSON.parse(localStorage.getItem("store")));
     },
     addStation({ commit }, payload) {
       commit("ADD_STATION", payload);

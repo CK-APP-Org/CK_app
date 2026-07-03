@@ -136,7 +136,6 @@ There are currently 8 modules (`src/store/modules/`):
 
 Also:
 - `localStoragePlugin.js`: persists the store to `localStorage`.
-- `storeWatcherPlugin` (in `index.js`): a debug plugin that logs state changes to the console (consider disabling in production).
 - `clearALL` action / `CLEAR_DATA` mutation: clears all local data and resets every module to its default state.
 
 ### i18n

@@ -105,7 +105,6 @@ export default {
       const weekStart = this.currentWeekStart;
       const timestamp = this.getCurrentDate().getTime();
       const url = `${this.baseMenuUrl}${weekStart}_${day}.png?t=${timestamp}`;
-      console.log(url);
       return { url, key: `${weekStart}_${day}` };
     },
   },

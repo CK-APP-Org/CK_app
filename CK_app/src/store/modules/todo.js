@@ -57,9 +57,6 @@ export default {
     DELETE_TODO(state, todoId) {
       state.todos = state.todos.filter((t) => t.id !== todoId);
     },
-    SET_SHOW_TODO(state, value) {
-      state.displayTodoWidget = value;
-    },
     SET_CURRENT_VIEW(state, view) {
       state.currentView = view;
     },

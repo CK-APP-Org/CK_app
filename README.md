@@ -136,7 +136,6 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 
 其他：
 - `localStoragePlugin.js`：把 store 內容持久化到 `localStorage`。
-- `index.js` 內的 `storeWatcherPlugin`：開發用的偵錯外掛，會把 state 變動印到 console（正式版可考慮關掉）。
 - `clearALL` action / `CLEAR_DATA` mutation：清除所有本機資料、把各模組重設為預設值。
 
 ### i18n（多語系）

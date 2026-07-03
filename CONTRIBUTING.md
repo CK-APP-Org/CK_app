@@ -38,7 +38,7 @@ quasar dev        # 開啟 http://localhost:9000
 | `src/services/` | 背景服務，如 `newsService.js` |
 | `src/data/` | 靜態資料（`metroData.js`、`restaurantData.json`） |
 | `src/boot/` | 啟動初始化（axios、firebase、i18n） |
-| `src/tools/` | Python 工具（課表/菜單轉檔） |
+| `../tools/` | Python 工具（課表/菜單轉檔），位於 repo 根目錄，與 `CK_app/` 同層，避免被 Vite 掃到 |
 | `src-capacitor/` | Android / iOS 原生包裝與版本設定 |
 
 詳細說明見 [README](README.md)。
@@ -77,7 +77,7 @@ yarn format    # 自動排版
 ## 資料的修改
 - **餐廳資料**：改 `src/data/restaurantData.json`（FoodPage）。
 - **北捷資料**：改 `src/data/metroData.js`（TransportPage）。
-- **課表 / 菜單**：屬於動態資料，放在 **Data** repo（`ClassesSchedule.json`、`menus/`），流程見 README 的 [SchedulePage](README.md#schedulepage-課表) 與 [MenuPage](README.md#menupage-熱食部) 說明，並可用 `src/tools/` 的 Python 工具轉檔。
+- **課表 / 菜單**：屬於動態資料，放在 **Data** repo（`ClassesSchedule.json`、`menus/`），流程見 README 的 [SchedulePage](README.md#schedulepage-課表) 與 [MenuPage](README.md#menupage-熱食部) 說明，並可用 `../tools/` 的 Python 工具轉檔。
 
 ## 改版本號
 發版前要同步更新版本（目前為 **3.1**）：

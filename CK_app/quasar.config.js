@@ -10,6 +10,23 @@
 
 const { configure } = require("quasar/wrappers");
 const path = require("path");
+const fs = require("fs");
+
+// Loads CK_app/.env.local (gitignored) into process.env for local dev.
+// A variable already set in the environment (e.g. by CI) is never
+// overwritten, so real secrets set as CI env vars always win.
+function loadDotEnvLocal(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  for (const line of fs.readFileSync(filePath, "utf-8").split("\n")) {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*?)\s*$/);
+    if (!match) continue;
+    const [, key, rawValue] = match;
+    const value = rawValue.replace(/^["']|["']$/g, "");
+    if (!(key in process.env)) process.env[key] = value;
+  }
+}
+
+loadDotEnvLocal(path.resolve(__dirname, ".env.local"));
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -52,6 +69,11 @@ module.exports = configure(function (/* ctx */) {
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node16",
+      },
+
+      env: {
+        METRO_API_USER: process.env.METRO_API_USER || "",
+        METRO_API_PASS: process.env.METRO_API_PASS || "",
       },
 
       vueRouterMode: "hash", // available values: 'hash', 'history'

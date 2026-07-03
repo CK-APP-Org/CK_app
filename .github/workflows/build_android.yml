@@ -39,6 +39,9 @@ jobs:
           yarn install --frozen-lockfile
 
       - name: Build Quasar app for Android (Capacitor)
+        env:
+          METRO_API_USER: ${{ secrets.METRO_API_USER }}
+          METRO_API_PASS: ${{ secrets.METRO_API_PASS }}
         run: |
           chmod +x src-capacitor/android/gradlew
           yarn android

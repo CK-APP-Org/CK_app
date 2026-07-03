@@ -52,10 +52,10 @@ Commonly used files / folders:
 	- **store**: pages mutate local data through here — very important (see the [Store section](#store-i18n--other-infrastructure))
 	- **utils**
 		- `xmlUtils.js`: helper for parsing the school website's XML
-	- **tools**
-		- `Convert_xlsx_to_json.py`: converts the academic-office schedule file (.xls) into JSON; usage notes are inside the file
-		- `menu_scraper.py`: (see the MenuPage section)
-		- `menu_visualizer.py`: auto-converts the cafeteria menu into image files
+- **tools** (lives at the repo root, alongside `CK_app/` — not part of the Vite project)
+	- `Convert_xlsx_to_json.py`: converts the academic-office schedule file (.xls) into JSON; usage notes are inside the file
+	- `menu_scraper.py`: (see the MenuPage section)
+	- `menu_visualizer.py`: auto-converts the cafeteria menu into image files
 
 Besides GitHub, we also use Firebase to store user data, plus the [official website](https://ckapp-tw.web.app/) (built & maintained by Ian Wen of the 78th cohort), the official Gmail (ckappofficial@gmail.com), and the [official Instagram account](https://www.instagram.com/ckappofficial/).
 

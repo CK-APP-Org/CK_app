@@ -66,6 +66,9 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
       - name: Build Quasar app for iOS (Capacitor)
+        env:
+          METRO_API_USER: ${{ secrets.METRO_API_USER }}
+          METRO_API_PASS: ${{ secrets.METRO_API_PASS }}
         run: |
           yarn ios
           cd src-capacitor

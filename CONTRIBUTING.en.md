@@ -38,7 +38,7 @@ quasar dev        # opens http://localhost:9000
 | `src/services/` | Background services, e.g. `newsService.js` |
 | `src/data/` | Static data (`metroData.js`, `restaurantData.json`) |
 | `src/boot/` | Startup init (axios, firebase, i18n) |
-| `src/tools/` | Python tools (schedule/menu file conversion) |
+| `../tools/` | Python tools (schedule/menu file conversion) — lives at the repo root, alongside `CK_app/`, so Vite doesn't scan it |
 | `src-capacitor/` | Android / iOS native wrappers and version config |
 
 See the [README](README.en.md) for details.
@@ -77,7 +77,7 @@ yarn format    # auto-format
 ## Changing data
 - **Restaurant data**: edit `src/data/restaurantData.json` (FoodPage).
 - **MRT data**: edit `src/data/metroData.js` (TransportPage).
-- **Schedules / menus**: these are dynamic data living in the **Data** repo (`ClassesSchedule.json`, `menus/`). See the README's [SchedulePage](README.en.md#schedulepage) and [MenuPage](README.en.md#menupage) sections for the workflow, and use the Python tools in `src/tools/` for conversion.
+- **Schedules / menus**: these are dynamic data living in the **Data** repo (`ClassesSchedule.json`, `menus/`). See the README's [SchedulePage](README.en.md#schedulepage) and [MenuPage](README.en.md#menupage) sections for the workflow, and use the Python tools in `../tools/` for conversion.
 
 ## Bumping the version
 Before a release, update the version everywhere (currently **3.1**):

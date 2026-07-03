@@ -9,19 +9,6 @@ import settingsModule from "./modules/settings";
 import metroModule from "./modules/metro";
 import { localStoragePlugin } from "./localStoragePlugin";
 
-const storeWatcherPlugin = (store) => {
-  store.watch(
-    (state) => state,
-    (newValue) => {
-      console.log(
-        "Store scheduleData changed:",
-        JSON.parse(JSON.stringify(newValue))
-      );
-    },
-    { deep: true }
-  );
-};
-
 const modules = {
   youbike: youbikeModule,
   news: newsModule,
@@ -34,7 +21,7 @@ const modules = {
 };
 
 export default createStore({
-  plugins: [storeWatcherPlugin, localStoragePlugin],
+  plugins: [localStoragePlugin],
   modules,
   mutations: {
     CLEAR_DATA(state) {
@@ -55,9 +42,6 @@ export default createStore({
           state[moduleName] = { ...moduleState };
         }
       });
-
-      console.log("Data cleared from state and localStorage");
-      console.log(JSON.parse(localStorage.getItem("store")));
     },
   },
   actions: {

@@ -1014,10 +1014,8 @@ export default defineComponent({
     };
 
     const handleLocationSelected = async ({ latlng }) => {
-      console.log("Click event latlng:", latlng);
       const userLat = latlng.lat;
       const userLng = latlng.lng;
-      console.log("User position:", userLat, userLng);
 
       userPosition.value = [userLat, userLng];
       mapCenter.value = [userLat, userLng];
@@ -1262,8 +1260,6 @@ export default defineComponent({
           });
           metroInitialLoading.value = false;
         }
-        console.log("Data fetched");
-        //console.log(trackInfo);
       } catch (error) {
         console.error("Error fetching track info:", error);
         if (metroInitialLoading.value) {

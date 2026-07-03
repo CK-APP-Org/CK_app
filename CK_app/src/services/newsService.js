@@ -42,7 +42,6 @@ export default {
 
       store.dispatch("setFetchedNews", allNews);
       store.dispatch("setLastFetchTime", new Date());
-      console.log("News fetched");
     } catch (error) {
       console.error("Error fetching news:", error);
     }

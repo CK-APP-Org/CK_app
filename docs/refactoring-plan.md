@@ -30,13 +30,13 @@ CK App is a Quasar/Vue 3 campus mobile app (~8,651 lines) for Taipei Jianguo Hig
 
 **Files:** `quasar.config.js`, `src/boot/firebase.js`, `src/pages/LoginPage.vue`, `src/pages/SettingsPage.vue`
 
-### 1-B. Metro SOAP credentials
+### 1-B. Metro SOAP credentials — done, see PR #14
 
-**Problem:** `diegopeng0426@gmail.com` / `Hn2pJ2511N` are hardcoded as plain text in 3 XML template strings inside `TransportPage.vue`.
+**Problem:** `diegopeng0426@gmail.com` / `Hn2pJ2511N` were hardcoded as plain text in 3 XML template strings inside `TransportPage.vue`.
 
-**Fix:** Create `src/config/metroApi.js` exporting `METRO_API_USER` and `METRO_API_PASS`; replace all 3 occurrences in the XML strings with template literals referencing these constants.
+**Fix implemented in PR #14:** rather than a `src/config/metroApi.js` constants file (which would still commit the value to source, just in a different file), the credential now reads from `process.env.METRO_API_USER`/`METRO_API_PASS` — a gitignored `.env.local` locally, GitHub Actions secrets in CI. **Note:** the account owner has decided not to rotate the actual credential value, accepting that it's already known from git history and that a client-only app embeds whatever value is configured into the shipped bundle regardless of rotation.
 
-**Files:** `src/pages/TransportPage.vue` (3 occurrences), new `src/config/metroApi.js`
+**Files:** `src/pages/TransportPage.vue` (3 occurrences), `quasar.config.js`, `.env.example`, `.github/workflows/build_android.yml`, `.github/workflows/build_ios.yml`
 
 ---
 

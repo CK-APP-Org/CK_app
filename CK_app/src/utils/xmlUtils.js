@@ -6,7 +6,6 @@ export async function fetchXMLData(url) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const xmlText = await response.text();
-    console.log("XML Data:", xmlText);
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlText, "application/xml");
     return xmlDoc;

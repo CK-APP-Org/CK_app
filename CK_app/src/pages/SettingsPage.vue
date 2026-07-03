@@ -335,7 +335,6 @@ export default {
     const userEmail = ref("");
 
     const userAccount = computed(() => store.getters.getUserAccount);
-    console.log("484", userAccount);
     const password = computed(() => store.getters.getPassword);
     const email = computed(() => store.getters.getEmail);
     const userRef = ref(null);
@@ -448,8 +447,6 @@ export default {
           appId: "1:253500838094:web:b6bfcf4975f3323ab8c09f",
           measurementId: "G-T79H6D7WRT",
         };
-
-        console.log(userAccount.value);
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -724,7 +721,6 @@ export default {
     };
 
     onMounted(() => {
-      console.log(email.value);
       isLoggedIn.value = userAccount.value != "Default";
 
       if (route.query.justLoggedIn === "true") {

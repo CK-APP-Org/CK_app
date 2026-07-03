@@ -1231,8 +1231,8 @@ export default defineComponent({
   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
   <getTrackInfo xmlns="http://tempuri.org/">
-  <userName>diegopeng0426@gmail.com</userName>
-  <passWord>Hn2pJ2511N</passWord>
+  <userName>${process.env.METRO_API_USER}</userName>
+  <passWord>${process.env.METRO_API_PASS}</passWord>
   </getTrackInfo>
   </soap:Body>
   </soap:Envelope>`;
@@ -1330,8 +1330,8 @@ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <getCarWeightByInfoEx xmlns="http://tempuri.org/">
-<userName>diegopeng0426@gmail.com</userName>
-<passWord>Hn2pJ2511N</passWord>
+<userName>${process.env.METRO_API_USER}</userName>
+<passWord>${process.env.METRO_API_PASS}</passWord>
 </getCarWeightByInfoEx>
 </soap:Body>
 </soap:Envelope>`;
@@ -1398,8 +1398,8 @@ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <getCarWeightBRInfo xmlns="http://tempuri.org/">
-<userName>diegopeng0426@gmail.com</userName>
-<passWord>Hn2pJ2511N</passWord>
+<userName>${process.env.METRO_API_USER}</userName>
+<passWord>${process.env.METRO_API_PASS}</passWord>
 </getCarWeightBRInfo>
 </soap:Body>
 </soap:Envelope>`;

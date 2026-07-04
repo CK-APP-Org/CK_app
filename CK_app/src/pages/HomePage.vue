@@ -130,36 +130,12 @@
           <div class="text-content text-capitalize">{{ item.name }}</div>
         </q-btn>
       </div>
-      <!--<div v-if="isLogin">
-        <div v-for="admin in admins" :key="admin.name" class="icon-item">
-          <q-btn
-            stack
-            class="icon-btn"
-            :rounded="true"
-            @click="navigateTo(admin.link)"
-          >
-            <q-icon :name="admin.icon" size="2.5em" />
-            <div class="text-content text-capitalize">{{ admin.name }}</div>
-          </q-btn>
-        </div>
-      </div>-->
     </div>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from "vue";
-/*import { useStore } from "vuex";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-import { useQuasar } from "quasar";
-import { useRouter } from "vue-router";*/
 import store from "../store/index";
 
 export default {
@@ -178,9 +154,6 @@ export default {
         { name: "選擇障礙小幫手", icon: "help", link: "/help" }
         // { name: "設定", icon: "settings", link: "/settings" },
         // { name: "關於", icon: "info", link: "/about" },
-      ],
-      admins: [
-        { name: "管理資訊", icon: "info", link: "/adminpost" },
       ],
     };
   },
@@ -235,12 +208,6 @@ export default {
     const showTodo = computed(() => store.getters.getShowTodo);
     const showSchoolNews = computed(() => store.getters.getShowSchoolNews);
 
-    // 從 Vuex store 獲取登入狀態
-    const isLogin = computed(() => {
-      const userAccount = store.getters.getUserAccount;
-      return userAccount !== null && userAccount !== undefined && userAccount !== '';
-    });
-
     const currentClass = computed(() => {
       const now = new Date();
       const currentDay = [
@@ -293,7 +260,6 @@ export default {
     });
 
     return {
-      isLogin,
       currentClass,
       todos,
       pinnedNews,

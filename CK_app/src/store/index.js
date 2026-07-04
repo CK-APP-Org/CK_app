@@ -4,7 +4,6 @@ import newsModule from "./modules/news";
 import scheduleModule from "./modules/schedule";
 import todoModule from "./modules/todo";
 import foodModule from "./modules/food";
-import accountModule from "./modules/account";
 import settingsModule from "./modules/settings";
 import metroModule from "./modules/metro";
 import { localStoragePlugin } from "./localStoragePlugin";
@@ -15,7 +14,6 @@ const modules = {
   schedule: scheduleModule,
   todo: todoModule,
   food: foodModule,
-  account: accountModule,
   settings: settingsModule,
   metro: metroModule,
 };

@@ -63,11 +63,6 @@ const routes = [
   },
   //New---------------
   {
-    path: "/login",
-    component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
-  },
-  {
     path: "/help",
     component: () => import("layouts/MainLayout.vue"),
     children: [{ path: "", component: () => import("pages/HelpPage.vue") }],

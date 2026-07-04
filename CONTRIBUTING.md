@@ -21,13 +21,13 @@
 
 ```bash
 git clone https://github.com/CK-APP-Org/CK_app.git
-cd CK_app/CK_app
+cd CK_app
 npm install -g @quasar/cli
 yarn install
 quasar dev        # 開啟 http://localhost:9000
 ```
 
-> 請在 `CK_app/CK_app` 這層執行指令（`package.json` 在這裡）。
+> 請在 repo 根目錄執行指令（`package.json` 在這裡）。
 
 ## 專案結構速查
 | 路徑 | 用途 |
@@ -37,8 +37,8 @@ quasar dev        # 開啟 http://localhost:9000
 | `src/store/` | Vuex 本機狀態（8 個模組），會持久化到 localStorage |
 | `src/services/` | 背景服務，如 `newsService.js` |
 | `src/data/` | 靜態資料（`metroData.js`、`restaurantData.json`） |
-| `src/boot/` | 啟動初始化（axios、firebase、i18n） |
-| `../tools/` | Python 工具（課表/菜單轉檔），位於 repo 根目錄，與 `CK_app/` 同層，避免被 Vite 掃到 |
+| `src/boot/` | 啟動初始化（axios、i18n） |
+| `tools/` | Python 工具（課表/菜單轉檔），位於 repo 根目錄，避免被 Vite 掃到 |
 | `src-capacitor/` | Android / iOS 原生包裝與版本設定 |
 
 詳細說明見 [README](README.md)。
@@ -77,14 +77,14 @@ yarn format    # 自動排版
 ## 資料的修改
 - **餐廳資料**：改 `src/data/restaurantData.json`（FoodPage）。
 - **北捷資料**：改 `src/data/metroData.js`（TransportPage）。
-- **課表 / 菜單**：屬於動態資料，放在 **Data** repo（`ClassesSchedule.json`、`menus/`），流程見 README 的 [SchedulePage](README.md#schedulepage-課表) 與 [MenuPage](README.md#menupage-熱食部) 說明，並可用 `../tools/` 的 Python 工具轉檔。
+- **課表 / 菜單**：屬於動態資料，放在 **Data** repo（`ClassesSchedule.json`、`menus/`），流程見 README 的 [SchedulePage](README.md#schedulepage-課表) 與 [MenuPage](README.md#menupage-熱食部) 說明，並可用 `tools/` 的 Python 工具轉檔。
 
 ## 改版本號
 發版前要同步更新版本（目前為 **3.1**）：
 - Android：`src-capacitor/android/app/build.gradle` 的 `versionCode` 與 `versionName`
 - iOS：`src-capacitor/ios/App/App.xcodeproj/project.pbxproj` 的 `CURRENT_PROJECT_VERSION` 與 `MARKETING_VERSION`（debug & release 都要）
 - 顯示用：`src/pages/AboutPage.vue` 內的版本字串
-- （建議一併更新 `CK_app/package.json` 的 `version`，目前它落後實際版本）
+- （建議一併更新 `package.json` 的 `version`，目前它落後實際版本）
 
 ## 測試
 專案目前**沒有自動化測試**（`yarn test` 只是個 placeholder，會直接回傳成功）。請以手動方式驗證：

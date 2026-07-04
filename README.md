@@ -4,7 +4,7 @@
 
 > 當前版本：**3.1**（`src-capacitor/android/app/build.gradle` 的 `versionName`）　｜　文件最後更新：2026-06
 >
-> ⚠️ 注意：`CK_app/package.json` 的 `version` 欄位目前仍是 `3.0.1`，與實際版本不同步。版本的真正來源是 Android 的 `build.gradle` 與 iOS 的 `project.pbxproj`（見[開發說明](#開發說明)）。
+> ⚠️ 注意：`package.json` 的 `version` 欄位目前仍是 `3.0.1`，與實際版本不同步。版本的真正來源是 Android 的 `build.gradle` 與 iOS 的 `project.pbxproj`（見[開發說明](#開發說明)）。
 
 ## 目錄
 1. [CK APP是什麼？](#ck-app是什麼)
@@ -52,7 +52,7 @@ CK_app為CK APP的主體程式，語言是Quasar Framework，本質上為HTML、
 	- **store**: 頁面會透過這裡更動本機資料，非常重要（見 [Store 章節](#storei18n-與其他基礎建設)）
 	- **utils**
 		- xmlUtils.js: 解析校網 XML 的工具
-- **tools**（位於 repo 根目錄，與 `CK_app/` 同層，非 Vite 專案的一部分）
+- **tools**（位於 repo 根目錄，與 `src/` 同層，非 Vite 專案的一部分）
 	- Convert_xlsx_to_json.py: 把教務處課表檔(.xls)轉成json，使用說明在檔案裡
 	- menu_scraper.py: (見 MenuPage 說明)
 	- menu_visualizer.py: 將熱食部菜單自動轉成圖檔
@@ -158,7 +158,7 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 1. 下載Node.js (https://nodejs.org/en/download/)
 2. 下載Git (https://git-scm.com/downloads)
 3. 開啟終端機(Terminal)並輸入 `git clone https://github.com/CK-APP-Org/CK_app.git`
-4. 進入CK_app資料夾 `cd CK_app/CK_app`
+4. 進入資料夾 `cd CK_app`
 5. 安裝Quasar CLI `npm install -g @quasar/cli`
 6. 安裝套件 `yarn install`
 7. 啟動網頁模擬 `quasar dev`
@@ -166,12 +166,12 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 
 ### 上架 (Android)
 [![Build (& Deploy to Google Play) Android APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml)
-1. 在 `CK_app\src-capacitor\android\app\build.gradle` 改版本 (`versionCode` & `versionName`)
+1. 在 `src-capacitor\android\app\build.gradle` 改版本 (`versionCode` & `versionName`)
 2. (a) 執行 Github Action - Deploy Android APP to Google Play；或 (b) 在commit時commit message前加入`[deploy] `，將自動嘗試上傳&上架
 
 ### 上架 (iOS)
 [![Build (& Deploy to TestFlight) iOS APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml)
-1. 在 `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
+1. 在 `src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
 2. (a) 執行 Github Action - Deploy iOS App to TestFlight；或 (b) 在commit時commit message前加入`[deploy] `，將自動嘗試上傳&上架
 
 ## 貢獻

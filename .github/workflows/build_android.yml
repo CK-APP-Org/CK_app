@@ -6,16 +6,18 @@ on:
     branches:
       - main
     paths:
-      - 'CK_app/**'
+      - 'src/**'
+      - 'src-capacitor/**'
+      - 'public/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'quasar.config.js'
       - '.github/workflows/build_android.yml'
 
 jobs:
   build-android:
     name: Build Android App
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./CK_app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,13 +27,13 @@ jobs:
           distribution: "zulu"
           java-version: "21"
           cache: "gradle"
-          cache-dependency-path: "CK_app/src-capacitor/android/build.gradle"
+          cache-dependency-path: "src-capacitor/android/build.gradle"
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
           cache: 'yarn'
-          cache-dependency-path: 'CK_app/yarn.lock'
+          cache-dependency-path: 'yarn.lock'
 
       - name: Install dependencies
         run: |
@@ -53,7 +55,7 @@ jobs:
         # ID used to access action output
         id: sign_app
         with:
-          releaseDirectory: CK_app/src-capacitor/android/app/build/outputs/bundle/release
+          releaseDirectory: src-capacitor/android/app/build/outputs/bundle/release
           signingKeyBase64: ${{ secrets.PLAY_SIGNING_KEY }}
           alias: ${{ secrets.PLAY_SIGNING_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.PLAY_SIGNING_KEY_STORE_PASSWORD }}

@@ -12,7 +12,7 @@ const { configure } = require("quasar/wrappers");
 const path = require("path");
 const fs = require("fs");
 
-// Loads CK_app/.env.local (gitignored) into process.env for local dev.
+// Loads .env.local (gitignored) into process.env for local dev.
 // A variable already set in the environment (e.g. by CI) is never
 // overwritten, so real secrets set as CI env vars always win.
 function loadDotEnvLocal(filePath) {

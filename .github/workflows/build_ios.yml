@@ -6,22 +6,24 @@ on:
     branches:
       - main
     paths:
-      - 'CK_app/**'
+      - 'src/**'
+      - 'src-capacitor/**'
+      - 'public/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'quasar.config.js'
       - '.github/workflows/build_ios.yml'
 
 jobs:
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: ./CK_app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - uses: maxim-lobanov/setup-xcode@v1
-        with: 
+        with:
           xcode-version: latest-stable
 
       - name: Set up Node.js
@@ -29,7 +31,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'yarn'
-          cache-dependency-path: 'CK_app/yarn.lock'
+          cache-dependency-path: 'yarn.lock'
 
       - name: Install dependencies
         run: |
@@ -81,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: CK_app/src-capacitor/output
+          path: src-capacitor/output
   deploy-ios:
     name: Deploy iOS to TestFlight
     needs: build-ios

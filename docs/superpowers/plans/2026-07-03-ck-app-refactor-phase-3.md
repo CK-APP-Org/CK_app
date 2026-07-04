@@ -627,7 +627,33 @@ widgets, toolbar customization, clear data) are untouched."
 
 **Interfaces:** none.
 
-- [ ] **Step 1: Remove the `admins` array from `data()`**
+- [ ] **Step 1: Remove the dead commented-out Firebase/vuex/quasar/router import block**
+
+Change:
+```js
+import { ref, computed, onMounted } from "vue";
+/*import { useStore } from "vuex";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";*/
+import store from "../store/index";
+```
+to:
+```js
+import { ref, computed, onMounted } from "vue";
+import store from "../store/index";
+```
+
+**Why:** this block has been dead since before this refactor — `useStore`/`useQuasar`/`useRouter` are never invoked anywhere in this file, which imports the store singleton directly instead. It's also the last remaining textual match for `firebase` in `src/` once `LoginPage.vue`, `SettingsPage.vue`, and `src/boot/firebase.js` are handled by Tasks 1, 2, and 4 — left in place, it would make Task 4 Step 1's `grep -rln "from [\"']firebase" src/` verification fail (grep matches text inside comments too) and falsify the Deviation section's "zero remaining imports of `firebase/*` anywhere in `src/`" claim. (Found via independent re-verification of this plan against current file content before execution began.)
+
+- [ ] **Step 2: Remove the `admins` array from `data()`**
 
 Change:
 ```js
@@ -651,7 +677,7 @@ to:
   },
 ```
 
-- [ ] **Step 2: Remove the commented-out template block that referenced `isLogin`/`admins`**
+- [ ] **Step 3: Remove the commented-out template block that referenced `isLogin`/`admins`**
 
 Change:
 ```html
@@ -679,7 +705,7 @@ to:
 </template>
 ```
 
-- [ ] **Step 3: Remove the `isLogin` computed**
+- [ ] **Step 4: Remove the `isLogin` computed**
 
 Change:
 ```js
@@ -696,7 +722,7 @@ to:
     const currentClass = computed(() => {
 ```
 
-- [ ] **Step 4: Remove `isLogin` from the `return {}` object**
+- [ ] **Step 5: Remove `isLogin` from the `return {}` object**
 
 Change:
 ```js
@@ -710,34 +736,39 @@ to:
       currentClass,
 ```
 
-- [ ] **Step 5: Verify**
+- [ ] **Step 6: Verify**
 
 ```bash
 cd CK_app
 grep -n "isLogin\|admins\b" src/pages/HomePage.vue
+grep -n "firebase" src/pages/HomePage.vue
 ```
-Expected: no output.
+Expected: no output from either command.
 
 ```bash
 yarn lint
 ```
 Expected: exit 0.
 
-- [ ] **Step 6: Smoke-test**
+- [ ] **Step 7: Smoke-test**
 
 ```bash
 yarn dev
 ```
 Via browser automation, load `/#/` and confirm the Home page renders identically to before (same icon grid, same widgets) with no console errors.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/pages/HomePage.vue
 git commit -m "refactor: remove dead isLogin/admins remnants from HomePage.vue
 
 Both were only ever referenced inside an already-commented-out
-template block — no live behavior change."
+template block — no live behavior change. Also removes a dead,
+already-commented-out Firebase/vuex/quasar/router import block left
+over from an earlier version of this file — the last remaining
+textual reference to firebase in src/ before Task 4 removes the
+package."
 ```
 
 ---

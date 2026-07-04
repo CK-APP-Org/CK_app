@@ -4,7 +4,7 @@
 
 > Current version: **3.1** (the `versionName` in `src-capacitor/android/app/build.gradle`)　|　Docs last updated: 2026-06
 >
-> ⚠️ Note: the `version` field in `CK_app/package.json` is still `3.0.1`, which is out of sync with the real version. The source of truth for the version is Android's `build.gradle` and iOS's `project.pbxproj` (see [Development](#development)).
+> ⚠️ Note: the `version` field in `package.json` is still `3.0.1`, which is out of sync with the real version. The source of truth for the version is Android's `build.gradle` and iOS's `project.pbxproj` (see [Development](#development)).
 
 ## Table of Contents
 1. [What is CK APP?](#what-is-ck-app)
@@ -52,7 +52,7 @@ Commonly used files / folders:
 	- **store**: pages mutate local data through here — very important (see the [Store section](#store-i18n--other-infrastructure))
 	- **utils**
 		- `xmlUtils.js`: helper for parsing the school website's XML
-- **tools** (lives at the repo root, alongside `CK_app/` — not part of the Vite project)
+- **tools** (lives at the repo root, alongside `src/` — not part of the Vite project)
 	- `Convert_xlsx_to_json.py`: converts the academic-office schedule file (.xls) into JSON; usage notes are inside the file
 	- `menu_scraper.py`: (see the MenuPage section)
 	- `menu_visualizer.py`: auto-converts the cafeteria menu into image files
@@ -158,7 +158,7 @@ The TODOs / known bugs scattered across the page descriptions, collected here so
 1. Install Node.js (https://nodejs.org/en/download/)
 2. Install Git (https://git-scm.com/downloads)
 3. Open a terminal and run `git clone https://github.com/CK-APP-Org/CK_app.git`
-4. Enter the CK_app folder: `cd CK_app/CK_app`
+4. Enter the folder: `cd CK_app`
 5. Install the Quasar CLI: `npm install -g @quasar/cli`
 6. Install dependencies: `yarn install`
 7. Start the dev server: `quasar dev`
@@ -166,12 +166,12 @@ The TODOs / known bugs scattered across the page descriptions, collected here so
 
 ### Publishing (Android)
 [![Build (& Deploy to Google Play) Android APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_android.yml)
-1. Bump the version in `CK_app\src-capacitor\android\app\build.gradle` (`versionCode` & `versionName`)
+1. Bump the version in `src-capacitor\android\app\build.gradle` (`versionCode` & `versionName`)
 2. (a) Run the GitHub Action "Deploy Android APP to Google Play"; or (b) prefix the commit message with `[deploy] ` to automatically attempt upload & release
 
 ### Publishing (iOS)
 [![Build (& Deploy to TestFlight) iOS APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml)
-1. Bump the version in `CK_app\src-capacitor\ios\App\App.xcodeproj\project.pbxproj` (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (both debug & release)
+1. Bump the version in `src-capacitor\ios\App\App.xcodeproj\project.pbxproj` (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (both debug & release)
 2. (a) Run the GitHub Action "Deploy iOS App to TestFlight"; or (b) prefix the commit message with `[deploy] ` to automatically attempt upload & release
 
 ## Contributing

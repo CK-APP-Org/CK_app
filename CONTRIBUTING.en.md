@@ -21,13 +21,13 @@ See the [README "Development" section](README.en.md#development) for full steps.
 
 ```bash
 git clone https://github.com/CK-APP-Org/CK_app.git
-cd CK_app/CK_app
+cd CK_app
 npm install -g @quasar/cli
 yarn install
 quasar dev        # opens http://localhost:9000
 ```
 
-> Run commands from the `CK_app/CK_app` directory (that's where `package.json` lives).
+> Run commands from the repo root (that's where `package.json` lives).
 
 ## Project structure cheat sheet
 | Path | Purpose |
@@ -37,8 +37,8 @@ quasar dev        # opens http://localhost:9000
 | `src/store/` | Vuex local state (8 modules), persisted to localStorage |
 | `src/services/` | Background services, e.g. `newsService.js` |
 | `src/data/` | Static data (`metroData.js`, `restaurantData.json`) |
-| `src/boot/` | Startup init (axios, firebase, i18n) |
-| `../tools/` | Python tools (schedule/menu file conversion) — lives at the repo root, alongside `CK_app/`, so Vite doesn't scan it |
+| `src/boot/` | Startup init (axios, i18n) |
+| `tools/` | Python tools (schedule/menu file conversion) — lives at the repo root, so Vite doesn't scan it |
 | `src-capacitor/` | Android / iOS native wrappers and version config |
 
 See the [README](README.en.md) for details.
@@ -77,14 +77,14 @@ yarn format    # auto-format
 ## Changing data
 - **Restaurant data**: edit `src/data/restaurantData.json` (FoodPage).
 - **MRT data**: edit `src/data/metroData.js` (TransportPage).
-- **Schedules / menus**: these are dynamic data living in the **Data** repo (`ClassesSchedule.json`, `menus/`). See the README's [SchedulePage](README.en.md#schedulepage) and [MenuPage](README.en.md#menupage) sections for the workflow, and use the Python tools in `../tools/` for conversion.
+- **Schedules / menus**: these are dynamic data living in the **Data** repo (`ClassesSchedule.json`, `menus/`). See the README's [SchedulePage](README.en.md#schedulepage) and [MenuPage](README.en.md#menupage) sections for the workflow, and use the Python tools in `tools/` for conversion.
 
 ## Bumping the version
 Before a release, update the version everywhere (currently **3.1**):
 - Android: `versionCode` and `versionName` in `src-capacitor/android/app/build.gradle`
 - iOS: `CURRENT_PROJECT_VERSION` and `MARKETING_VERSION` in `src-capacitor/ios/App/App.xcodeproj/project.pbxproj` (both debug & release)
 - Display: the version string in `src/pages/AboutPage.vue`
-- (Recommended: also update `version` in `CK_app/package.json`, which currently lags the real version)
+- (Recommended: also update `version` in `package.json`, which currently lags the real version)
 
 ## Testing
 The project currently has **no automated tests** (`yarn test` is just a placeholder that returns success). Verify changes manually:

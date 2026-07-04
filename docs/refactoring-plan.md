@@ -141,7 +141,7 @@ The skeleton exists (`src/boot/i18n.js`, `src/i18n/`, `vue-i18n` dep) but the UI
 
 ### Version alignment
 `package.json` says `3.0.1`; actual released version is `3.1`. Update all three locations to `3.1.0`:
-- `CK_app/package.json` → `"version": "3.1.0"`
+- `package.json` → `"version": "3.1.0"`
 - `src-capacitor/android/app/build.gradle` → `versionName`
 - `src-capacitor/ios/App/App.xcodeproj/project.pbxproj` → `MARKETING_VERSION`
 

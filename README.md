@@ -2,7 +2,7 @@
 
 **語言 / Language：** 中文（本頁） ｜ [English](README.en.md)
 
-> 當前版本：**3.1**（`src-capacitor/android/app/build.gradle` 的 `versionName`）　｜　文件最後更新：2026-06
+> 當前版本：**3.1**（`src-capacitor/android/app/build.gradle` 的 `versionName`）　｜　文件最後更新：2026-07
 >
 > ⚠️ 注意：`package.json` 的 `version` 欄位目前仍是 `3.0.1`，與實際版本不同步。版本的真正來源是 Android 的 `build.gradle` 與 iOS 的 `project.pbxproj`（見[開發說明](#開發說明)）。
 
@@ -10,7 +10,7 @@
 1. [CK APP是什麼？](#ck-app是什麼)
 2. [CK APP架構介紹](#ck-app架構介紹)
 3. [頁面/功能介紹](#頁面功能介紹)
-4. [Store、i18n 與其他基礎建設](#storei18n-與其他基礎建設)
+4. [Store 與其他基礎建設](#store-與其他基礎建設)
 5. [已知問題與待辦](#已知問題與待辦)
 6. [開發說明](#開發說明)
 7. [貢獻](#貢獻)
@@ -19,12 +19,13 @@
 CK APP是建中第77屆學生彭可翰和楊晨諺於2024年暑假所開發的應用程式，目的是幫助所有建中生解決生活中遇到的大小困難。CK APP自從2024年9月在iOS和Android雙平台上架至2025年9月共累積2080次下載。我們期許CK APP能夠持續幫助未來的所有建中生。
 
 ## CK APP架構介紹
-CK APP的主要程式和資料皆位於GitHub，其共有兩個repo——CK_app和Data (其實有第三個repo Proxy，但他現在是廢棄狀態，為過去Heroku之程式)。
+CK APP的主要程式和資料皆位於GitHub，其共有兩個repo——CK_app和Data (其實有第三個repo Proxy，但他現在是廢棄狀態，為過去Heroku之程式)。這個repo（`CK_app`）本身就是Quasar專案的根目錄——`package.json`、`src/`等都直接在repo根目錄下，clone下來後不需要再往下一層資料夾。
 
 ### Data
-Data為存放需動態改動之資料，讓CK APP可以直接讀取。其中目前有被利用的資料為
-- menus: 存放熱食部菜單的資料夾
-- ClassesSchedule.json: 全校班級之課表
+Data為存放需動態改動之資料，讓CK APP可以直接讀取。目前實際使用中的只剩：
+- menus: 存放熱食部菜單的資料夾（見下方 [MenuPage](#menupage-熱食部) 說明）
+
+> 課表資料（原本的 `ClassesSchedule.json`）過去也放在這裡，但校方一度基於隱私權停止提供資料來源，導致這個機制停擺了一段時間。後來取得新的班級課表資料後，我們改成直接把資料打包進 `CK_app` 這個repo本身（`src/data/schedules/`），不再依賴 Data repo或外部網路請求——細節見下方 [SchedulePage](#schedulepage-課表) 說明。
 
 ### CK_app
 CK_app為CK APP的主體程式，語言是Quasar Framework，本質上為HTML、CSS和JavaScript。當初選用Quasar是因為可以輸出成Android和iOS的app，不需寫兩個不同版本。
@@ -37,36 +38,40 @@ CK_app為CK APP的主體程式，語言是Quasar Framework，本質上為HTML、
 - **src**
 	- **boot**: App 啟動時載入的初始化程式
 		- axios.js: 設定 axios（HTTP 請求）
-		- firebase.js: 初始化 Firebase
 		- i18n.js: 初始化多語系（vue-i18n）
 	- **data**
 		- metroData.js: 北捷站點和路線資訊
 		- restaurantData.json: FoodPage餐廳資料 (有想過丟到Data，才可以動態改動，但這樣Android版不知道為什麼無法讀取資料\==)
+		- schedules/: 全校班級課表（高一/高二/高三三個原始 JSON + 一個 `index.js` 把它們轉成頁面要的格式），見 [SchedulePage](#schedulepage-課表)
 	- **i18n**: 多語系字串（目前僅有 `en-US`，尚未真正全面使用）
-	- **pages**: CK APP的核心，大部分的開發工作會在這裡進行（共 13 個頁面，見[頁面/功能介紹](#頁面功能介紹)）
+	- **pages**: CK APP的核心，大部分的開發工作會在這裡進行（共 12 個頁面，見[頁面/功能介紹](#頁面功能介紹)）
 	- **components / layouts**: 共用元件（如 `EssentialLink.vue`）與版型（`MainLayout.vue`）
 	- **router**
 		- routes.js: 如果有新增頁面要去這裡登記，才可以從其他頁面連結過去
 	- **services**
 		- newsService.js: 讓NewsPage每隔2分鐘自動刷新資料
-	- **store**: 頁面會透過這裡更動本機資料，非常重要（見 [Store 章節](#storei18n-與其他基礎建設)）
+	- **store**: 頁面會透過這裡更動本機資料，非常重要（見 [Store 章節](#store-與其他基礎建設)）
 	- **utils**
 		- xmlUtils.js: 解析校網 XML 的工具
 - **tools**（位於 repo 根目錄，與 `src/` 同層，非 Vite 專案的一部分）
-	- Convert_xlsx_to_json.py: 把教務處課表檔(.xls)轉成json，使用說明在檔案裡
+	- Convert_xlsx_to_json.py: 把教務處課表檔(.xls)轉成json，使用說明在檔案裡（⚠️ 輸出格式目前跟 `src/data/schedules/` 用的格式不一致，見[已知問題](#已知問題與待辦)）
 	- menu_scraper.py: (見 MenuPage 說明)
 	- menu_visualizer.py: 將熱食部菜單自動轉成圖檔
 
-除了GitHub外，我們也有用Firebase儲存使用者資料，以及[官方網站](https://ckapp-tw.web.app/) (由 78屆的Ian Wen開發管理)、官方gmail(ckappofficial@gmail.com)和[官方IG帳號](https://www.instagram.com/ckappofficial/)。
+除了GitHub外，我們也有[官方網站](https://ckapp-tw.web.app/) (由 78屆的Ian Wen開發管理)、官方gmail(ckappofficial@gmail.com)和[官方IG帳號](https://www.instagram.com/ckappofficial/)。（過去也曾用Firebase儲存登入使用者的資料，但登入功能與Firebase已完全移除，見[已知問題與待辦](#已知問題與待辦)。）
 
 ## 頁面/功能介紹
-CK APP目前共有 **13 個頁面**（皆於 `src/router/routes.js` 登記），皆由Quasar Framework寫成。Quasar的檔案(.vue)分為三個部分——\<template>、\<script>、\<style>，即HTML、Javascript和CSS。
+CK APP目前共有 **12 個頁面**（皆於 `src/router/routes.js` 登記），皆由Quasar Framework寫成。Quasar的檔案(.vue)分為三個部分——\<template>、\<script>、\<style>，即HTML、Javascript和CSS。
 
 ### HomePage (首頁)
 除了六個頁面的按鈕外，首頁還包含三個動態資訊：目前課程、今日待辦事項、釘選校網內容。
 
 ### SchedulePage (課表)
-課表有兩個按鈕會去抓ClassesSchedule.json的資料：設定班級&重新載入資料。
+建中的課表（含高一、高二、高三共81個班級、每天8節課）打包成三個 JSON 檔放在 `src/data/schedules/`（`gaoyi_schedules.json`、`gaoer_schedules.json`、`gaosan_schedules.json`），由同資料夾的 `index.js` 轉成頁面要的格式，並提供班級清單（`CLASS_OPTIONS`）與「目前是第幾節課」的判斷（`getCurrentPeriodName`，會對照各節課真實的上下課時間，包含午休空檔）。
+
+頁面上「設定班級」和重新整理按鈕會直接切換/重讀本機資料，不需要網路連線。使用者自訂的科目、顏色、備註仍會存在 `localStorage`（見 [Store 章節](#store-與其他基礎建設)），不會被內建課表資料覆蓋，除非手動點重新整理。
+
+> 這個機制在2025年10月一度因校方隱私考量而停用（改成「請自行輸入」），2026年7月才恢復——詳細原因與決策過程見 [`docs/decisions/feature-schedule-data-import/`](docs/decisions/feature-schedule-data-import/restore-schedule-data-import.md)。
 
 ### TodoPage (行事曆)
 行事曆頁面分為兩個部分：月曆&待辦。詳細運作方式有點複雜，但應該不用改所以就不解釋了:D
@@ -106,22 +111,19 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 小工具頁：使用者每行輸入一個選項，按下按鈕後隨機幫你選一個。純前端、無外部資料。
 
 ### SettingsPage
-滿直觀的。
+滿直觀的。可以切換班級（會連動 SchedulePage）、調整首頁要顯示哪些區塊、自訂工具列。
 
 ### AboutPage
 顯示版本資訊（目前為 3.1）。版本要記得改（見[開發說明](#開發說明)）。之後應該要增加開發者介紹。
 
-### LoginPage
-註冊/登入的功能未來應該要拔掉。目前我們的做法是把使用者資料丟到Firebase，但現在CK APP好像不太能存取Firebase，我們推測是因為太多使用者上傳資料，連後臺想去Firebase看資料都會卡到爆。
+> 另外還有 `ErrorNotFound.vue` 作為找不到路由時的 404 頁（不算在 12 個功能頁面內）。
 
-> 另外還有 `ErrorNotFound.vue` 作為找不到路由時的 404 頁（不算在 13 個功能頁面內）。
-
-## Store、i18n 與其他基礎建設
+## Store 與其他基礎建設
 
 ### Store（Vuex）
 `src/store/` 是 App 的本機狀態中心，**非常重要**。各頁面透過它讀寫資料，並由 `localStoragePlugin.js` 自動同步到瀏覽器 / 裝置的 `localStorage`，所以資料在重開 App 後仍會保留。
 
-目前共有 8 個模組（`src/store/modules/`）：
+目前共有 7 個模組（`src/store/modules/`）：
 
 | 模組 | 對應功能 |
 | --- | --- |
@@ -131,7 +133,6 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 | `schedule` | 班級課表與目前設定的班級（SchedulePage） |
 | `todo` | 行事曆與待辦事項（TodoPage） |
 | `food` | FoodPage 餐廳相關狀態 |
-| `account` | 使用者帳號 / 登入狀態（LoginPage） |
 | `settings` | App 設定（SettingsPage） |
 
 其他：
@@ -145,13 +146,15 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 把散落在各頁說明裡的 TODO / 已知 bug 集中如下，方便接手的人一眼看到：
 
 - [ ] **版本號不同步**：`package.json` 為 `3.0.1`，實際上架版本為 `3.1`。可考慮統一來源。
+- [ ] **課表轉檔工具與新資料格式不一致**：`tools/Convert_xlsx_to_json.py` 輸出的是舊格式（單一 `ProcessedClassesSchedule.json`，原本是要手動貼到 Data repo），但 SchedulePage 現在讀的是 `src/data/schedules/` 底下三份依年級分開、形狀也不同的 JSON。未來要換學期課表時，這個工具需要先更新（或重寫）才能直接產生新格式的檔案。
 - [ ] **MenuPage 日期 off-by-one**：MenuPage 有時把週一日期往前算一天；目前靠 `menu_visualizer` 多輸出一份檔名迴避，根因尚未修。
 - [ ] **FoodPage 營業時間 hack**：為了圖標顏色正常，部分店家時間寫成超過 24 點，未來應正規化處理跨夜營業。
 - [ ] **restaurantData 無法動態化**：想搬到 Data repo 動態更新，但 Android 版抓得到資料卻畫不出圖標，待查。
 - [ ] **TransportPage 定位功能**：原本想自動偵測使用者位置找最近站點，因權限與實作成本暫時放棄。
-- [ ] **LoginPage / Firebase**：登入功能未來應移除；Firebase 因資料量過大而難以存取。
 - [ ] **i18n 尚未落實**：骨架已有但介面文字多為寫死中文。
 - [ ] **AboutPage**：可加入開發者介紹。
+
+> 登入功能與 Firebase 已經在 [Phase 3 重構](docs/decisions/phase-3-remove-login/) 中整個移除了，不再是待辦事項。想了解過去重構的細節（含安全性修正、程式碼整理），可以看 [`docs/refactoring-plan.md`](docs/refactoring-plan.md) 與 [`docs/decisions/`](docs/decisions/) 底下各任務的說明文件。
 
 ## 開發說明
 ### 在電腦以網頁模擬
@@ -173,6 +176,8 @@ YouBike部分，我們分別讀取[台北市](https://tcgbusfs.blob.core.windows
 [![Build (& Deploy to TestFlight) iOS APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml)
 1. 在 `src-capacitor\ios\App\App.xcodeproj\project.pbxproj` 改版本 (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (debug & release 都要)
 2. (a) 執行 Github Action - Deploy iOS App to TestFlight；或 (b) 在commit時commit message前加入`[deploy] `，將自動嘗試上傳&上架
+
+> ⚠️ 這兩個 GitHub Action 都會在push到 `main` 且改到程式碼時自動**build**（但不會上架）。真正觸發**上架**（送到 Google Play / TestFlight）需要滿足其中一個條件：手動在 GitHub Actions 頁面點「Run workflow」，或是讓push到 `main` 的那個commit（例如merge PR時的merge commit）訊息開頭是`[deploy] `。合併PR時GitHub預設不會這樣命名merge commit，所以一般merge PR不會不小心觸發上架。
 
 ## 貢獻
 歡迎接手與貢獻！提交 PR 前請先閱讀 [貢獻指南 (CONTRIBUTING.md)](CONTRIBUTING.md)。

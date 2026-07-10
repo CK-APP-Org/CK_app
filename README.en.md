@@ -2,7 +2,7 @@
 
 **Language / 語言:** [中文](README.md) ｜ English (this page)
 
-> Current version: **3.1** (the `versionName` in `src-capacitor/android/app/build.gradle`)　|　Docs last updated: 2026-06
+> Current version: **3.1** (the `versionName` in `src-capacitor/android/app/build.gradle`)　|　Docs last updated: 2026-07
 >
 > ⚠️ Note: the `version` field in `package.json` is still `3.0.1`, which is out of sync with the real version. The source of truth for the version is Android's `build.gradle` and iOS's `project.pbxproj` (see [Development](#development)).
 
@@ -10,7 +10,7 @@
 1. [What is CK APP?](#what-is-ck-app)
 2. [Architecture](#architecture)
 3. [Pages / Features](#pages--features)
-4. [Store, i18n & other infrastructure](#store-i18n--other-infrastructure)
+4. [Store & other infrastructure](#store--other-infrastructure)
 5. [Known issues & TODO](#known-issues--todo)
 6. [Development](#development)
 7. [Contributing](#contributing)
@@ -19,12 +19,13 @@
 CK APP is an app built by Diego Peng and Kimi Yang, 77th-cohort students of Chien Kuo High School (建中), during the summer of 2024. Its goal is to help every CK student deal with the everyday problems of school life. Since launching on both iOS and Android in September 2024, CK APP accumulated 2,080 downloads by September 2025. We hope CK APP can keep helping all future CK students.
 
 ## Architecture
-CK APP's main code and data both live on GitHub, across two repos — `CK_app` and `Data` (there's actually a third repo, `Proxy`, but it's deprecated — it was the old Heroku code).
+CK APP's main code and data both live on GitHub, across two repos — `CK_app` and `Data` (there's actually a third repo, `Proxy`, but it's deprecated — it was the old Heroku code). This repo (`CK_app`) *is* the Quasar project root — `package.json`, `src/`, etc. all live directly at the repo root, so there's no extra folder to `cd` into after cloning.
 
 ### Data
-`Data` holds data that needs to change dynamically so CK APP can read it directly. Currently the data in active use is:
-- `menus`: folder holding the cafeteria (熱食部) menus
-- `ClassesSchedule.json`: class schedules for the whole school
+`Data` holds data that needs to change dynamically so CK APP can read it directly. The only thing still actively used from it is:
+- `menus`: folder holding the cafeteria (熱食部) menus (see [MenuPage](#menupage) below)
+
+> Class schedule data (the old `ClassesSchedule.json`) used to live here too, but the school stopped providing that source for a while over privacy concerns, which broke this mechanism. After obtaining fresh class-schedule data, we switched to bundling it directly inside the `CK_app` repo itself (`src/data/schedules/`), so it no longer depends on the `Data` repo or a network request at all — see [SchedulePage](#schedulepage) below for details.
 
 ### CK_app
 `CK_app` is the main CK APP codebase, written with the Quasar Framework — essentially HTML, CSS, and JavaScript. We chose Quasar because it can output both Android and iOS apps from one codebase, so we don't have to write two separate versions.
@@ -37,36 +38,40 @@ Commonly used files / folders:
 - **src**
 	- **boot**: initialization code loaded when the app starts
 		- `axios.js`: configures axios (HTTP requests)
-		- `firebase.js`: initializes Firebase
 		- `i18n.js`: initializes internationalization (vue-i18n)
 	- **data**
 		- `metroData.js`: Taipei MRT station and line info
 		- `restaurantData.json`: FoodPage restaurant data (we considered moving it to `Data` for dynamic updates, but for some reason the Android build couldn't read it `==`)
+		- `schedules/`: class schedules for the whole school (three raw grade JSON files plus an `index.js` that converts them into the shape the pages need) — see [SchedulePage](#schedulepage)
 	- **i18n**: localization strings (currently only `en-US`, not yet fully used)
-	- **pages**: the heart of CK APP — most development happens here (13 pages total, see [Pages / Features](#pages--features))
+	- **pages**: the heart of CK APP — most development happens here (12 pages total, see [Pages / Features](#pages--features))
 	- **components / layouts**: shared components (e.g. `EssentialLink.vue`) and layouts (`MainLayout.vue`)
 	- **router**
 		- `routes.js`: register any new page here so other pages can link to it
 	- **services**
 		- `newsService.js`: auto-refreshes NewsPage data every 2 minutes
-	- **store**: pages mutate local data through here — very important (see the [Store section](#store-i18n--other-infrastructure))
+	- **store**: pages mutate local data through here — very important (see the [Store section](#store--other-infrastructure))
 	- **utils**
 		- `xmlUtils.js`: helper for parsing the school website's XML
 - **tools** (lives at the repo root, alongside `src/` — not part of the Vite project)
-	- `Convert_xlsx_to_json.py`: converts the academic-office schedule file (.xls) into JSON; usage notes are inside the file
+	- `Convert_xlsx_to_json.py`: converts the academic-office schedule file (.xls) into JSON; usage notes are inside the file (⚠️ its output format no longer matches what `src/data/schedules/` uses — see [Known issues](#known-issues--todo))
 	- `menu_scraper.py`: (see the MenuPage section)
 	- `menu_visualizer.py`: auto-converts the cafeteria menu into image files
 
-Besides GitHub, we also use Firebase to store user data, plus the [official website](https://ckapp-tw.web.app/) (built & maintained by Ian Wen of the 78th cohort), the official Gmail (ckappofficial@gmail.com), and the [official Instagram account](https://www.instagram.com/ckappofficial/).
+Besides GitHub, we also have the [official website](https://ckapp-tw.web.app/) (built & maintained by Ian Wen of the 78th cohort), the official Gmail (ckappofficial@gmail.com), and the [official Instagram account](https://www.instagram.com/ckappofficial/). (We used to store logged-in users' data in Firebase, but the login feature and Firebase have both been fully removed — see [Known issues & TODO](#known-issues--todo).)
 
 ## Pages / Features
-CK APP currently has **13 pages** (all registered in `src/router/routes.js`), all written with the Quasar Framework. A Quasar `.vue` file has three parts — `<template>`, `<script>`, `<style>` — i.e. HTML, JavaScript, and CSS.
+CK APP currently has **12 pages** (all registered in `src/router/routes.js`), all written with the Quasar Framework. A Quasar `.vue` file has three parts — `<template>`, `<script>`, `<style>` — i.e. HTML, JavaScript, and CSS.
 
 ### HomePage
 Besides the six page buttons, the home page shows three dynamic pieces of info: the current class, today's to-dos, and pinned school-website content.
 
 ### SchedulePage
-The schedule page has two buttons that fetch `ClassesSchedule.json`: set class & reload data.
+Chien Kuo's class schedules (grades 1-3, 81 classes total, 8 periods a day) are bundled as three JSON files in `src/data/schedules/` (`gaoyi_schedules.json`, `gaoer_schedules.json`, `gaosan_schedules.json`). An `index.js` in the same folder converts them into the shape the page needs, and also exports the class list (`CLASS_OPTIONS`) and a "which period is it right now" helper (`getCurrentPeriodName`) that checks the real start/end time of each period, including the lunch gap.
+
+The "set class" and refresh buttons on the page just switch/reload this local data — no network connection needed. Any subjects/colors/notes the user has customized still live in `localStorage` (see [Store](#store--other-infrastructure)) and won't be overwritten by the bundled data unless the user taps refresh.
+
+> This mechanism was disabled in October 2025 over school privacy concerns (replaced with a "please enter it yourself" message), and was restored in July 2026. For the full reasoning and decision process, see [`docs/decisions/feature-schedule-data-import/`](docs/decisions/feature-schedule-data-import/restore-schedule-data-import.md).
 
 ### TodoPage
 Split into two parts: a monthly calendar & a to-do list. How it works is a bit complicated, but you shouldn't need to touch it, so we won't explain it :D
@@ -106,22 +111,19 @@ Embeds the external souvenir store [`souvenir.cksc.tw/auth`](https://souvenir.ck
 A small utility page: the user enters one option per line, and on button press it randomly picks one for you. Pure front-end, no external data.
 
 ### SettingsPage
-Pretty self-explanatory.
+Pretty self-explanatory. Lets you switch class (which feeds SchedulePage), toggle which sections show on the home page, and customize the toolbar.
 
 ### AboutPage
 Shows version info (currently 3.1). Remember to bump the version (see [Development](#development)). We should add developer bios later.
 
-### LoginPage
-The sign-up / login feature should probably be removed in the future. Currently we dump user data into Firebase, but CK APP now seems barely able to access Firebase — we suspect it's because so many users uploaded data that even the admin console lags badly when trying to view it.
+> There's also `ErrorNotFound.vue` as the 404 page for unmatched routes (not counted among the 12 feature pages).
 
-> There's also `ErrorNotFound.vue` as the 404 page for unmatched routes (not counted among the 13 feature pages).
-
-## Store, i18n & other infrastructure
+## Store & other infrastructure
 
 ### Store (Vuex)
 `src/store/` is the app's local-state hub and is **very important**. Pages read and write through it, and `localStoragePlugin.js` automatically syncs it to the browser's / device's `localStorage`, so data persists across app restarts.
 
-There are currently 8 modules (`src/store/modules/`):
+There are currently 7 modules (`src/store/modules/`):
 
 | Module | Feature |
 | --- | --- |
@@ -131,7 +133,6 @@ There are currently 8 modules (`src/store/modules/`):
 | `schedule` | Class schedule and the currently set class (SchedulePage) |
 | `todo` | Calendar and to-do items (TodoPage) |
 | `food` | FoodPage restaurant-related state |
-| `account` | User account / login state (LoginPage) |
 | `settings` | App settings (SettingsPage) |
 
 Also:
@@ -145,13 +146,15 @@ The project has an internationalization scaffold via `vue-i18n` (`src/boot/i18n.
 The TODOs / known bugs scattered across the page descriptions, collected here so whoever takes over can see them at a glance:
 
 - [ ] **Version out of sync**: `package.json` says `3.0.1` while the shipped version is `3.1`. Consider unifying the source of truth.
+- [ ] **Schedule conversion tool doesn't match the new data format**: `tools/Convert_xlsx_to_json.py` still outputs the old format (a single `ProcessedClassesSchedule.json`, originally meant to be pasted into the `Data` repo by hand), but SchedulePage now reads three per-grade JSON files with a different shape from `src/data/schedules/`. Next time the schedule needs updating for a new semester, this tool needs to be updated (or rewritten) to produce the new format directly.
 - [ ] **MenuPage date off-by-one**: MenuPage sometimes counts the Monday date one day early; currently worked around by having `menu_visualizer` output an extra filename. Root cause unfixed.
 - [ ] **FoodPage hours hack**: to keep marker colors correct, some shops' hours are written as past 24:00; overnight hours should be handled properly later.
 - [ ] **restaurantData can't be made dynamic**: we wanted to move it to the `Data` repo for dynamic updates, but the Android build fetches the data yet fails to draw markers. Needs investigation.
 - [ ] **TransportPage geolocation**: auto-detecting the user's location for nearest stations was shelved due to permission and implementation cost.
-- [ ] **LoginPage / Firebase**: the login feature should be removed in the future; Firebase is hard to access due to data volume.
 - [ ] **i18n not realized**: the scaffold exists but most UI text is hard-coded Chinese.
 - [ ] **AboutPage**: could add developer bios.
+
+> The login feature and Firebase were fully removed as part of the [Phase 3 refactor](docs/decisions/phase-3-remove-login/), so they're no longer on this list. For more on past refactoring (including security fixes and cleanup), see [`docs/refactoring-plan.md`](docs/refactoring-plan.md) and the per-task write-ups under [`docs/decisions/`](docs/decisions/).
 
 ## Development
 ### Simulating in a browser on your computer
@@ -173,6 +176,8 @@ The TODOs / known bugs scattered across the page descriptions, collected here so
 [![Build (& Deploy to TestFlight) iOS APP](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml/badge.svg)](https://github.com/CK-APP-Org/CK_app/actions/workflows/build_ios.yml)
 1. Bump the version in `src-capacitor\ios\App\App.xcodeproj\project.pbxproj` (`CURRENT_PROJECT_VERSION` & `MARKETING_VERSION`) (both debug & release)
 2. (a) Run the GitHub Action "Deploy iOS App to TestFlight"; or (b) prefix the commit message with `[deploy] ` to automatically attempt upload & release
+
+> ⚠️ Both of these GitHub Actions automatically **build** on every push to `main` that touches the code (but that alone doesn't publish anything). Actually triggering a **release** (uploading to Google Play / TestFlight) needs one of: manually clicking "Run workflow" on the Actions tab, or having the commit that lands on `main` (e.g. a PR's merge commit) start its message with `[deploy] `. GitHub's default merge-commit title doesn't do that, so a normal PR merge won't accidentally trigger a release.
 
 ## Contributing
 Contributions and handoffs are welcome! Please read the [Contributing Guide (CONTRIBUTING.en.md)](CONTRIBUTING.en.md) before opening a PR.

@@ -27,19 +27,20 @@ yarn install
 quasar dev        # 開啟 http://localhost:9000
 ```
 
-> 請在 repo 根目錄執行指令（`package.json` 在這裡）。
+> 請在 repo 根目錄執行指令（`package.json` 在這裡；這個repo本身就是Quasar專案根目錄，不需要再往下一層資料夾）。
 
 ## 專案結構速查
 | 路徑 | 用途 |
 | --- | --- |
-| `src/pages/` | 各頁面（.vue），主要開發區 |
+| `src/pages/` | 各頁面（.vue），主要開發區（共 12 個功能頁面） |
 | `src/router/routes.js` | 路由登記處；新增頁面必改 |
-| `src/store/` | Vuex 本機狀態（8 個模組），會持久化到 localStorage |
+| `src/store/` | Vuex 本機狀態（7 個模組），會持久化到 localStorage |
 | `src/services/` | 背景服務，如 `newsService.js` |
-| `src/data/` | 靜態資料（`metroData.js`、`restaurantData.json`） |
+| `src/data/` | 靜態資料（`metroData.js`、`restaurantData.json`、`schedules/`） |
 | `src/boot/` | 啟動初始化（axios、i18n） |
 | `tools/` | Python 工具（課表/菜單轉檔），位於 repo 根目錄，避免被 Vite 掃到 |
 | `src-capacitor/` | Android / iOS 原生包裝與版本設定 |
+| `docs/decisions/` | 過去每個重構/功能任務的「改了什麼、為什麼」說明文件，接手前建議先掃過相關的 |
 
 詳細說明見 [README](README.md)。
 
@@ -49,6 +50,7 @@ quasar dev        # 開啟 http://localhost:9000
 - ⚠️ **重要：commit message 開頭的 `[deploy] ` 會觸發自動上架！**
   - 加上 `[deploy] ` 前綴的 commit 會啟動 GitHub Action，自動嘗試 build 並上傳到 Google Play / TestFlight。
   - **一般開發 commit 請勿加 `[deploy] `**，以免誤觸發部署。確定要發版時才加（並記得先改版本號，見下）。
+  - 這個檢查看的是「實際 push 到 `main` 的那個 commit」的訊息。用GitHub網頁介面合併PR時，預設的merge commit標題是「Merge pull request #...」，不會誤觸發；只有你自己手動把merge commit標題改成`[deploy] `開頭，或是直接commit到main且訊息以`[deploy] `開頭，才會觸發上架。
 
 ## 新增一個頁面
 1. 在 `src/pages/` 新增 `XxxPage.vue`（含 `<template>`、`<script>`、`<style>`）。
@@ -77,7 +79,9 @@ yarn format    # 自動排版
 ## 資料的修改
 - **餐廳資料**：改 `src/data/restaurantData.json`（FoodPage）。
 - **北捷資料**：改 `src/data/metroData.js`（TransportPage）。
-- **課表 / 菜單**：屬於動態資料，放在 **Data** repo（`ClassesSchedule.json`、`menus/`），流程見 README 的 [SchedulePage](README.md#schedulepage-課表) 與 [MenuPage](README.md#menupage-熱食部) 說明，並可用 `tools/` 的 Python 工具轉檔。
+- **課表資料**：改 `src/data/schedules/` 底下依年級分開的三個 JSON（`gaoyi_schedules.json`、`gaoer_schedules.json`、`gaosan_schedules.json`），格式是「每個班一個 `id` + 一份 `schedule`（週一到週五，每天 8 節課的科目陣列）」，同資料夾的 `index.js` 會自動轉成頁面要的格式，不需要手動改 `index.js`。**這份資料現在直接放在這個repo裡，不再放 Data repo**，也不需要網路請求。
+  - ⚠️ `tools/Convert_xlsx_to_json.py` 目前輸出的格式跟這裡不一樣（見 [README 已知問題](README.md#已知問題與待辦)），還不能直接拿來產生這些檔案，要嘛手動比照現有檔案格式整理，要嘛先更新這個工具。
+- **菜單資料**：屬於動態資料，放在 **Data** repo（`menus/` 資料夾）。流程見 README 的 [MenuPage](README.md#menupage-熱食部) 說明，可用 `tools/` 的 `menu_scraper.py`、`menu_visualizer.py` 轉檔。
 
 ## 改版本號
 發版前要同步更新版本（目前為 **3.1**）：

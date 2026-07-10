@@ -27,19 +27,20 @@ yarn install
 quasar dev        # opens http://localhost:9000
 ```
 
-> Run commands from the repo root (that's where `package.json` lives).
+> Run commands from the repo root (that's where `package.json` lives — this repo *is* the Quasar project root, there's no extra folder to `cd` into).
 
 ## Project structure cheat sheet
 | Path | Purpose |
 | --- | --- |
-| `src/pages/` | Pages (.vue) — the main development area |
+| `src/pages/` | Pages (.vue) — the main development area (12 feature pages) |
 | `src/router/routes.js` | Route registry; must edit when adding a page |
-| `src/store/` | Vuex local state (8 modules), persisted to localStorage |
+| `src/store/` | Vuex local state (7 modules), persisted to localStorage |
 | `src/services/` | Background services, e.g. `newsService.js` |
-| `src/data/` | Static data (`metroData.js`, `restaurantData.json`) |
+| `src/data/` | Static data (`metroData.js`, `restaurantData.json`, `schedules/`) |
 | `src/boot/` | Startup init (axios, i18n) |
 | `tools/` | Python tools (schedule/menu file conversion) — lives at the repo root, so Vite doesn't scan it |
 | `src-capacitor/` | Android / iOS native wrappers and version config |
+| `docs/decisions/` | Write-ups of what changed and why for past refactor/feature tasks — worth skimming the relevant ones before you start |
 
 See the [README](README.en.md) for details.
 
@@ -49,6 +50,7 @@ See the [README](README.en.md) for details.
 - ⚠️ **IMPORTANT: a `[deploy] ` prefix in the commit message triggers an automatic release!**
   - A commit prefixed with `[deploy] ` kicks off a GitHub Action that automatically attempts to build and upload to Google Play / TestFlight.
   - **Do NOT add `[deploy] ` to normal development commits**, to avoid accidental deployments. Add it only when you intend to release (and remember to bump the version first, see below).
+  - This checks the message of whatever commit actually lands on `main`. Merging a PR through the GitHub UI defaults to a merge-commit title like "Merge pull request #...", which won't trigger it — it only fires if you manually edit that merge-commit title to start with `[deploy] `, or commit directly to `main` with a message that does.
 
 ## Adding a new page
 1. Create `XxxPage.vue` in `src/pages/` (with `<template>`, `<script>`, `<style>`).
@@ -77,7 +79,9 @@ yarn format    # auto-format
 ## Changing data
 - **Restaurant data**: edit `src/data/restaurantData.json` (FoodPage).
 - **MRT data**: edit `src/data/metroData.js` (TransportPage).
-- **Schedules / menus**: these are dynamic data living in the **Data** repo (`ClassesSchedule.json`, `menus/`). See the README's [SchedulePage](README.en.md#schedulepage) and [MenuPage](README.en.md#menupage) sections for the workflow, and use the Python tools in `tools/` for conversion.
+- **Schedule data**: edit the three per-grade JSON files under `src/data/schedules/` (`gaoyi_schedules.json`, `gaoer_schedules.json`, `gaosan_schedules.json`). Each class entry has an `id` and a `schedule` (Monday-Friday, each an array of 8 subjects). The `index.js` in the same folder converts these automatically into what the pages need — you shouldn't need to touch `index.js` itself. **This data now lives directly in this repo, not the `Data` repo**, and needs no network request.
+  - ⚠️ `tools/Convert_xlsx_to_json.py` currently outputs a different format than this (see [README known issues](README.en.md#known-issues--todo)) — it can't be used as-is to produce these files. Either hand-format new data to match the existing files, or update the tool first.
+- **Menu data**: this is dynamic data living in the **Data** repo (`menus/` folder). See the README's [MenuPage](README.en.md#menupage) section for the workflow, and use `tools/menu_scraper.py` / `tools/menu_visualizer.py` for conversion.
 
 ## Bumping the version
 Before a release, update the version everywhere (currently **3.1**):

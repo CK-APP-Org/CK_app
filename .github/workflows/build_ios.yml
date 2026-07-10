@@ -3,16 +3,11 @@ name: Build (& Deploy to TestFlight) iOS APP
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'src-capacitor/**'
-      - 'public/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'quasar.config.js'
-      - '.github/workflows/build_ios.yml'
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build-ios:
@@ -32,6 +27,19 @@ jobs:
           node-version: '22'
           cache: 'yarn'
           cache-dependency-path: 'yarn.lock'
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          REF="${GITHUB_REF_NAME}"
+          if [[ "$REF" == v* ]]; then
+            VERSION="${REF#v}"
+          else
+            # Manual runs off a branch: keep a valid, non-conflicting version
+            VERSION="0.0.0-${REF}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building MARKETING_VERSION=$VERSION CURRENT_PROJECT_VERSION=${{ github.run_number }}"
 
       - name: Install dependencies
         run: |
@@ -71,24 +79,42 @@ jobs:
         env:
           METRO_API_USER: ${{ secrets.METRO_API_USER }}
           METRO_API_PASS: ${{ secrets.METRO_API_PASS }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           yarn ios
           cd src-capacitor
           npx cap update ios
           npx cap copy ios
+          # Apply version from tag before archiving
+          sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = ${VERSION};/g" ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = ${{ github.run_number }};/g" ios/App/App.xcodeproj/project.pbxproj
+          grep -E "MARKETING_VERSION|CURRENT_PROJECT_VERSION" ios/App/App.xcodeproj/project.pbxproj
           xcodebuild -workspace './ios/App/App.xcworkspace' -scheme App -destination generic/platform=iOS -archivePath App.xcarchive archive
           xcodebuild archive -archivePath App.xcarchive -exportArchive -exportOptionsPlist ./archive.plist -exportPath output -allowProvisioningUpdates
+
+      - name: Collect IPA artifact
+        run: cp src-capacitor/output/App.ipa "CK_app-${{ steps.version.outputs.version }}.ipa"
 
       - name: Archive iOS build output
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: src-capacitor/output
+
+      - name: Publish IPA to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: CK_app-${{ steps.version.outputs.version }}.ipa
+
   deploy-ios:
     name: Deploy iOS to TestFlight
     needs: build-ios
     runs-on: macos-latest
-    if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Download iOS build output
         uses: actions/download-artifact@v5
@@ -96,7 +122,7 @@ jobs:
           name: ios-build
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
-        with: 
+        with:
           app-path: ./App.ipa
           issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}

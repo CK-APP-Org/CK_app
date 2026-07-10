@@ -3,16 +3,11 @@ name: Build (& Deploy to Google Play) Android APP
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'src-capacitor/**'
-      - 'public/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'quasar.config.js'
-      - '.github/workflows/build_android.yml'
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build-android:
@@ -35,6 +30,19 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'yarn.lock'
 
+      - name: Derive version from tag
+        id: version
+        run: |
+          REF="${GITHUB_REF_NAME}"
+          if [[ "$REF" == v* ]]; then
+            VERSION="${REF#v}"
+          else
+            # Manual runs off a branch: keep a valid, non-conflicting version
+            VERSION="0.0.0-${REF}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building versionName=$VERSION versionCode=${{ github.run_number }}"
+
       - name: Install dependencies
         run: |
           npm install -g yarn @quasar/cli
@@ -44,16 +52,24 @@ jobs:
         env:
           METRO_API_USER: ${{ secrets.METRO_API_USER }}
           METRO_API_PASS: ${{ secrets.METRO_API_PASS }}
+        run: yarn android
+
+      - name: Apply version from tag to Android project
+        run: |
+          cd src-capacitor/android/app
+          sed -i "s/versionCode .*/versionCode ${{ github.run_number }}/" build.gradle
+          sed -i "s/versionName \".*\"/versionName \"${{ steps.version.outputs.version }}\"/" build.gradle
+          grep -E "versionCode|versionName" build.gradle
+
+      - name: Assemble AAB and APK
         run: |
           chmod +x src-capacitor/android/gradlew
-          yarn android
           cd src-capacitor/android
-          ./gradlew bundle
+          ./gradlew bundle assembleRelease
 
       - uses: r0adkll/sign-android-release@v1
-        name: Sign app APK
-        # ID used to access action output
-        id: sign_app
+        name: Sign app AAB
+        id: sign_aab
         with:
           releaseDirectory: src-capacitor/android/app/build/outputs/bundle/release
           signingKeyBase64: ${{ secrets.PLAY_SIGNING_KEY }}
@@ -61,19 +77,49 @@ jobs:
           keyStorePassword: ${{ secrets.PLAY_SIGNING_KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.PLAY_SIGNING_KEY_PASSWORD }}
         env:
-          # override default build-tools version (33.0.0) -- optional
           BUILD_TOOLS_VERSION: "34.0.0"
+
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK
+        id: sign_apk
+        with:
+          releaseDirectory: src-capacitor/android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.PLAY_SIGNING_KEY }}
+          alias: ${{ secrets.PLAY_SIGNING_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.PLAY_SIGNING_KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.PLAY_SIGNING_KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: Collect signed artifacts
+        run: |
+          cp "${{ steps.sign_aab.outputs.signedReleaseFile }}" "CK_app-${{ steps.version.outputs.version }}.aab"
+          cp "${{ steps.sign_apk.outputs.signedReleaseFile }}" "CK_app-${{ steps.version.outputs.version }}.apk"
 
       - name: Archive Android build output
         uses: actions/upload-artifact@v4
         with:
           name: android-build
-          path: ${{steps.sign_app.outputs.signedReleaseFile}}
+          path: |
+            CK_app-${{ steps.version.outputs.version }}.aab
+            CK_app-${{ steps.version.outputs.version }}.apk
+
+      - name: Publish APK/AAB to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            CK_app-${{ steps.version.outputs.version }}.apk
+            CK_app-${{ steps.version.outputs.version }}.aab
+
   deploy-android:
     name: Deploy Android to Google Play
     needs: build-android
     runs-on: ubuntu-latest
-    if: startsWith(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Download Android build output
         uses: actions/download-artifact@v5
@@ -85,7 +131,6 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: "org.capacitor.quasar.ckapp"
-          releaseFiles: "./app-release.aab"
+          releaseFiles: "*.aab"
           track: "internal"
           inAppUpdatePriority: 3
-          

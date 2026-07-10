@@ -46,95 +46,8 @@
       </div>
     </div>
 
-    <!-- 首頁顯示項目設定 Dialog -->
-    <q-dialog v-model="showHomeSettings">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">首頁顯示項目設定</div>
-        </q-card-section>
-        <q-card-section>
-          <q-list>
-            <q-item tag="label" v-ripple>
-              <q-item-section>
-                <q-item-label>目前課程</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-toggle v-model="showSchedule" color="primary" />
-              </q-item-section>
-            </q-item>
-            <q-item tag="label" v-ripple>
-              <q-item-section>
-                <q-item-label>今日待辦事項</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-toggle v-model="showTodo" color="primary" />
-              </q-item-section>
-            </q-item>
-            <q-item tag="label" v-ripple>
-              <q-item-section>
-                <q-item-label>釘選校網內容</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-toggle v-model="showSchoolNews" color="primary" />
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="關閉" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- 自訂工具列 Dialog -->
-    <q-dialog v-model="showToolbarSettings">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">自訂工具列</div>
-        </q-card-section>
-        <q-card-section>
-          <q-list separator>
-            <q-item v-for="(item, index) in menuItems" :key="index">
-              <q-item-section avatar>
-                <q-icon :name="item.icon" />
-              </q-item-section>
-              <q-item-section>{{ item.label }}</q-item-section>
-              <q-item-section side>
-                <q-toggle
-                  v-if="!item.fixed"
-                  v-model="item.visible"
-                  @update:model-value="(val) => toggleVisibility(index, val)"
-                  :disable="item.fixed"
-                />
-              </q-item-section>
-              <q-item-section side>
-                <q-btn-group flat>
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="arrow_upward"
-                    @click="moveItem(index, -1)"
-                    :disable="index === 0"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="arrow_downward"
-                    @click="moveItem(index, 1)"
-                    :disable="index === menuItems.length - 1"
-                  />
-                </q-btn-group>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="關閉" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <home-widget-settings v-model="showHomeSettings" />
+    <toolbar-customiser v-model="showToolbarSettings" />
 
     <q-dialog v-model="confirmDialog">
       <q-card>
@@ -176,7 +89,7 @@
   </q-page>
 </template>
 
-<script>
+<script setup>
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
@@ -193,129 +106,70 @@ const themeColors = [
   { label: "橙色", value: "#FF9800" },
 ];
 
-export default {
-  setup() {
-    const $q = useQuasar();
-    const store = useStore();
-    const confirmDialog = ref(false);
-    const confirmClassChangeDialog = ref(false);
-    const userClass = computed(() => store.getters.getUserClass);
-    const selectedClass = ref(userClass.value);
+const $q = useQuasar();
+const store = useStore();
+const confirmDialog = ref(false);
+const confirmClassChangeDialog = ref(false);
+const userClass = computed(() => store.getters.getUserClass);
+const selectedClass = ref(userClass.value);
 
-    const router = useRouter();
+const router = useRouter();
 
-    const showHomeSettings = ref(false);
-    const showToolbarSettings = ref(false);
+const showHomeSettings = ref(false);
+const showToolbarSettings = ref(false);
 
-    // Theme color
-    const themeColor = ref("#1976D2"); // Default to blue
+// Theme color
+const themeColor = ref("#1976D2"); // Default to blue
 
-    // Watch for theme color changes and apply them
-    /*
-    watch(
-      themeColor,
-      (newColor) => {
-        $q.dark.set(false); // Ensure light mode is active
-        document.body.style.setProperty("--q-primary", newColor);
-      },
-      { immediate: true }
-    );
-    */
-
-    // Computed properties for checkbox states
-    const showSchedule = computed({
-      get: () => store.getters.getShowSchedule,
-      set: (value) => store.commit("SET_SHOW_SCHEDULE", value),
-    });
-
-    const showTodo = computed({
-      get: () => store.getters.getShowTodo,
-      set: (value) => store.commit("SET_SHOW_TODO", value),
-    });
-
-    const showSchoolNews = computed({
-      get: () => store.getters.getShowSchoolNews,
-      set: (value) => store.commit("SET_SHOW_NEWS", value),
-    });
-
-    const confirmClear = () => {
-      confirmDialog.value = true;
-    };
-
-    const clearAllData = () => {
-      store.dispatch("clearALL");
-      store.dispatch("loadSchedule");
-      $q.notify({
-        message: `已刪除所有資料`,
-        color: "positive",
-        position: "bottom",
-        timeout: 2000,
-      });
-      router.push("/");
-    };
-
-    const confirmClassChange = (newClass) => {
-      selectedClass.value = newClass;
-      confirmClassChangeDialog.value = true;
-    };
-
-    const updateUserClass = () => {
-      store.dispatch("setUserClass", selectedClass.value);
-      store.dispatch("loadSchedule");
-      confirmClassChangeDialog.value = false;
-
-      $q.notify({
-        message: `已成功更改班級為 ${selectedClass.value}`,
-        color: "positive",
-        position: "bottom",
-        timeout: 2000,
-      });
-    };
-
-    const cancelClassChange = () => {
-      selectedClass.value = userClass.value;
-      confirmClassChangeDialog.value = false;
-    };
-
-    const toggleVisibility = (index, newValue) => {
-      store.dispatch("toggleMenuItemVisibility", { index, newValue });
-    };
-
-    const menuItems = computed({
-      get: () => store.getters.getMenuItems,
-      set: (newItems) => store.dispatch("updateMenuItems", newItems),
-    });
-
-    const moveItem = (index, direction) => {
-      const newItems = [...menuItems.value];
-      const item = newItems.splice(index, 1)[0];
-      newItems.splice(index + direction, 0, item);
-      store.dispatch("updateMenuItems", newItems);
-    };
-
-    return {
-      confirmDialog,
-      confirmClassChangeDialog,
-      confirmClear,
-      clearAllData,
-      classOptions,
-      confirmClassChange,
-      updateUserClass,
-      cancelClassChange,
-      userClass,
-      selectedClass,
-      showSchedule,
-      showTodo,
-      showSchoolNews,
-      themeColor,
-      themeColors,
-      menuItems,
-      toggleVisibility,
-      moveItem,
-      showHomeSettings,
-      showToolbarSettings,
-    };
+// Watch for theme color changes and apply them
+/*
+watch(
+  themeColor,
+  (newColor) => {
+    $q.dark.set(false); // Ensure light mode is active
+    document.body.style.setProperty("--q-primary", newColor);
   },
+  { immediate: true }
+);
+*/
+
+const confirmClear = () => {
+  confirmDialog.value = true;
+};
+
+const clearAllData = () => {
+  store.dispatch("clearALL");
+  store.dispatch("loadSchedule");
+  $q.notify({
+    message: `已刪除所有資料`,
+    color: "positive",
+    position: "bottom",
+    timeout: 2000,
+  });
+  router.push("/");
+};
+
+const confirmClassChange = (newClass) => {
+  selectedClass.value = newClass;
+  confirmClassChangeDialog.value = true;
+};
+
+const updateUserClass = () => {
+  store.dispatch("setUserClass", selectedClass.value);
+  store.dispatch("loadSchedule");
+  confirmClassChangeDialog.value = false;
+
+  $q.notify({
+    message: `已成功更改班級為 ${selectedClass.value}`,
+    color: "positive",
+    position: "bottom",
+    timeout: 2000,
+  });
+};
+
+const cancelClassChange = () => {
+  selectedClass.value = userClass.value;
+  confirmClassChangeDialog.value = false;
 };
 </script>
 

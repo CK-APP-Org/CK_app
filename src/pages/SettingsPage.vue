@@ -13,7 +13,6 @@
                 </q-item-section>
                 <q-item-section>
                   <q-select
-                    disable
                     filled
                     @update:model-value="confirmClassChange"
                     :options="classOptions"
@@ -182,15 +181,9 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
+import { CLASS_OPTIONS } from "../data/schedules";
 
-const classOptions = [
-  101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
-  116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
-  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
-  219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
-  307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
-  322, 323, 325, 326, 327, 328,
-];
+const classOptions = CLASS_OPTIONS;
 
 const themeColors = [
   { label: "藍色", value: "#1976D2" },

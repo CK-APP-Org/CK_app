@@ -19,11 +19,9 @@ export default defineComponent({
       // Start the background news fetching
       newsService.startBackgroundFetch();
 
-      // Your existing code (commented out) can remain here if needed
-      // if (store.getters.getScheduleData.length === 0) {
-      //   store.dispatch("loadSchedule");
-      //   console.log("Loaded");
-      // }
+      if (store.getters.getScheduleData.length === 0) {
+        store.dispatch("loadSchedule");
+      }
     });
   },
 });

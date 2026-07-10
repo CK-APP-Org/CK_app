@@ -4,8 +4,8 @@
   </div>
   <div v-else class="q-pa-md">
     <div class="custom-banner q-mb-md">
-      <q-icon name="warning" color="info" size="sm" class="q-mr-sm" />
-      校方基於隱私權現在不提供課表資料，僅能自行輸入
+      <q-icon name="info" color="info" size="sm" class="q-mr-sm" />
+      點擊課表格子可自訂科目、顏色和備註
     </div>
     <q-table
       flat
@@ -35,7 +35,6 @@
             />
             <div class="text-h5 text-bold">{{ userClass }} 課表 &thinsp;</div>
             <q-btn
-              disable
               round
               size="sm"
               color="primary"
@@ -53,7 +52,6 @@
 
                 <q-card-section class="q-pt-md">
                   <q-select
-                    disable
                     filled
                     v-model="selectedClass"
                     :options="classOptions"
@@ -217,15 +215,9 @@
 import { onMounted, ref, computed } from "vue";
 import { useQuasar } from "quasar";
 import store from "../store/index";
+import { CLASS_OPTIONS, getCurrentPeriodName } from "../data/schedules";
 
-const classOptions = [
-  101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
-  116, 117, 118, 119, 120, 121, 122, 123, 125, 126, 127, 128, 201, 202, 203,
-  204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218,
-  219, 220, 221, 222, 223, 225, 226, 227, 328, 301, 302, 303, 304, 305, 306,
-  307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
-  322, 323, 325, 326, 327, 328,
-];
+const classOptions = CLASS_OPTIONS;
 
 const columns = [
   {
@@ -378,14 +370,10 @@ export default {
         "Friday",
         "Saturday",
       ][now.getDay()];
-      const currentHour = now.getHours();
 
-      // Assuming classes start at 8 AM and each period is 1 hour
-      const currentPeriod =
-        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
-        "課後";
+      const currentPeriod = getCurrentPeriodName(now);
 
-      return colName === currentDay && row.name === currentPeriod.toString();
+      return colName === currentDay && row.name === currentPeriod;
     };
 
     return {

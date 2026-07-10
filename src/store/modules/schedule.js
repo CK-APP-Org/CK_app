@@ -1,7 +1,4 @@
-import axios from "axios";
-
-const SCHEDULE_URL =
-  "https://raw.githubusercontent.com/CK-APP-Org/ScheduleData/main/ClassesSchedule.json";
+import { SCHEDULE_DATA } from "../../data/schedules";
 
 export default {
   state: () => ({
@@ -39,14 +36,13 @@ export default {
     loadingSchedule({ commit }, { schedules, classes, showSchedule }) {
       commit("LOADING_SCHEDULE", { schedules, classes, showSchedule });
     },
-    async loadSchedule({ commit, state }) {
-      try {
-        const response = await axios.get(SCHEDULE_URL);
-        const classSchedule = response.data[state.userClass]["schedule"];
-        commit("SET_SCHEDULE_DATA", classSchedule);
-      } catch (error) {
-        console.error("Failed to load schedule:", error);
+    loadSchedule({ commit, state }) {
+      const classSchedule = SCHEDULE_DATA[state.userClass]?.schedule;
+      if (!classSchedule) {
+        console.error(`No schedule data found for class ${state.userClass}`);
+        return;
       }
+      commit("SET_SCHEDULE_DATA", classSchedule);
     },
   },
   getters: {

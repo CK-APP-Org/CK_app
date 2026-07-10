@@ -137,6 +137,7 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import store from "../store/index";
+import { getCurrentPeriodName } from "../data/schedules";
 
 export default {
   data() {
@@ -219,13 +220,9 @@ export default {
         "Friday",
         "Saturday",
       ][now.getDay()];
-      const currentHour = now.getHours();
-      const currentPeriod =
-        ["一", "二", "三", "四", "五", "五", "六", "七"][currentHour - 8] ||
-        "課後";
+      const currentPeriod = getCurrentPeriodName(now);
       if (
-        currentPeriod < 1 ||
-        currentPeriod > 7 ||
+        !currentPeriod ||
         currentDay === "Saturday" ||
         currentDay === "Sunday"
       ) {
